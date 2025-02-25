@@ -1,42 +1,49 @@
 #root {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.viewports-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  width: 100vw;
+  height: 100vh;
+  gap: 2px;
+  background: black;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.viewport {
+  position: relative;
+  border: 1px solid #333;
+  transition: all 0.3s ease-in-out;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.viewport-label {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 3px 6px;
+  font-size: 12px;
+  border-radius: 4px;
 }
 
-.card {
-  padding: 2em;
+.viewport.active {
+  border: 2px solid cyan;
 }
 
-.read-the-docs {
-  color: #888;
+.viewports-container.maximized {
+  display: flex;
+}
+
+.viewports-container.maximized .viewport {
+  width: 100%;
+  height: 100%;
+}
+
+.viewports-container.maximized .viewport.hidden {
+  display: none;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Viewport } from "./Viewport";
 
 const views = [
@@ -15,13 +15,26 @@ const views = [
 
 function Workspace() {
   const [activeView, setActiveView] = useState("perspective");
+  const [maximized, setMaximized] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && e.code === "KeyW") {
+        setMaximized((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
-    <div className="viewports-container">
+    <div className={`viewports-container ${maximized ? "maximized" : ""}`}>
       {views.map((view) => (
         <div
           key={view.id}
-          className={`viewport ${activeView === view.id ? "active" : ""}`}
+          className={`viewport ${activeView === view.id ? "active" : ""} ${
+            maximized && activeView !== view.id ? "hidden" : ""
+          }`}
           onClick={() => setActiveView(view.id)}
         >
           <Viewport position={view.position} controls={view.controls} />
