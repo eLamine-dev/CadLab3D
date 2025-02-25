@@ -1,20 +1,5 @@
-import { useState, useEffect } from "react";
-import { Viewport } from "./Viewport";
-
-const views = [
-  {
-    id: "perspective",
-    label: "Perspective",
-    position: [5, 5, 5],
-    controls: true,
-  },
-  { id: "top", label: "Top", position: [0, 10, 0], controls: false },
-  { id: "front", label: "Front", position: [0, 0, 10], controls: false },
-  { id: "left", label: "Left", position: [-10, 0, 0], controls: false },
-];
-
 function Workspace() {
-  const [activeView, setActiveView] = useState("perspective");
+  const [activeView, setActiveView] = useState("Perspective");
   const [maximized, setMaximized] = useState(false);
 
   useEffect(() => {
@@ -29,20 +14,24 @@ function Workspace() {
 
   return (
     <div className={`viewports-container ${maximized ? "maximized" : ""}`}>
-      {views.map((view) => (
-        <div
-          key={view.id}
-          className={`viewport ${activeView === view.id ? "active" : ""} ${
-            maximized && activeView !== view.id ? "hidden" : ""
-          }`}
-          onClick={() => setActiveView(view.id)}
+      <div className="controls">
+        <label>Camera View: </label>
+        <select
+          onChange={(e) => setActiveView(e.target.value)}
+          value={activeView}
         >
-          <Viewport position={view.position} controls={view.controls} />
-          <div className="viewport-label">{view.label}</div>
-        </div>
-      ))}
+          <option value="Perspective">Perspective</option>
+          <option value="Top">Top</option>
+          <option value="Front">Front</option>
+          <option value="Left">Left</option>
+        </select>
+      </div>
+      <div className="viewports">
+        <Viewport
+          cameraType={activeView}
+          controls={activeView === "Perspective"}
+        />
+      </div>
     </div>
   );
 }
-
-export default Workspace;
