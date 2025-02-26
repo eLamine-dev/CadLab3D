@@ -1,34 +1,31 @@
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Scene } from "./Scene";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import CameraController from "./Camera";
 
 const cameraPositions = {
   Perspective: [5, 5, 5],
   Top: [0, 10, 0],
   Front: [0, 0, 10],
   Left: [-10, 0, 0],
-  Right: [10, 0, 0],
-  Back: [0, 0, -10],
-  Bottom: [0, -10, 0],
 };
 
-function CameraController({ cameraType, maximized }) {
-  const { camera } = useThree();
+function ResizeHandler({ maximized }) {
+  const { camera, gl, size } = useThree();
 
   useEffect(() => {
-    if (cameraPositions[cameraType]) {
-      camera.position.set(...cameraPositions[cameraType]);
-      camera.lookAt(0, 0, 0);
+    const handleResize = () => {
+      camera.aspect = size.width / size.height;
       camera.updateProjectionMatrix();
-    }
+      gl.setSize(size.width, size.height);
+      gl.setPixelRatio(window.devicePixelRatio);
+    };
 
-    if (cameraType === "Perspective") {
-      camera.fov = maximized ? 30 : 50;
-    } else {
-      camera.zoom = maximized ? 2 : 1;
-    }
-  }, [cameraType, camera, maximized]);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [camera, gl, size, maximized]);
 
   return null;
 }
@@ -38,31 +35,44 @@ export default function Viewport({
   controls,
   defaultView,
   isActive,
-  onClick,
   maximized,
+  onClick,
 }) {
   const [currentView, setCurrentView] = useState(defaultView);
+  const canvasRef = useRef(null);
 
   return (
     <div
-      className={`viewport ${isActive ? "active" : ""}`}
+      className={`viewport ${isActive ? "active" : ""} ${
+        maximized ? "full-screen" : ""
+      }`}
       onClick={() => onClick(id)}
     >
-      <div className="controls">
-        <label>Camera View: </label>
-        <select
-          onChange={(e) => setCurrentView(e.target.value)}
-          value={currentView}
-        >
-          {Object.keys(cameraPositions).map((view) => (
-            <option key={view} value={view}>
-              {view}
-            </option>
-          ))}
-        </select>
-      </div>
-      <Canvas>
-        <CameraController cameraType={currentView} maximized={maximized} />
+      {!maximized && (
+        <div className="controls" onClick={(e) => e.stopPropagation()}>
+          <label>Camera View: </label>
+          <select
+            onChange={(e) => {
+              e.stopPropagation();
+              setCurrentView(e.target.value);
+            }}
+            value={currentView}
+          >
+            {Object.keys(cameraPositions).map((view) => (
+              <option key={view} value={view}>
+                {view}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      <Canvas ref={canvasRef}>
+        <ResizeHandler maximized={maximized} />
+        <CameraController
+          cameraType={currentView}
+          viewportId={id}
+          maximized={maximized}
+        />
         <Scene />
         {controls && <OrbitControls />}
       </Canvas>

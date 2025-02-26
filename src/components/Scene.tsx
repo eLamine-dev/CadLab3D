@@ -1,16 +1,10 @@
 import { useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+
 import { TransformControls } from "@react-three/drei";
 
 export function Scene() {
   const cubeRef = useRef(null);
   const [selectedObject, setSelectedObject] = useState(null);
-
-  useFrame(() => {
-    if (cubeRef.current && selectedObject === null) {
-      cubeRef.current.rotation.y += 0.01;
-    }
-  });
 
   return (
     <>
