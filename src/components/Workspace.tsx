@@ -1,6 +1,21 @@
-function Workspace() {
-  const [activeView, setActiveView] = useState("Perspective");
+import { useState, useEffect } from "react";
+import Viewport from "./Viewport";
+import "../styles/Workspace.css";
+
+export default function Workspace() {
+  const [activeView, setActiveView] = useState("");
+
   const [maximized, setMaximized] = useState(false);
+
+  const defaultViews = [
+    { id: "Perspective", cameraPosition: [5, 5, 5], controls: true },
+    { id: "Top", cameraPosition: [0, 10, 0], controls: false },
+    { id: "Front", cameraPosition: [0, 0, 10], controls: false },
+    { id: "Left", cameraPosition: [-10, 0, 0], controls: false },
+    { id: "Right", cameraPosition: [10, 0, 0], controls: false },
+    { id: "Back", cameraPosition: [0, 0, -10], controls: false },
+    { id: "Bottom", cameraPosition: [0, -10, 0], controls: false },
+  ];
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -14,24 +29,18 @@ function Workspace() {
 
   return (
     <div className={`viewports-container ${maximized ? "maximized" : ""}`}>
-      <div className="controls">
-        <label>Camera View: </label>
-        <select
-          onChange={(e) => setActiveView(e.target.value)}
-          value={activeView}
-        >
-          <option value="Perspective">Perspective</option>
-          <option value="Top">Top</option>
-          <option value="Front">Front</option>
-          <option value="Left">Left</option>
-        </select>
-      </div>
-      <div className="viewports">
+      {defaultViews.slice(0, 4).map((view) => (
         <Viewport
-          cameraType={activeView}
-          controls={activeView === "Perspective"}
+          key={view.id}
+          id={view.id}
+          cameraPosition={view.cameraPosition}
+          controls={view.controls}
+          isActive={activeView === view.id}
+          onClick={setActiveView}
+          cameraType={view.id}
+          defaultView={view.id}
         />
-      </div>
+      ))}
     </div>
   );
 }

@@ -1,9 +1,3 @@
-#root {
-  margin: 0 auto;
-
-  text-align: center;
-}
-
 .viewports-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -35,6 +29,7 @@
   border: 2px solid cyan;
 }
 
+/* Maximized viewport */
 .viewports-container.maximized {
   display: flex;
 }
@@ -44,6 +39,6 @@
   height: 100%;
 }
 
-.viewports-container.maximized .viewport.hidden {
+.viewports-container.maximized .viewport:not(.active) {
   display: none;
 }
