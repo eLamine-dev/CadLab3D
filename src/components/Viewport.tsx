@@ -12,20 +12,20 @@ const cameraPositions = {
 };
 
 function ResizeHandler({ maximized }) {
-  const { camera, gl, size } = useThree();
+  const { camera, gl } = useThree();
 
   useEffect(() => {
     const handleResize = () => {
-      camera.aspect = size.width / size.height;
-      camera.updateProjectionMatrix();
-      gl.setSize(size.width, size.height);
+      gl.setSize(window.innerWidth, window.innerHeight);
       gl.setPixelRatio(window.devicePixelRatio);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
     };
 
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [camera, gl, size, maximized]);
+  }, [camera, gl, maximized]);
 
   return null;
 }
@@ -48,25 +48,7 @@ export default function Viewport({
       }`}
       onClick={() => onClick(id)}
     >
-      {!maximized && (
-        <div className="controls" onClick={(e) => e.stopPropagation()}>
-          <label>Camera View: </label>
-          <select
-            onChange={(e) => {
-              e.stopPropagation();
-              setCurrentView(e.target.value);
-            }}
-            value={currentView}
-          >
-            {Object.keys(cameraPositions).map((view) => (
-              <option key={view} value={view}>
-                {view}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-      <Canvas ref={canvasRef}>
+      <Canvas>
         <ResizeHandler maximized={maximized} />
         <CameraController
           cameraType={currentView}

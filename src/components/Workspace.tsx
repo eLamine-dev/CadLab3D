@@ -13,7 +13,6 @@ export default function Workspace() {
   const [activeView, setActiveView] = useState("Perspective");
   const [maximized, setMaximized] = useState(false);
   const [savedViews, setSavedViews] = useState(defaultViews);
-
   const viewportRefs = useRef({});
 
   useEffect(() => {
@@ -30,7 +29,7 @@ export default function Workspace() {
   }, [maximized]);
 
   return (
-    <div className="viewports-container">
+    <div className={`viewports-container ${maximized ? "maximized" : ""}`}>
       {!maximized &&
         savedViews.map((view) => (
           <Viewport

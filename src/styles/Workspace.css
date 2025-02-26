@@ -16,24 +16,33 @@
   height: 100%;
 }
 
+/* Default 4-View Layout */
 .viewports-container:not(.maximized) .viewport {
   height: 50vh;
   width: 50vw;
 }
 
+/* Fix Canvas Sizing */
 .viewport canvas {
   width: 100% !important;
   height: 100% !important;
 }
 
+/* Ensure Full-Screen Viewport */
 .viewports-container.maximized {
   display: flex;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
 }
 
 .viewports-container.maximized .viewport {
   position: absolute;
   width: 100vw;
   height: 100vh;
+  flex-grow: 1;
   top: 0;
   left: 0;
   z-index: 999;
