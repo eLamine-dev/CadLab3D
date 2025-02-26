@@ -2,20 +2,16 @@ import { useState, useEffect } from "react";
 import Viewport from "./Viewport";
 import "../styles/Workspace.css";
 
+const defaultViews = [
+  { id: "Perspective", defaultView: "Perspective", controls: true },
+  { id: "Top", defaultView: "Top", controls: false },
+  { id: "Front", defaultView: "Front", controls: false },
+  { id: "Left", defaultView: "Left", controls: false },
+];
+
 export default function Workspace() {
-  const [activeView, setActiveView] = useState("");
-
+  const [activeView, setActiveView] = useState("Perspective");
   const [maximized, setMaximized] = useState(false);
-
-  const defaultViews = [
-    { id: "Perspective", cameraPosition: [5, 5, 5], controls: true },
-    { id: "Top", cameraPosition: [0, 10, 0], controls: false },
-    { id: "Front", cameraPosition: [0, 0, 10], controls: false },
-    { id: "Left", cameraPosition: [-10, 0, 0], controls: false },
-    { id: "Right", cameraPosition: [10, 0, 0], controls: false },
-    { id: "Back", cameraPosition: [0, 0, -10], controls: false },
-    { id: "Bottom", cameraPosition: [0, -10, 0], controls: false },
-  ];
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -28,17 +24,20 @@ export default function Workspace() {
   }, []);
 
   return (
-    <div className={`viewports-container ${maximized ? "maximized" : ""}`}>
-      {defaultViews.slice(0, 4).map((view) => (
+    <div
+      className={`viewports-container ${
+        maximized ? "maximized" : "grid-layout"
+      }`}
+    >
+      {defaultViews.map((view) => (
         <Viewport
           key={view.id}
           id={view.id}
-          cameraPosition={view.cameraPosition}
+          defaultView={view.defaultView}
           controls={view.controls}
           isActive={activeView === view.id}
-          onClick={setActiveView}
-          cameraType={view.id}
-          defaultView={view.id}
+          onClick={() => setActiveView(view.id)}
+          maximized={maximized}
         />
       ))}
     </div>

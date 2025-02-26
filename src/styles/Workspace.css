@@ -1,4 +1,4 @@
-.viewports-container {
+.viewports-container.grid-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
@@ -11,25 +11,11 @@
 .viewport {
   position: relative;
   border: 1px solid #333;
-  transition: all 0.3s ease-in-out;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
-.viewport-label {
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 3px 6px;
-  font-size: 12px;
-  border-radius: 4px;
-}
-
-.viewport.active {
-  border: 2px solid cyan;
-}
-
-/* Maximized viewport */
 .viewports-container.maximized {
   display: flex;
 }
@@ -37,8 +23,15 @@
 .viewports-container.maximized .viewport {
   width: 100%;
   height: 100%;
+  flex: 1;
 }
 
 .viewports-container.maximized .viewport:not(.active) {
   display: none;
+}
+
+.viewports-container.grid-layout .viewport {
+  width: auto;
+  height: auto;
+  display: flex;
 }

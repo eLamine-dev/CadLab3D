@@ -1,3 +1,4 @@
+import "./styles/App.css";
 import Workspace from "./components/Workspace";
 
 function App() {
