@@ -1,58 +1,46 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { useWorkspaceStore } from "../state/workspaceStore";
 import Viewport from "./Viewport";
 import "../styles/Workspace.css";
 
-const defaultViews = [
-  { id: "Perspective", defaultView: "Perspective", controls: true },
-  { id: "Top", defaultView: "Top", controls: false },
-  { id: "Front", defaultView: "Front", controls: false },
-  { id: "Left", defaultView: "Left", controls: false },
-];
-
 export default function Workspace() {
-  const [activeView, setActiveView] = useState("Perspective");
-  const [maximized, setMaximized] = useState(false);
-  const [savedViews, setSavedViews] = useState(defaultViews);
-  const viewportRefs = useRef({});
+  const {
+    activeViewport,
+    maximizedViewport,
+    setActiveViewport,
+    setMaximizedViewport,
+    viewports,
+  } = useWorkspaceStore();
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e) => {
       if (e.altKey && e.code === "KeyW") {
-        if (!maximized) {
-          setSavedViews([...defaultViews]);
-        }
-        setMaximized((prev) => !prev);
+        setMaximizedViewport(maximizedViewport ? null : activeViewport);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [maximized]);
+  }, [activeViewport, maximizedViewport, setMaximizedViewport]);
 
   return (
-    <div className={`viewports-container ${maximized ? "maximized" : ""}`}>
-      {!maximized &&
-        savedViews.map((view) => (
+    <div
+      className={`viewports-container ${maximizedViewport ? "maximized" : ""}`}
+    >
+      {!maximizedViewport &&
+        Object.values(viewports).map((viewport) => (
           <Viewport
-            key={view.id}
-            id={view.id}
-            defaultView={view.defaultView}
-            controls={view.controls}
-            isActive={activeView === view.id}
-            onClick={() => setActiveView(view.id)}
-            maximized={false}
-            viewportRef={(ref) => (viewportRefs.current[view.id] = ref)}
+            key={viewport.id}
+            id={viewport.id}
+            isActive={activeViewport === viewport.id}
+            onClick={() => setActiveViewport(viewport.id)}
           />
         ))}
-      {maximized && (
+      {maximizedViewport && (
         <Viewport
-          key={activeView}
-          id={activeView}
-          defaultView={activeView}
-          controls={true}
+          key={maximizedViewport}
+          id={maximizedViewport}
           isActive={true}
           onClick={() => {}}
-          maximized={true}
-          viewportRef={viewportRefs.current[activeView]}
         />
       )}
     </div>

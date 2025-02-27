@@ -1,18 +1,14 @@
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { CameraControls } from "@react-three/drei";
 import { Scene } from "./Scene";
-import { useEffect, useState, useRef } from "react";
-import CameraController from "./Camera";
+import { useWorkspaceStore } from "../state/workspaceStore";
+import ViewportCamera from "./ViewportCamera";
+import { useEffect, useState } from "react";
 
-const cameraPositions = {
-  Perspective: [5, 5, 5],
-  Top: [0, 10, 0],
-  Front: [0, 0, 10],
-  Left: [-10, 0, 0],
-};
-
-function ResizeHandler({ maximized }) {
+function ResizeHandler({ viewportId }) {
   const { camera, gl } = useThree();
+  const { viewports } = useWorkspaceStore();
+  const viewportSettings = viewports[viewportId]?.settings;
 
   useEffect(() => {
     const handleResize = () => {
@@ -25,38 +21,53 @@ function ResizeHandler({ maximized }) {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [camera, gl, maximized]);
+  }, [camera, gl, viewportSettings]);
 
   return null;
 }
 
-export default function Viewport({
-  id,
-  controls,
-  defaultView,
-  isActive,
-  maximized,
-  onClick,
-}) {
-  const [currentView, setCurrentView] = useState(defaultView);
-  const canvasRef = useRef(null);
+export default function Viewport({ id, isActive, onClick }) {
+  const { viewports, setViewportSettings } = useWorkspaceStore();
+  const viewport = viewports[id];
+  const cameraSettings = viewport.settings.cameraSettings;
+  const orbitSettings = viewport.settings.orbitSettings;
+  const [currentView, setCurrentView] = useState(viewport.settings.id);
+
+  const handleViewChange = (e) => {
+    const newView = e.target.value;
+    setCurrentView(newView);
+    setViewportSettings(id, newView);
+  };
 
   return (
     <div
-      className={`viewport ${isActive ? "active" : ""} ${
-        maximized ? "full-screen" : ""
-      }`}
+      className={`viewport ${isActive ? "active" : ""}`}
       onClick={() => onClick(id)}
     >
+      <div className="controls" onClick={(e) => e.stopPropagation()}>
+        <label>Camera View: </label>
+        <select onChange={handleViewChange} value={currentView}>
+          {Object.keys(useWorkspaceStore.getState().viewports).map((view) => (
+            <option key={view} value={view}>
+              {view}
+            </option>
+          ))}
+        </select>
+      </div>
       <Canvas>
-        <ResizeHandler maximized={maximized} />
-        <CameraController
-          cameraType={currentView}
-          viewportId={id}
-          maximized={maximized}
-        />
+        <ResizeHandler viewportId={id} />
+        <ViewportCamera viewportId={id} {...cameraSettings} />
         <Scene />
-        {controls && <OrbitControls enableDamping={false} />}
+        <CameraControls
+          minZoom={0.5}
+          maxZoom={5}
+          enableDamping={orbitSettings.enableDamping}
+          dampingFactor={orbitSettings.dampingFactor}
+          zoomSpeed={orbitSettings.zoomSpeed}
+          smoothTime={0.1}
+          enabled={true}
+          makeDefault
+        />
       </Canvas>
     </div>
   );
