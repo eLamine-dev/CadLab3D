@@ -1,28 +1,43 @@
 import { PerspectiveCamera, OrthographicCamera } from "@react-three/drei";
 import { useWorkspaceStore } from "../state/workspaceStore";
+import { useEffect, useState } from "react";
 
-function ViewportCamera({ viewportId }) {
+function ViewportCamera({ viewportId, aspectRatio }) {
   const { viewports } = useWorkspaceStore();
-  const viewportSettings = viewports[viewportId]?.settings?.cameraSettings;
+  const viewport = viewports[viewportId];
+  const cameraSettings = viewport.settings.cameraSettings;
+  const cameraType = viewport.settings.cameraType;
+  const [frustum, setFrustum] = useState({
+    left: -1,
+    right: 1,
+    top: 1,
+    bottom: -1,
+  });
 
-  if (!viewportSettings) return null;
+  useEffect(() => {
+    const calculateOrthoFrustum = (
+      distance: number,
+      fov: number,
+      aspectRatio: number
+    ) => {
+      const height = Math.tan((fov * Math.PI) / 180) * distance;
+      const width = height * aspectRatio;
+      return { left: -width, right: width, top: height, bottom: -height };
+    };
+    if (cameraType === "OrthographicCamera") {
+      const distance = 5;
+      const fov = 50;
+      const newFrustum = calculateOrthoFrustum(distance, fov, aspectRatio);
+      setFrustum(newFrustum);
+    }
+  }, [cameraType, aspectRatio]);
 
-  return viewportSettings.cameraType === "PerspectiveCamera" ? (
-    <PerspectiveCamera
-      makeDefault
-      position={viewportSettings.position}
-      fov={viewportSettings.fov}
-      near={viewportSettings.near}
-      far={viewportSettings.far}
-    />
+  if (!cameraSettings) return null;
+
+  return cameraType === "PerspectiveCamera" ? (
+    <PerspectiveCamera makeDefault {...cameraSettings} />
   ) : (
-    <OrthographicCamera
-      makeDefault
-      position={viewportSettings.position}
-      zoom={viewportSettings.zoom}
-      near={viewportSettings.near}
-      far={viewportSettings.far}
-    />
+    <OrthographicCamera makeDefault {...cameraSettings} {...frustum} />
   );
 }
 
