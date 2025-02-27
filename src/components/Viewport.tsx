@@ -56,7 +56,7 @@ export default function Viewport({
           maximized={maximized}
         />
         <Scene />
-        {controls && <OrbitControls />}
+        {controls && <OrbitControls enableDamping={false} />}
       </Canvas>
     </div>
   );
