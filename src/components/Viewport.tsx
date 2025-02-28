@@ -31,17 +31,17 @@ export default function Viewport({ id, isActive, onClick }) {
 
   const handleViewChange = (e) => {
     const newView = e.target.value;
-    setCurrentView(newView);
-    setViewportSettings(id, newView);
 
-    // Reset camera controls to default state for the new view
-    if (cameraControlsRef.current) {
-      cameraControlsRef.current.reset();
+    if (newView !== "Custom") {
+      setViewportSettings(id, newView);
+      setCurrentView(newView);
+      if (cameraControlsRef.current) {
+        cameraControlsRef.current.reset();
+      }
     }
   };
 
   const handleCameraInteraction = () => {
-    // Mark the view as custom when the user interacts with the camera
     if (!viewport.isCustom) {
       setViewportCustom(id, true);
     }
@@ -55,12 +55,16 @@ export default function Viewport({ id, isActive, onClick }) {
     >
       <div className="controls" onClick={(e) => e.stopPropagation()}>
         <label>Camera View: </label>
-        <select onChange={handleViewChange} value={currentView}>
+        <select
+          onChange={handleViewChange}
+          value={viewport.isCustom ? "Custom" : currentView}
+        >
           {Object.keys(defaultViews).map((view) => (
             <option key={view} value={view}>
               {view}
             </option>
           ))}
+          {viewport.isCustom && <option value="Custom">Custom</option>}
         </select>
       </div>
       <Canvas>

@@ -109,7 +109,8 @@ export const useWorkspaceStore = create((set) => ({
     3: { id: 3, settings: defaultViews.Front, isCustom: false },
     4: { id: 4, settings: defaultViews.Left, isCustom: false },
   },
-  setViewportSettings: (viewport, newView) =>
+
+  setViewportSettings: (viewport, newView) => {
     set((state) => ({
       viewports: {
         ...state.viewports,
@@ -119,7 +120,9 @@ export const useWorkspaceStore = create((set) => ({
           isCustom: false,
         },
       },
-    })),
+    }));
+  },
+
   setActiveViewport: (viewport) => set({ activeViewport: viewport }),
   setMaximizedViewport: (viewport) => set({ maximizedViewport: viewport }),
   setViewportCustom: (viewport, isCustom) =>
