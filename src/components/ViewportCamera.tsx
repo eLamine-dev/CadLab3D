@@ -24,6 +24,7 @@ function ViewportCamera({ viewportId, aspectRatio }) {
       const width = height * aspectRatio;
       return { left: -width, right: width, top: height, bottom: -height };
     };
+
     if (cameraType === "OrthographicCamera") {
       const distance = 5;
       const fov = 50;

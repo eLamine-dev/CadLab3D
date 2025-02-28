@@ -16,6 +16,10 @@
   height: 100%;
 }
 
+.viewport.active {
+  border: 1px solid #eb4c4c;
+}
+
 .viewports-container:not(.maximized) .viewport {
   height: 50vh;
   width: 50vw;

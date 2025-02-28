@@ -34,7 +34,7 @@ export const defaultViews = {
     id: "Perspective",
     cameraType: "PerspectiveCamera",
     cameraSettings: {
-      position: [5, 5, 5],
+      position: [7, 7, 7],
       target: [0, 0, 0],
       fov: 50,
       near: 0.1,
@@ -46,7 +46,7 @@ export const defaultViews = {
     id: "Top",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: [0, 5, 0],
+      position: [0, 10, 0],
       up: [0, 0, -1],
       ...BASE_ORTHO_CAM,
     },
@@ -104,10 +104,10 @@ export const useWorkspaceStore = create((set) => ({
   activeViewport: 1,
   maximizedViewport: null,
   viewports: {
-    1: { id: 1, settings: defaultViews.Perspective },
-    2: { id: 2, settings: defaultViews.Top },
-    3: { id: 3, settings: defaultViews.Front },
-    4: { id: 4, settings: defaultViews.Left },
+    1: { id: 1, settings: defaultViews.Perspective, isCustom: false },
+    2: { id: 2, settings: defaultViews.Top, isCustom: false },
+    3: { id: 3, settings: defaultViews.Front, isCustom: false },
+    4: { id: 4, settings: defaultViews.Left, isCustom: false },
   },
   setViewportSettings: (viewport, newView) =>
     set((state) => ({
@@ -116,9 +116,20 @@ export const useWorkspaceStore = create((set) => ({
         [viewport]: {
           ...state.viewports[viewport],
           settings: defaultViews[newView],
+          isCustom: false,
         },
       },
     })),
   setActiveViewport: (viewport) => set({ activeViewport: viewport }),
   setMaximizedViewport: (viewport) => set({ maximizedViewport: viewport }),
+  setViewportCustom: (viewport, isCustom) =>
+    set((state) => ({
+      viewports: {
+        ...state.viewports,
+        [viewport]: {
+          ...state.viewports[viewport],
+          isCustom,
+        },
+      },
+    })),
 }));
