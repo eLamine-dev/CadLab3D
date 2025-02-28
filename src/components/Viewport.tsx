@@ -4,17 +4,22 @@ import { CameraControls } from "@react-three/drei";
 import { Scene } from "./Scene";
 import { useWorkspaceStore, defaultViews } from "../state/workspaceStore";
 import ViewportCamera from "./ViewportCamera";
+import * as THREE from "three";
 
 export default function Viewport({ id, isActive, onClick }) {
   const { viewports, setViewportSettings, setViewportCustom } =
     useWorkspaceStore();
   const viewport = viewports[id];
-  const cameraSettings = viewport.settings.cameraSettings;
   const orbitSettings = viewport.settings.orbitSettings;
+
   const [currentView, setCurrentView] = useState(viewport.settings.id);
   const [aspectRatio, setAspectRatio] = useState(1);
+  const [cameraReady, setCameraReady] = useState(false);
+
   const viewportRef = useRef(null);
   const cameraControlsRef = useRef(null);
+  const isOrtho = viewport.settings.cameraType === "OrthographicCamera";
+  const initialRotationRef = useRef<THREE.Euler | null>(null);
 
   useEffect(() => {
     function updateAspectRatio() {
@@ -29,20 +34,63 @@ export default function Viewport({ id, isActive, onClick }) {
     return () => window.removeEventListener("resize", updateAspectRatio);
   }, []);
 
+  useEffect(() => {
+    if (!cameraControlsRef.current) return;
+
+    setCameraReady(true);
+  }, [cameraControlsRef.current]);
+
+  useEffect(() => {
+    if (
+      !cameraReady ||
+      !cameraControlsRef.current ||
+      !isOrtho ||
+      viewport.isCustom
+    )
+      return;
+
+    const camera = cameraControlsRef.current.camera;
+    const rotation = new THREE.Euler().setFromRotationMatrix(camera.matrix);
+
+    if (!initialRotationRef.current) {
+      initialRotationRef.current = rotation.clone();
+    }
+
+    console.log("Initial Rotation Set:", initialRotationRef.current);
+  }, [cameraReady, viewport.settings, isOrtho, viewport.isCustom]);
+
   const handleViewChange = (e) => {
     const newView = e.target.value;
 
     if (newView !== "Custom") {
       setViewportSettings(id, newView);
       setCurrentView(newView);
+
       if (cameraControlsRef.current) {
         cameraControlsRef.current.reset();
       }
+
+      initialRotationRef.current = null;
     }
   };
 
-  const handleCameraInteraction = () => {
-    if (!viewport.isCustom) {
+  const handleCameraChange = () => {
+    if (
+      !cameraReady ||
+      !cameraControlsRef.current ||
+      !isOrtho ||
+      viewport.isCustom ||
+      !initialRotationRef.current
+    ) {
+      return;
+    }
+
+    const camera = cameraControlsRef.current.camera;
+    const currentRotation = new THREE.Euler().setFromRotationMatrix(
+      camera.matrix
+    );
+
+    if (!currentRotation.equals(initialRotationRef.current)) {
       setViewportCustom(id, true);
     }
   };
@@ -64,9 +112,12 @@ export default function Viewport({ id, isActive, onClick }) {
               {view}
             </option>
           ))}
-          {viewport.isCustom && <option value="Custom">Custom</option>}
+          {viewport.isCustom && isOrtho && (
+            <option value="Custom">Custom</option>
+          )}
         </select>
       </div>
+
       <Canvas>
         <ViewportCamera viewportId={id} aspectRatio={aspectRatio} />
         <Scene />
@@ -74,7 +125,7 @@ export default function Viewport({ id, isActive, onClick }) {
           makeDefault
           {...orbitSettings}
           ref={cameraControlsRef}
-          onChange={handleCameraInteraction}
+          onChange={handleCameraChange}
         />
       </Canvas>
     </div>
