@@ -47,20 +47,16 @@ export default function Viewport({ id, isActive, onClick }) {
         );
         const cameraControls = cameraControlsRef.current;
 
-        // 🔹 Disable CameraControls while updating camera
         cameraControls.enabled = false;
         ignoreCameraChangesRef.current = true;
 
-        // Move camera without triggering "Custom"
         cameraControls.setPosition(...position, false);
         cameraControls.setTarget(...target, false);
 
-        // Set rotation
         const camera = cameraControls.camera;
         camera.quaternion.setFromEuler(initialRotation);
         camera.updateMatrixWorld();
 
-        // 🔹 Re-enable CameraControls once position is updated
         requestAnimationFrame(() => {
           cameraControls.enabled = true;
           ignoreCameraChangesRef.current = false;
