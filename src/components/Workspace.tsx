@@ -29,7 +29,7 @@ export default function Workspace() {
       {!maximizedViewport &&
         Object.values(viewports).map((viewport) => (
           <Viewport
-            key={viewport.id}
+            key={`${viewport.id}`}
             id={viewport.id}
             isActive={activeViewport === viewport.id}
             onClick={() => setActiveViewport(viewport.id)}
@@ -37,7 +37,7 @@ export default function Workspace() {
         ))}
       {maximizedViewport && (
         <Viewport
-          key={maximizedViewport}
+          key={`${viewport.id}`}
           id={maximizedViewport}
           isActive={true}
           onClick={() => {}}

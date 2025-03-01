@@ -27,12 +27,6 @@ const PER_CAM_CONTROLS = {
   enableRotate: true,
 };
 
-/**
- * Converts stored rotation array back into THREE.Euler
- */
-const getEulerFromArray = (rotationArray: number[]) =>
-  new THREE.Euler(...rotationArray);
-
 export const defaultViews = {
   Perspective: {
     id: "Perspective",
@@ -45,7 +39,7 @@ export const defaultViews = {
       far: 1000,
     },
     orbitSettings: PER_CAM_CONTROLS,
-    initialRotation: [-0.615, 0.785, 0], // Stored as an array
+    initialRotation: [-0.615, 0.785, 0],
     initialTarget: [0, 0, 0],
   },
   Top: {
@@ -128,10 +122,6 @@ export const useWorkspaceStore = create((set) => ({
     4: { id: 4, settings: defaultViews.Left, isCustom: false },
   },
 
-  /**
-   * Updates viewport settings when changing views.
-   * Ensures `initialRotation` remains stored correctly.
-   */
   setViewportSettings: (viewport, newView) => {
     set((state) => ({
       viewports: {
@@ -147,14 +137,18 @@ export const useWorkspaceStore = create((set) => ({
     }));
   },
 
-  setActiveViewport: (viewport) => set({ activeViewport: viewport }),
-  setMaximizedViewport: (viewport) => set({ maximizedViewport: viewport }),
+  setActiveViewport: (viewport: number) => set({ activeViewport: viewport }),
+  setMaximizedViewport: (viewport: number) =>
+    set({ maximizedViewport: viewport }),
 
   setViewportCustom: (viewport, isCustom) =>
     set((state) => ({
       viewports: {
         ...state.viewports,
-        [viewport]: { ...state.viewports[viewport], isCustom },
+        [viewport]: {
+          ...state.viewports[viewport],
+          isCustom,
+        },
       },
     })),
 }));

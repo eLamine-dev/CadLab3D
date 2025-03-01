@@ -14,12 +14,11 @@ export default function Viewport({ id, isActive, onClick }) {
 
   const [currentView, setCurrentView] = useState(viewport.settings.id);
   const [aspectRatio, setAspectRatio] = useState(1);
-  const [cameraReady, setCameraReady] = useState(false);
 
   const viewportRef = useRef(null);
   const cameraControlsRef = useRef(null);
+  const ignoreCameraChangesRef = useRef(false);
   const isOrtho = viewport.settings.cameraType === "OrthographicCamera";
-  const initialRotationRef = useRef<THREE.Euler | null>(null);
 
   useEffect(() => {
     function updateAspectRatio() {
@@ -29,55 +28,54 @@ export default function Viewport({ id, isActive, onClick }) {
         setAspectRatio(width / height);
       }
     }
+    console.log("Viewport Rendered", id);
     updateAspectRatio();
     window.addEventListener("resize", updateAspectRatio);
     return () => window.removeEventListener("resize", updateAspectRatio);
   }, []);
 
-  // useEffect(() => {
-  //   if (!cameraControlsRef.current) return;
-
-  //   setCameraReady(true);
-  // }, [cameraControlsRef.current]);
-
-  // useEffect(() => {
-  //   if (
-  //     !cameraReady ||
-  //     !cameraControlsRef.current ||
-  //     !isOrtho ||
-  //     viewport.isCustom
-  //   )
-  //     return;
-
-  //   const camera = cameraControlsRef.current.camera;
-  //   const rotation = new THREE.Euler().setFromRotationMatrix(camera.matrix);
-
-  //   if (!initialRotationRef.current) {
-  //     initialRotationRef.current = rotation.clone();
-  //   }
-
-  //   console.log("Initial Rotation Set:", initialRotationRef.current);
-  // }, [cameraReady, viewport.settings, isOrtho, viewport.isCustom]);
-
   const handleViewChange = (e) => {
     const newView = e.target.value;
-
     if (newView !== "Custom") {
       setViewportSettings(id, newView);
       setCurrentView(newView);
 
       if (cameraControlsRef.current) {
-        console.log(cameraControlsRef.current);
+        const { position, target } = defaultViews[newView].cameraSettings;
+        const initialRotation = new THREE.Euler(
+          ...defaultViews[newView].initialRotation
+        );
+        const cameraControls = cameraControlsRef.current;
 
-        cameraControlsRef.current.reset();
+        // 🔹 Disable CameraControls while updating camera
+        cameraControls.enabled = false;
+        ignoreCameraChangesRef.current = true;
+
+        // Move camera without triggering "Custom"
+        cameraControls.setPosition(...position, false);
+        cameraControls.setTarget(...target, false);
+
+        // Set rotation
+        const camera = cameraControls.camera;
+        camera.quaternion.setFromEuler(initialRotation);
+        camera.updateMatrixWorld();
+
+        // 🔹 Re-enable CameraControls once position is updated
+        requestAnimationFrame(() => {
+          cameraControls.enabled = true;
+          ignoreCameraChangesRef.current = false;
+        });
       }
-
-      initialRotationRef.current = null;
     }
   };
 
   const handleCameraChange = () => {
-    if (!cameraControlsRef.current || !isOrtho || viewport.isCustom) {
+    if (
+      !cameraControlsRef.current ||
+      !isOrtho ||
+      viewport.isCustom ||
+      ignoreCameraChangesRef.current
+    ) {
       return;
     }
 
@@ -85,12 +83,16 @@ export default function Viewport({ id, isActive, onClick }) {
     const currentRotation = new THREE.Euler().setFromRotationMatrix(
       camera.matrix
     );
-
     const initialRotation = new THREE.Euler(
       ...viewport.settings.initialRotation
     );
 
-    if (!currentRotation.equals(initialRotation)) {
+    const TOLERANCE = 0.000000001;
+    if (
+      Math.abs(currentRotation.x - initialRotation.x) > TOLERANCE ||
+      Math.abs(currentRotation.y - initialRotation.y) > TOLERANCE ||
+      Math.abs(currentRotation.z - initialRotation.z) > TOLERANCE
+    ) {
       setViewportCustom(id, true);
     }
   };
