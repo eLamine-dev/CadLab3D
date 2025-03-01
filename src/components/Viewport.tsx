@@ -34,30 +34,30 @@ export default function Viewport({ id, isActive, onClick }) {
     return () => window.removeEventListener("resize", updateAspectRatio);
   }, []);
 
-  useEffect(() => {
-    if (!cameraControlsRef.current) return;
+  // useEffect(() => {
+  //   if (!cameraControlsRef.current) return;
 
-    setCameraReady(true);
-  }, [cameraControlsRef.current]);
+  //   setCameraReady(true);
+  // }, [cameraControlsRef.current]);
 
-  useEffect(() => {
-    if (
-      !cameraReady ||
-      !cameraControlsRef.current ||
-      !isOrtho ||
-      viewport.isCustom
-    )
-      return;
+  // useEffect(() => {
+  //   if (
+  //     !cameraReady ||
+  //     !cameraControlsRef.current ||
+  //     !isOrtho ||
+  //     viewport.isCustom
+  //   )
+  //     return;
 
-    const camera = cameraControlsRef.current.camera;
-    const rotation = new THREE.Euler().setFromRotationMatrix(camera.matrix);
+  //   const camera = cameraControlsRef.current.camera;
+  //   const rotation = new THREE.Euler().setFromRotationMatrix(camera.matrix);
 
-    if (!initialRotationRef.current) {
-      initialRotationRef.current = rotation.clone();
-    }
+  //   if (!initialRotationRef.current) {
+  //     initialRotationRef.current = rotation.clone();
+  //   }
 
-    console.log("Initial Rotation Set:", initialRotationRef.current);
-  }, [cameraReady, viewport.settings, isOrtho, viewport.isCustom]);
+  //   console.log("Initial Rotation Set:", initialRotationRef.current);
+  // }, [cameraReady, viewport.settings, isOrtho, viewport.isCustom]);
 
   const handleViewChange = (e) => {
     const newView = e.target.value;
@@ -67,6 +67,8 @@ export default function Viewport({ id, isActive, onClick }) {
       setCurrentView(newView);
 
       if (cameraControlsRef.current) {
+        console.log(cameraControlsRef.current);
+
         cameraControlsRef.current.reset();
       }
 
@@ -75,13 +77,7 @@ export default function Viewport({ id, isActive, onClick }) {
   };
 
   const handleCameraChange = () => {
-    if (
-      !cameraReady ||
-      !cameraControlsRef.current ||
-      !isOrtho ||
-      viewport.isCustom ||
-      !initialRotationRef.current
-    ) {
+    if (!cameraControlsRef.current || !isOrtho || viewport.isCustom) {
       return;
     }
 
@@ -90,7 +86,11 @@ export default function Viewport({ id, isActive, onClick }) {
       camera.matrix
     );
 
-    if (!currentRotation.equals(initialRotationRef.current)) {
+    const initialRotation = new THREE.Euler(
+      ...viewport.settings.initialRotation
+    );
+
+    if (!currentRotation.equals(initialRotation)) {
       setViewportCustom(id, true);
     }
   };

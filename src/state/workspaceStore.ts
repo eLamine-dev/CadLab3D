@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import * as THREE from "three";
 
 const BASE_ORTHO_CAM = {
   zoom: 1.5,
@@ -9,7 +10,6 @@ const BASE_ORTHO_CAM = {
 
 const ORTHO_CAM_CONTROLS = {
   enableDamping: false,
-  // dampingFactor: 0.05,
   zoomSpeed: 1.0,
   autoRotate: false,
   enableZoom: false,
@@ -20,14 +20,18 @@ const ORTHO_CAM_CONTROLS = {
 
 const PER_CAM_CONTROLS = {
   enableDamping: false,
-  // dampingFactor: 0.05,
   zoomSpeed: 1.0,
   autoRotate: false,
   enableZoom: true,
-
   enablePan: true,
   enableRotate: true,
 };
+
+/**
+ * Converts stored rotation array back into THREE.Euler
+ */
+const getEulerFromArray = (rotationArray: number[]) =>
+  new THREE.Euler(...rotationArray);
 
 export const defaultViews = {
   Perspective: {
@@ -41,6 +45,8 @@ export const defaultViews = {
       far: 1000,
     },
     orbitSettings: PER_CAM_CONTROLS,
+    initialRotation: [-0.615, 0.785, 0], // Stored as an array
+    initialTarget: [0, 0, 0],
   },
   Top: {
     id: "Top",
@@ -51,6 +57,8 @@ export const defaultViews = {
       ...BASE_ORTHO_CAM,
     },
     orbitSettings: ORTHO_CAM_CONTROLS,
+    initialRotation: [-Math.PI / 2, 0, 0],
+    initialTarget: [0, 0, 0],
   },
   Front: {
     id: "Front",
@@ -60,6 +68,8 @@ export const defaultViews = {
       ...BASE_ORTHO_CAM,
     },
     orbitSettings: ORTHO_CAM_CONTROLS,
+    initialRotation: [0, 0, 0],
+    initialTarget: [0, 0, 0],
   },
   Left: {
     id: "Left",
@@ -69,6 +79,8 @@ export const defaultViews = {
       ...BASE_ORTHO_CAM,
     },
     orbitSettings: ORTHO_CAM_CONTROLS,
+    initialRotation: [0, Math.PI / 2, 0],
+    initialTarget: [0, 0, 0],
   },
   Right: {
     id: "Right",
@@ -78,6 +90,8 @@ export const defaultViews = {
       ...BASE_ORTHO_CAM,
     },
     orbitSettings: ORTHO_CAM_CONTROLS,
+    initialRotation: [0, -Math.PI / 2, 0],
+    initialTarget: [0, 0, 0],
   },
   Back: {
     id: "Back",
@@ -87,6 +101,8 @@ export const defaultViews = {
       ...BASE_ORTHO_CAM,
     },
     orbitSettings: ORTHO_CAM_CONTROLS,
+    initialRotation: [0, Math.PI, 0],
+    initialTarget: [0, 0, 0],
   },
   Bottom: {
     id: "Bottom",
@@ -97,6 +113,8 @@ export const defaultViews = {
       ...BASE_ORTHO_CAM,
     },
     orbitSettings: ORTHO_CAM_CONTROLS,
+    initialRotation: [Math.PI / 2, 0, 0],
+    initialTarget: [0, 0, 0],
   },
 };
 
@@ -110,13 +128,19 @@ export const useWorkspaceStore = create((set) => ({
     4: { id: 4, settings: defaultViews.Left, isCustom: false },
   },
 
+  /**
+   * Updates viewport settings when changing views.
+   * Ensures `initialRotation` remains stored correctly.
+   */
   setViewportSettings: (viewport, newView) => {
     set((state) => ({
       viewports: {
         ...state.viewports,
         [viewport]: {
           ...state.viewports[viewport],
-          settings: defaultViews[newView],
+          settings: {
+            ...defaultViews[newView],
+          },
           isCustom: false,
         },
       },
@@ -125,14 +149,12 @@ export const useWorkspaceStore = create((set) => ({
 
   setActiveViewport: (viewport) => set({ activeViewport: viewport }),
   setMaximizedViewport: (viewport) => set({ maximizedViewport: viewport }),
+
   setViewportCustom: (viewport, isCustom) =>
     set((state) => ({
       viewports: {
         ...state.viewports,
-        [viewport]: {
-          ...state.viewports[viewport],
-          isCustom,
-        },
+        [viewport]: { ...state.viewports[viewport], isCustom },
       },
     })),
 }));
