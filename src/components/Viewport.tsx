@@ -1,5 +1,10 @@
 import { useRef, useState, forwardRef } from "react";
-import { View, OrbitControls, PivotControls } from "@react-three/drei";
+import {
+  View,
+  OrbitControls,
+  PivotControls,
+  CameraControls,
+} from "@react-three/drei";
 import { useWorkspaceStore, defaultViews } from "../state/workspaceStore";
 import ViewportCamera from "./ViewportCamera";
 import { Scene } from "./Scene";
@@ -8,8 +13,10 @@ import * as THREE from "three";
 const Viewport = forwardRef(({ id, isActive, onClick, children }, vRef) => {
   const { viewports, setViewportSettings } = useWorkspaceStore();
   const viewport = viewports[id];
+  const orbitSettings = viewport.settings.orbitSettings;
 
   const [currentView, setCurrentView] = useState(viewport.settings.id);
+  const sceneInstance = new Scene();
 
   const handleViewChange = (e) => {
     const newView = e.target.value;
@@ -20,7 +27,7 @@ const Viewport = forwardRef(({ id, isActive, onClick, children }, vRef) => {
   return (
     <div
       ref={vRef}
-      className={`viewport ${isActive ? "active" : ""}`}
+      className={`view ${isActive ? "active" : ""}`}
       onClick={() => onClick(id)}
     >
       <div className="controls">
@@ -33,19 +40,11 @@ const Viewport = forwardRef(({ id, isActive, onClick, children }, vRef) => {
           ))}
         </select>
       </div>
-      <View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-        }}
-      >
+      <View>
         <ViewportCamera viewportId={id} />
+        {/* <primitive object={sceneInstance.getScene()} /> */}
         <Scene />
-        <PivotControls scale={0.5} depthTest={false} />
-        <OrbitControls makeDefault />
+        <CameraControls {...orbitSettings} />
       </View>
     </div>
   );
