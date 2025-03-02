@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { Canvas } from "@react-three/fiber";
+import { View } from "@react-three/drei";
 import { useWorkspaceStore } from "../state/workspaceStore";
 import Viewport from "./Viewport";
 import "../styles/Workspace.css";
@@ -11,6 +13,7 @@ export default function Workspace() {
     setMaximizedViewport,
     viewports,
   } = useWorkspaceStore();
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -24,25 +27,20 @@ export default function Workspace() {
 
   return (
     <div
+      ref={containerRef}
       className={`viewports-container ${maximizedViewport ? "maximized" : ""}`}
     >
-      {!maximizedViewport &&
-        Object.values(viewports).map((viewport) => (
-          <Viewport
-            key={`${viewport.id}`}
-            id={viewport.id}
-            isActive={activeViewport === viewport.id}
-            onClick={() => setActiveViewport(viewport.id)}
-          />
-        ))}
-      {maximizedViewport && (
+      {Object.values(viewports).map((viewport) => (
         <Viewport
-          key={`${viewport.id}`}
-          id={maximizedViewport}
-          isActive={true}
-          onClick={() => {}}
+          key={viewport.id}
+          id={viewport.id}
+          isActive={activeViewport === viewport.id}
+          onClick={() => setActiveViewport(viewport.id)}
         />
-      )}
+      ))}
+      <Canvas eventSource={containerRef}>
+        <View.Port />
+      </Canvas>
     </div>
   );
 }
