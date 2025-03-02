@@ -1,4 +1,4 @@
-.viewports-container {
+.canvas {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
@@ -9,28 +9,28 @@
   overflow: hidden;
 }
 
-.viewport {
+View {
   position: relative;
   border: 1px solid #333;
   width: 100%;
   height: 100%;
 }
 
-.viewport.active {
+View.active {
   border: 1px solid #eb4c4c;
 }
 
-.viewports-container:not(.maximized) .viewport {
+canvas:not(.maximized) .View {
   height: 50vh;
   width: 50vw;
 }
 
-.viewport canvas {
+/* .viewport canvas {
   width: 100% !important;
   height: 100% !important;
-}
+} */
 
-.viewports-container.maximized {
+.canvas.maximized {
   display: flex;
   position: absolute;
   width: 100vw;
@@ -39,7 +39,7 @@
   left: 0;
 }
 
-.viewports-container.maximized .viewport {
+canvas.maximized View {
   position: absolute;
   width: 100vw;
   height: 100vh;
