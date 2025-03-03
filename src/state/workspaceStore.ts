@@ -52,6 +52,24 @@ export const defaultViews = {
     cameraSettings: { position: [-10, 0, 0], ...BASE_ORTHO_CAM },
     orbitSettings: ORTHO_CAM_CONTROLS,
   },
+  Right: {
+    id: "Right",
+    cameraType: "OrthographicCamera",
+    cameraSettings: { position: [10, 0, 0], ...BASE_ORTHO_CAM },
+    orbitSettings: ORTHO_CAM_CONTROLS,
+  },
+  Back: {
+    id: "Back",
+    cameraType: "OrthographicCamera",
+    cameraSettings: { position: [0, 0, -10], ...BASE_ORTHO_CAM },
+    orbitSettings: ORTHO_CAM_CONTROLS,
+  },
+  Bottom: {
+    id: "Bottom",
+    cameraType: "OrthographicCamera",
+    cameraSettings: { position: [0, -10, 0], up: [0, 0, 1], ...BASE_ORTHO_CAM },
+    orbitSettings: ORTHO_CAM_CONTROLS,
+  },
 };
 
 export const useWorkspaceStore = create((set) => ({

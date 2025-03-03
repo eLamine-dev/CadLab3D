@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export class Scene {
+export default class Scene {
   static instance: Scene;
   scene: THREE.Scene;
   objects: Map<string, THREE.Object3D>;

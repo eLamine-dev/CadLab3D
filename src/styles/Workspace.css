@@ -21,3 +21,39 @@
   width: 100%;
   height: 100%;
 }
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #333;
+  overflow: hidden;
+}
+
+.viewport.active {
+  border: 2px solid #eb4c4c;
+}
+
+.viewport-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0);
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.controls select {
+  color: white;
+  background: black;
+  border: 1px solid white;
+  padding: 3px;
+}

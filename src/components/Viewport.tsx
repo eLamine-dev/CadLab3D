@@ -1,4 +1,4 @@
-import { useRef, useState, forwardRef } from "react";
+import { useRef, useState, forwardRef, useEffect } from "react";
 import {
   View,
   OrbitControls,
@@ -7,16 +7,25 @@ import {
 } from "@react-three/drei";
 import { useWorkspaceStore, defaultViews } from "../state/workspaceStore";
 import ViewportCamera from "./ViewportCamera";
-import { Scene } from "./Scene";
-import * as THREE from "three";
+// import { Scene } from "./Scene";
+// import TScene from "../state/scene";
 
-const Viewport = forwardRef(({ id, isActive, onClick, children }, vRef) => {
+import { useSceneStore } from "../state/sceneStore";
+
+const Viewport = forwardRef(({ id, isActive, onClick }, vRef) => {
   const { viewports, setViewportSettings } = useWorkspaceStore();
   const viewport = viewports[id];
   const orbitSettings = viewport.settings.orbitSettings;
 
   const [currentView, setCurrentView] = useState(viewport.settings.id);
-  const sceneInstance = new Scene();
+  const [aspectRatio, setAspectRatio] = useState(1);
+
+  const scene = useSceneStore((state) => state.scene);
+  const moveObject = useSceneStore((state) => state.moveObject);
+  const scaleObject = useSceneStore((state) => state.scaleObject);
+
+  const boxRef = useRef();
+  const [mode, setMode] = useState("translate");
 
   const handleViewChange = (e) => {
     const newView = e.target.value;
@@ -27,11 +36,10 @@ const Viewport = forwardRef(({ id, isActive, onClick, children }, vRef) => {
   return (
     <div
       ref={vRef}
-      className={`view ${isActive ? "active" : ""}`}
+      className={`viewport ${isActive ? "active" : ""}`}
       onClick={() => onClick(id)}
     >
       <div className="controls">
-        <label>Camera View:</label>
         <select onChange={handleViewChange} value={currentView}>
           {Object.keys(defaultViews).map((view) => (
             <option key={view} value={view}>
@@ -40,11 +48,12 @@ const Viewport = forwardRef(({ id, isActive, onClick, children }, vRef) => {
           ))}
         </select>
       </div>
-      <View>
+
+      <View className="viewport-canvas">
         <ViewportCamera viewportId={id} />
-        {/* <primitive object={sceneInstance.getScene()} /> */}
-        <Scene />
-        <CameraControls {...orbitSettings} />
+        <primitive object={scene} />
+        {/* <Scene /> */}
+        <CameraControls makeDefault {...orbitSettings} />
       </View>
     </div>
   );
