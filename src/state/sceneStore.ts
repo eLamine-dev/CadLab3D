@@ -1,29 +1,23 @@
 import { create } from "zustand";
 import * as THREE from "three";
+import Scene from "./scene";
 
-export const useSceneStore = create((set) => ({
-  scene: new THREE.Scene(),
-  objects: new Map(),
+const masterScene = new Scene();
+const scene = masterScene.getScene();
 
-  addObject: (id, mesh) =>
+export const useSceneStore = create((set, get) => ({
+  viewportScenes: {
+    1: scene.clone(),
+    2: scene.clone(),
+    3: scene.clone(),
+    4: scene.clone(),
+  },
+
+  applyTransform: (transformFn) =>
     set((state) => {
-      state.scene.add(mesh);
-      const newObjects = new Map(state.objects);
-      newObjects.set(id, mesh);
-      return { objects: newObjects };
-    }),
-
-  moveObject: (id, x, y, z) =>
-    set((state) => {
-      const obj = state.objects.get(id);
-      if (obj) obj.position.set(x, y, z);
-      return { objects: state.objects };
-    }),
-
-  scaleObject: (id, scale) =>
-    set((state) => {
-      const obj = state.objects.get(id);
-      if (obj) obj.scale.set(scale, scale, scale);
-      return { objects: state.objects };
+      state.viewportScenes.forEach((scene) => {
+        if (scene) transformFn(scene);
+      });
+      return {};
     }),
 }));

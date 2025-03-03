@@ -1,36 +1,21 @@
-import { useRef, useState, forwardRef, useEffect } from "react";
-import {
-  View,
-  OrbitControls,
-  PivotControls,
-  CameraControls,
-} from "@react-three/drei";
-import { useWorkspaceStore, defaultViews } from "../state/workspaceStore";
-import ViewportCamera from "./ViewportCamera";
-// import { Scene } from "./Scene";
-// import TScene from "../state/scene";
-
+import { useEffect, useMemo, forwardRef } from "react";
+import { View, CameraControls, PivotControls } from "@react-three/drei";
 import { useSceneStore } from "../state/sceneStore";
+import ViewportCamera from "./ViewportCamera";
+import { useWorkspaceStore } from "../state/workspaceStore";
 
 const Viewport = forwardRef(({ id, isActive, onClick }, vRef) => {
-  const { viewports, setViewportSettings } = useWorkspaceStore();
+  const { viewports, setViewportSettings, setViewportCustom } =
+    useWorkspaceStore();
   const viewport = viewports[id];
   const orbitSettings = viewport.settings.orbitSettings;
+  const { viewportScenes, applyTransform } = useSceneStore();
 
-  const [currentView, setCurrentView] = useState(viewport.settings.id);
-  const [aspectRatio, setAspectRatio] = useState(1);
-
-  const scene = useSceneStore((state) => state.scene);
-  const moveObject = useSceneStore((state) => state.moveObject);
-  const scaleObject = useSceneStore((state) => state.scaleObject);
-
-  const boxRef = useRef();
-  const [mode, setMode] = useState("translate");
-
-  const handleViewChange = (e) => {
-    const newView = e.target.value;
-    setViewportSettings(id, newView);
-    setCurrentView(newView);
+  const moveObject = (objectId, x, y, z) => {
+    applyTransform((scene) => {
+      const obj = scene.getObjectByName(objectId);
+      if (obj) obj.position.set(x, y, z);
+    });
   };
 
   return (
@@ -39,21 +24,20 @@ const Viewport = forwardRef(({ id, isActive, onClick }, vRef) => {
       className={`viewport ${isActive ? "active" : ""}`}
       onClick={() => onClick(id)}
     >
-      <div className="controls">
-        <select onChange={handleViewChange} value={currentView}>
-          {Object.keys(defaultViews).map((view) => (
-            <option key={view} value={view}>
-              {view}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <View className="viewport-canvas">
         <ViewportCamera viewportId={id} />
-        <primitive object={scene} />
-        {/* <Scene /> */}
+        <PivotControls
+          anchor={[0, 0, 0]}
+          depthTest={false}
+          lineWidth={2}
+          onDrag={(e) => moveObject("box", e.x, e.y, e.z)}
+        >
+          <primitive object={viewportScenes[id]} />
+        </PivotControls>
         <CameraControls makeDefault {...orbitSettings} />
+        <axesHelper args={[5]} />
+        <gridHelper args={[10, 10]} />
+        pivot
       </View>
     </div>
   );
