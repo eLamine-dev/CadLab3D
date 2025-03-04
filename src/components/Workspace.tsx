@@ -1,11 +1,13 @@
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { useArrayCamera } from "../hooks/useArrayCamera";
-import scene from "../state/Scene";
+import sceneInstance from "../state/Scene";
 import { useViewportStore } from "../state/viewportStore";
 
 function MultiViewport() {
   const arrayCamera = useArrayCamera();
   const { gl, size } = useThree();
+
+  console.log("arrayCamera", arrayCamera);
 
   useFrame(() => {
     if (!arrayCamera) return;
@@ -13,15 +15,27 @@ function MultiViewport() {
     const width = size.width / 2;
     const height = size.height / 2;
 
-    arrayCamera.cameras.forEach((cam, i) => {
-      const x = i % 2 === 0 ? 0 : width;
-      const y = i < 2 ? height : 0;
+    gl.setViewport(0, height, width, height);
+    gl.setScissor(0, height, width, height);
+    gl.setScissorTest(true);
 
-      gl.setViewport(x, y, width, height);
-      gl.setScissor(x, y, width, height);
-      gl.setScissorTest(true);
-      gl.render(scene.getScene(), cam);
-    });
+    gl.render(sceneInstance.getScene(), arrayCamera.cameras[0]);
+
+    gl.setViewport(width, height, width, height);
+    gl.setScissor(width, height, width, height);
+    gl.setScissorTest(true);
+
+    gl.render(sceneInstance.getScene(), arrayCamera.cameras[1]);
+
+    gl.setViewport(0, 0, width, height);
+    gl.setScissor(0, 0, width, height);
+    gl.setScissorTest(true);
+    gl.render(sceneInstance.getScene(), arrayCamera.cameras[2]);
+
+    gl.setViewport(width, 0, width, height);
+    gl.setScissor(width, 0, width, height);
+    gl.setScissorTest(true);
+    gl.render(sceneInstance.getScene(), arrayCamera.cameras[3]);
   });
 
   return null;

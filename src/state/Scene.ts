@@ -10,7 +10,6 @@ class SceneSingleton {
       this.scene = new THREE.Scene();
       this.objects = new Map();
 
-      // Default Lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
       this.scene.add(ambientLight);
 
@@ -18,7 +17,6 @@ class SceneSingleton {
       directionalLight.position.set(10, 10, 10);
       this.scene.add(directionalLight);
 
-      // Default Object
       const box = new THREE.Mesh(
         new THREE.BoxGeometry(1, 1, 1),
         new THREE.MeshStandardMaterial({ color: 0x00ff00 })

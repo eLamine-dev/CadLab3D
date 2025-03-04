@@ -1,6 +1,6 @@
 import { useEffect, useMemo, forwardRef } from "react";
 import { View, CameraControls, PivotControls } from "@react-three/drei";
-import { useSceneStore } from "../state/sceneStore";
+
 import ViewportCamera from "./ViewportCamera";
 import { useWorkspaceStore } from "../state/workspaceStore";
 
