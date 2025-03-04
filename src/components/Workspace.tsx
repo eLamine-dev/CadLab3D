@@ -47,7 +47,8 @@ export default function Workspace() {
             className={`viewport ${
               activeViewport === `viewport${index}` ? "active" : ""
             }`}
-            onClick={() => {
+            onMouseDown={(e) => {
+              e.stopPropagation();
               setActiveViewport(`viewport${index}`);
               console.log("click v");
             }}

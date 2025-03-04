@@ -22,7 +22,6 @@ body {
   height: 100%;
 }
 
-/* The viewport selection grid (overlays the canvas) */
 .viewport-selection {
   position: absolute;
   width: 100%;
@@ -31,16 +30,17 @@ body {
   grid-template-columns: 50% 50%;
   grid-template-rows: 50% 50%;
   gap: 2px;
+  pointer-events: none; /* Allow clicks to reach the Canvas */
 }
 
-/* Individual viewport selection boxes */
 .viewport {
+  pointer-events: auto; /* Only active viewport divs should capture clicks */
   background: rgba(0, 0, 0, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.3);
   transition: background 0.2s;
 }
 
-/* Highlight the active viewport */
 .viewport.active {
   border-color: #ff9900;
+  pointer-events: none; /* Ensure active viewport can be clicked */
 }
