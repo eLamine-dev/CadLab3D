@@ -15,7 +15,8 @@ function MultiViewport() {
     const halfWidth = fullWidth / 2;
     const halfHeight = fullHeight / 2;
 
-    console.log("Rendering all 4 cameras in correct order");
+    console.log = () => {};
+    console.error = () => {};
 
     const viewportPositions = [
       [0, halfHeight],
@@ -24,16 +25,20 @@ function MultiViewport() {
       [halfWidth, 0],
     ];
 
-    arrayCamera.cameras.forEach((cam, index) => {
-      const [x, y] = viewportPositions[index];
+    requestAnimationFrame(() =>
+      arrayCamera.cameras.forEach((cam, index) => {
+        const [x, y] = viewportPositions[index];
 
-      gl.setViewport(x, y, halfWidth, halfHeight);
-      gl.setScissor(x, y, halfWidth, halfHeight);
-      gl.setScissorTest(true);
-      gl.render(sceneInstance.getScene(), cam);
-    });
+        gl.setViewport(x, y, halfWidth, halfHeight);
+        gl.setScissor(x, y, halfWidth, halfHeight);
+        gl.setScissorTest(true);
+        gl.render(sceneInstance.getScene(), cam);
+      })
+    );
 
-    gl.flush();
+    // requestAnimationFrame(() =>
+    //   gl.render(sceneInstance.getScene(), arrayCamera.cameras[3])
+    // );
   });
 
   return null;

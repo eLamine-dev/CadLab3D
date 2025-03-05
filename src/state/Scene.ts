@@ -17,7 +17,6 @@ class SceneSingleton {
       directionalLight.position.set(10, 10, 10);
       this.scene.add(directionalLight);
 
-      // Add multiple objects to help debug
       const box = new THREE.Mesh(
         new THREE.BoxGeometry(1, 1, 1),
         new THREE.MeshStandardMaterial({ color: 0x00ff00 })

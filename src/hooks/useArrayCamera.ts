@@ -6,7 +6,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 export function useArrayCamera() {
   const { size, set, gl } = useThree();
-  const { activeViewport } = useViewportStore();
+  const { activeViewport, cameraMatrices } = useViewportStore();
   const controlsRef = useRef<OrbitControls[]>([]);
 
   const arrayCamera = useMemo(() => {
@@ -21,14 +21,10 @@ export function useArrayCamera() {
       new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
     ];
 
-    cameras[0].position.set(5, 5, 5);
-    cameras[1].position.set(0, 10, 0);
-    cameras[2].position.set(0, 0, 10);
-    cameras[3].position.set(-10, 0, 0);
-
-    cameras[1].up.set(0, 0, -1);
-    cameras[2].up.set(0, 1, 0);
-    cameras[3].up.set(0, 1, 0);
+    cameras[0].applyMatrix4(cameraMatrices[`viewport0`]);
+    cameras[1].applyMatrix4(cameraMatrices[`viewport1`]);
+    cameras[2].applyMatrix4(cameraMatrices[`viewport2`]);
+    cameras[3].applyMatrix4(cameraMatrices[`viewport3`]);
 
     cameras.forEach((cam) => cam.lookAt(0, 0, 0));
 
