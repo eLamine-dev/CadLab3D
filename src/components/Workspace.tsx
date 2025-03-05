@@ -7,35 +7,33 @@ function MultiViewport() {
   const arrayCamera = useArrayCamera();
   const { gl, size } = useThree();
 
-  console.log("arrayCamera", arrayCamera);
-
   useFrame(() => {
     if (!arrayCamera) return;
 
-    const width = size.width / 2;
-    const height = size.height / 2;
+    const fullWidth = size.width;
+    const fullHeight = size.height;
+    const halfWidth = fullWidth / 2;
+    const halfHeight = fullHeight / 2;
 
-    gl.setViewport(0, height, width, height);
-    gl.setScissor(0, height, width, height);
-    gl.setScissorTest(true);
+    console.log("Rendering all 4 cameras in correct order");
 
-    gl.render(sceneInstance.getScene(), arrayCamera.cameras[0]);
+    const viewportPositions = [
+      [0, halfHeight],
+      [halfWidth, halfHeight],
+      [0, 0],
+      [halfWidth, 0],
+    ];
 
-    gl.setViewport(width, height, width, height);
-    gl.setScissor(width, height, width, height);
-    gl.setScissorTest(true);
+    arrayCamera.cameras.forEach((cam, index) => {
+      const [x, y] = viewportPositions[index];
 
-    gl.render(sceneInstance.getScene(), arrayCamera.cameras[1]);
+      gl.setViewport(x, y, halfWidth, halfHeight);
+      gl.setScissor(x, y, halfWidth, halfHeight);
+      gl.setScissorTest(true);
+      gl.render(sceneInstance.getScene(), cam);
+    });
 
-    gl.setViewport(0, 0, width, height);
-    gl.setScissor(0, 0, width, height);
-    gl.setScissorTest(true);
-    gl.render(sceneInstance.getScene(), arrayCamera.cameras[2]);
-
-    gl.setViewport(width, 0, width, height);
-    gl.setScissor(width, 0, width, height);
-    gl.setScissorTest(true);
-    gl.render(sceneInstance.getScene(), arrayCamera.cameras[3]);
+    gl.flush();
   });
 
   return null;
@@ -55,7 +53,7 @@ export default function Workspace() {
       </div>
 
       <div className="viewport-selection">
-        {[1, 2, 3, 4].map((index) => (
+        {[0, 1, 2, 3].map((index) => (
           <div
             key={index}
             className={`viewport ${

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import * as THREE from "three";
 
 export const useViewportStore = create((set) => ({
-  activeViewport: "viewport1",
+  activeViewport: "viewport0",
   setActiveViewport: (viewportId: string) =>
     set({ activeViewport: viewportId }),
 

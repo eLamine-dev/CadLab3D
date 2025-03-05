@@ -10,27 +10,29 @@ export function useArrayCamera() {
   const controlsRef = useRef<OrbitControls[]>([]);
 
   const arrayCamera = useMemo(() => {
-    const aspect = size.width / size.height;
+    const width = size.width / 2;
+    const height = size.height / 2;
+    const aspect = width / height;
+
     const cameras = [
       new THREE.PerspectiveCamera(50, aspect, 0.1, 1000),
-      new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 1000),
-      new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 1000),
-      new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 1000),
+      new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
+      new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
+      new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
     ];
 
     cameras[0].position.set(5, 5, 5);
     cameras[1].position.set(0, 10, 0);
     cameras[2].position.set(0, 0, 10);
-    cameras[3].position.set(50, 0, 0);
+    cameras[3].position.set(-10, 0, 0);
 
-    cameras.forEach((cam) => {
-      cam.lookAt(0, 0, 0);
-      cam.updateMatrixWorld(true);
-    });
+    cameras[1].up.set(0, 0, -1);
+    cameras[2].up.set(0, 1, 0);
+    cameras[3].up.set(0, 1, 0);
 
-    const arrayCam = new THREE.ArrayCamera(cameras);
-    arrayCam.position.set(0, 0, 5);
-    return arrayCam;
+    cameras.forEach((cam) => cam.lookAt(0, 0, 0));
+
+    return new THREE.ArrayCamera(cameras);
   }, [size]);
 
   useEffect(() => {
@@ -43,19 +45,19 @@ export function useArrayCamera() {
       // controls.dampingFactor = 0.05;
       // controls.screenSpacePanning = false;
       // controls.maxPolarAngle = Math.PI / 2;
-      controls.enabled = `viewport${index + 1}` === activeViewport;
+      controls.enabled = `viewport${index}` === activeViewport;
 
       controlsRef.current.push(controls);
     });
   }, [arrayCamera, gl]);
 
-  // useFrame(() => {
-  //   controlsRef.current.forEach((ctrl) => ctrl.update());
-  // });
+  useFrame(() => {
+    controlsRef.current.forEach((ctrl) => ctrl.update());
+  });
 
   useEffect(() => {
     controlsRef.current.forEach((ctrl, index) => {
-      ctrl.enabled = `viewport${index + 1}` === activeViewport;
+      ctrl.enabled = `viewport${index}` === activeViewport;
     });
   }, [activeViewport]);
 
