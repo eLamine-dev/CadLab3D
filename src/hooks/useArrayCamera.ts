@@ -6,7 +6,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 export function useArrayCamera() {
   const { size, set, gl } = useThree();
-  const { activeViewport, cameraMatrices } = useViewportStore();
+  const { activeViewport, cameraMatrices, viewports, setCameraMatrix } =
+    useViewportStore();
   const controlsRef = useRef<OrbitControls[]>([]);
 
   const arrayCamera = useMemo(() => {
@@ -21,12 +22,11 @@ export function useArrayCamera() {
       new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
     ];
 
-    cameras[0].applyMatrix4(cameraMatrices[`viewport0`]);
-    cameras[1].applyMatrix4(cameraMatrices[`viewport1`]);
-    cameras[2].applyMatrix4(cameraMatrices[`viewport2`]);
-    cameras[3].applyMatrix4(cameraMatrices[`viewport3`]);
+    cameras.forEach((cam, index) => {
+      cam.applyMatrix4(viewports[index].settings.martix);
+    });
 
-    cameras.forEach((cam) => cam.lookAt(0, 0, 0));
+    // cameras.forEach((cam) => cam.lookAt(0, 0, 0));
 
     return new THREE.ArrayCamera(cameras);
   }, [size]);
@@ -37,29 +37,22 @@ export function useArrayCamera() {
 
     arrayCamera.cameras.forEach((cam, index) => {
       const controls = new OrbitControls(cam, gl.domElement);
-      // controls.enableDamping = true;
-      // controls.dampingFactor = 0.05;
-      // controls.screenSpacePanning = false;
-      // controls.maxPolarAngle = Math.PI / 2;
-      controls.enabled = `viewport${index}` === activeViewport;
+      controls.enabled = index === activeViewport;
+
+      controls.addEventListener("end", () => {
+        cam.updateMatrix();
+        setCameraMatrix(index, cam.matrix.clone());
+      });
 
       controlsRef.current.push(controls);
     });
   }, [arrayCamera, gl]);
 
-  useFrame(() => {
-    controlsRef.current.forEach((ctrl) => ctrl.update());
-  });
-
   useEffect(() => {
     controlsRef.current.forEach((ctrl, index) => {
-      ctrl.enabled = `viewport${index}` === activeViewport;
+      ctrl.enabled = index === activeViewport;
     });
   }, [activeViewport]);
-
-  // useEffect(() => {
-  //   set({ camera: arrayCamera });
-  // }, [arrayCamera, set]);
 
   return arrayCamera;
 }

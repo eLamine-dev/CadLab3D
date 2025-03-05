@@ -35,10 +35,6 @@ function MultiViewport() {
         gl.render(sceneInstance.getScene(), cam);
       })
     );
-
-    // requestAnimationFrame(() =>
-    //   gl.render(sceneInstance.getScene(), arrayCamera.cameras[3])
-    // );
   });
 
   return null;
@@ -61,12 +57,10 @@ export default function Workspace() {
         {[0, 1, 2, 3].map((index) => (
           <div
             key={index}
-            className={`viewport ${
-              activeViewport === `viewport${index}` ? "active" : ""
-            }`}
+            className={`viewport ${activeViewport === index ? "active" : ""}`}
             onMouseDown={(e) => {
               e.stopPropagation();
-              setActiveViewport(`viewport${index}`);
+              setActiveViewport(index);
               console.log("click v");
             }}
           />

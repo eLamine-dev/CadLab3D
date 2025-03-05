@@ -1,9 +1,6 @@
 import { create } from "zustand";
 import * as THREE from "three";
 
-import { create } from "zustand";
-import * as THREE from "three";
-
 const BASE_ORTHO_CAM = {
   zoom: 1.5,
   target: [0, 0, 0],
@@ -110,30 +107,22 @@ export const defaultViews = {
   },
 };
 
-import { create } from "zustand";
-import * as THREE from "three";
-
 export const useViewportStore = create((set, get) => ({
-  activeViewport: "viewport0",
+  activeViewport: 1,
   previousViewport: null,
 
-  // 🔥 Store a matrix per camera
-  cameraMatrices: {
-    viewport0: defaultViews.Perspective.initialMatrix,
-    viewport1: defaultViews.Top.initialMatrix,
-    viewport2: defaultViews.Front.initialMatrix,
-    viewport3: defaultViews.Perspective.initialMatrix,
+  viewports: {
+    0: { id: 1, settings: { martix: defaultViews.Perspective.initialMatrix } },
+    1: { id: 2, settings: { martix: defaultViews.Top.initialMatrix } },
+    2: { id: 3, settings: { martix: defaultViews.Front.initialMatrix } },
+    3: { id: 4, settings: { martix: defaultViews.Left.initialMatrix } },
   },
 
   setActiveViewport: (viewportId) => {
-    const { activeViewport, cameraMatrices } = get();
+    const { activeViewport } = get();
     if (activeViewport !== viewportId) {
       set({
         previousViewport: activeViewport,
-        cameraMatrices: {
-          ...cameraMatrices,
-          [activeViewport]: cameraMatrices[activeViewport], // Keep reference
-        },
         activeViewport: viewportId,
       });
     }
@@ -141,12 +130,16 @@ export const useViewportStore = create((set, get) => ({
 
   setCameraMatrix: (viewportId, matrix) =>
     set((state) => ({
-      cameraMatrices: {
-        ...state.cameraMatrices,
-        [viewportId]: matrix, // Keep reference, no clone()
+      ...state,
+      viewports: {
+        ...state.viewports,
+        [viewportId]: {
+          ...state.viewports[viewportId],
+          settings: {
+            ...state.viewports[viewportId].settings,
+            martix: matrix,
+          },
+        },
       },
     })),
-
-  getCameraMatrix: (viewportId) =>
-    get().cameraMatrices[viewportId] || new THREE.Matrix4(),
 }));
