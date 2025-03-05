@@ -171,7 +171,10 @@ export const useViewportStore = create((set, get) => ({
         ...state.viewports,
         [viewportId]: {
           ...state.viewports[viewportId],
-          settings: defaultViews[newView],
+          settings: {
+            ...defaultViews[newView],
+            matrix: defaultViews[newView].initialMatrix,
+          },
         },
       },
     }));
