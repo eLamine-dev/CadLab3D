@@ -16,20 +16,30 @@ export function useArrayCamera() {
     const aspect = width / height;
 
     const cameras = [
-      new THREE.PerspectiveCamera(50, aspect, 0.1, 1000),
-      new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
-      new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
-      new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
+      // new THREE.PerspectiveCamera(50, aspect, 0.1, 1000),
+      // new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
+      // new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
+      // new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
     ];
 
-    cameras.forEach((cam, index) => {
-      cam.applyMatrix4(viewports[index].settings.martix);
+    Object.values(viewports).forEach((view) => {
+      const camera =
+        view.settings.cameraType === "PerspectiveCamera"
+          ? new THREE.PerspectiveCamera(50, aspect, 0.1, 1000)
+          : new THREE.OrthographicCamera(
+              -5 * aspect,
+              5 * aspect,
+              5,
+              -5,
+              0.1,
+              1000
+            );
+      camera.applyMatrix4(view.settings.matrix);
+      cameras.push(camera);
     });
 
-    // cameras.forEach((cam) => cam.lookAt(0, 0, 0));
-
     return new THREE.ArrayCamera(cameras);
-  }, [size]);
+  }, [size, viewports]);
 
   useEffect(() => {
     controlsRef.current.forEach((ctrl) => ctrl.dispose());

@@ -19,6 +19,7 @@ export const defaultViews = {
       near: 0.1,
       far: 1000,
     },
+    matrix: null,
     initialMatrix: new THREE.Matrix4().compose(
       new THREE.Vector3(7, 7, 7),
       new THREE.Quaternion(),
@@ -33,6 +34,7 @@ export const defaultViews = {
       up: [0, 0, -1],
       ...BASE_ORTHO_CAM,
     },
+    matrix: null,
     initialMatrix: new THREE.Matrix4().compose(
       new THREE.Vector3(0, 10, 0),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)),
@@ -46,6 +48,7 @@ export const defaultViews = {
       position: [0, 0, 10],
       ...BASE_ORTHO_CAM,
     },
+    matrix: null,
     initialMatrix: new THREE.Matrix4().compose(
       new THREE.Vector3(0, 0, 10),
       new THREE.Quaternion(),
@@ -59,6 +62,7 @@ export const defaultViews = {
       position: [-10, 0, 0],
       ...BASE_ORTHO_CAM,
     },
+    matrix: null,
     initialMatrix: new THREE.Matrix4().compose(
       new THREE.Vector3(-10, 0, 0),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 2, 0)),
@@ -73,6 +77,7 @@ export const defaultViews = {
       position: [10, 0, 0],
       ...BASE_ORTHO_CAM,
     },
+    matrix: null,
     initialMatrix: new THREE.Matrix4().compose(
       new THREE.Vector3(10, 0, 0),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -Math.PI / 2, 0)),
@@ -86,6 +91,7 @@ export const defaultViews = {
       position: [0, 0, -10],
       ...BASE_ORTHO_CAM,
     },
+    matrix: null,
     initialMatrix: new THREE.Matrix4().compose(
       new THREE.Vector3(0, 0, -10),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI, 0)),
@@ -99,6 +105,7 @@ export const defaultViews = {
       position: [0, -10, 0],
       ...BASE_ORTHO_CAM,
     },
+    matrix: null,
     initialMatrix: new THREE.Matrix4().compose(
       new THREE.Vector3(0, -10, 0),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0)),
@@ -112,10 +119,37 @@ export const useViewportStore = create((set, get) => ({
   previousViewport: null,
 
   viewports: {
-    0: { id: 1, settings: { martix: defaultViews.Perspective.initialMatrix } },
-    1: { id: 2, settings: { martix: defaultViews.Top.initialMatrix } },
-    2: { id: 3, settings: { martix: defaultViews.Front.initialMatrix } },
-    3: { id: 4, settings: { martix: defaultViews.Left.initialMatrix } },
+    0: {
+      id: 1,
+      settings: {
+        ...defaultViews.Perspective,
+        matrix: defaultViews.Perspective.initialMatrix,
+      },
+    },
+
+    1: {
+      id: 2,
+      settings: {
+        ...defaultViews.Top,
+        matrix: defaultViews.Top.initialMatrix,
+      },
+    },
+
+    2: {
+      id: 3,
+      settings: {
+        ...defaultViews.Front,
+        matrix: defaultViews.Front.initialMatrix,
+      },
+    },
+
+    3: {
+      id: 4,
+      settings: {
+        ...defaultViews.Left,
+        matrix: defaultViews.Left.initialMatrix,
+      },
+    },
   },
 
   setActiveViewport: (viewportId) => {
@@ -128,6 +162,21 @@ export const useViewportStore = create((set, get) => ({
     }
   },
 
+  setViewportSettings: (viewportId: number, newView) => {
+    console.log(viewportId, newView);
+
+    set((state) => ({
+      ...state,
+      viewports: {
+        ...state.viewports,
+        [viewportId]: {
+          ...state.viewports[viewportId],
+          settings: defaultViews[newView],
+        },
+      },
+    }));
+  },
+
   setCameraMatrix: (viewportId, matrix) =>
     set((state) => ({
       ...state,
@@ -137,7 +186,7 @@ export const useViewportStore = create((set, get) => ({
           ...state.viewports[viewportId],
           settings: {
             ...state.viewports[viewportId].settings,
-            martix: matrix,
+            matrix: matrix,
           },
         },
       },

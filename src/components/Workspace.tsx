@@ -2,9 +2,11 @@ import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import sceneInstance from "../state/Scene";
 import { useViewportStore } from "../state/viewportStore";
+import ViewSelection from "./ViewSelection";
 
 function MultiViewport() {
   const arrayCamera = useArrayCamera();
+  const { setActiveViewport, viewports } = useViewportStore();
   const { gl, size } = useThree();
 
   useFrame(() => {
@@ -14,9 +16,6 @@ function MultiViewport() {
     const fullHeight = size.height;
     const halfWidth = fullWidth / 2;
     const halfHeight = fullHeight / 2;
-
-    console.log = () => {};
-    console.error = () => {};
 
     const viewportPositions = [
       [0, halfHeight],
@@ -63,7 +62,9 @@ export default function Workspace() {
               setActiveViewport(index);
               console.log("click v");
             }}
-          />
+          >
+            <ViewSelection viewportId={index} />
+          </div>
         ))}
       </div>
     </div>

@@ -42,3 +42,8 @@ body {
   border-color: #ff9900;
   pointer-events: none;
 }
+
+.view-selection {
+  pointer-events: auto;
+  z-index: 10;
+}
