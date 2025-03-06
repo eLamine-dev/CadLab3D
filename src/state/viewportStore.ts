@@ -117,6 +117,7 @@ export const defaultViews = {
 export const useViewportStore = create((set, get) => ({
   activeViewport: 1,
   previousViewport: null,
+  maximizedViewport: null,
 
   viewports: {
     0: {
@@ -125,6 +126,7 @@ export const useViewportStore = create((set, get) => ({
         ...defaultViews.Perspective,
         matrix: defaultViews.Perspective.initialMatrix,
       },
+      isCustom: false,
     },
 
     1: {
@@ -133,6 +135,7 @@ export const useViewportStore = create((set, get) => ({
         ...defaultViews.Top,
         matrix: defaultViews.Top.initialMatrix,
       },
+      isCustom: false,
     },
 
     2: {
@@ -141,6 +144,7 @@ export const useViewportStore = create((set, get) => ({
         ...defaultViews.Front,
         matrix: defaultViews.Front.initialMatrix,
       },
+      isCustom: false,
     },
 
     3: {
@@ -149,6 +153,7 @@ export const useViewportStore = create((set, get) => ({
         ...defaultViews.Left,
         matrix: defaultViews.Left.initialMatrix,
       },
+      isCustom: false,
     },
   },
 
@@ -160,6 +165,19 @@ export const useViewportStore = create((set, get) => ({
         activeViewport: viewportId,
       });
     }
+  },
+
+  setAsCostum: (viewportId) => {
+    set((state) => ({
+      ...state,
+      viewports: {
+        ...state.viewports,
+        [viewportId]: {
+          ...state.viewports[viewportId],
+          isCustom: true,
+        },
+      },
+    }));
   },
 
   setViewportSettings: (viewportId: number, newView) => {
@@ -175,6 +193,7 @@ export const useViewportStore = create((set, get) => ({
             ...defaultViews[newView],
             matrix: defaultViews[newView].initialMatrix,
           },
+          isCustom: false,
         },
       },
     }));
@@ -194,4 +213,10 @@ export const useViewportStore = create((set, get) => ({
         },
       },
     })),
+
+  setMaximizedViewport: (viewportId) => {
+    set((state) => ({
+      maximizedViewport: state.maximizedViewport ? null : viewportId,
+    }));
+  },
 }));

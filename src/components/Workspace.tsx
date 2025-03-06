@@ -40,32 +40,40 @@ function MultiViewport() {
 }
 
 export default function Workspace() {
-  const { setActiveViewport, activeViewport } = useViewportStore();
+  const {
+    setActiveViewport,
+    activeViewport,
+    maximizedViewport,
+    setMaximizedViewport,
+    viewports,
+  } = useViewportStore();
 
   return (
-    <div className="workspace">
+    <div className={`workspace ${maximizedViewport ? "maximized" : ""}`}>
       <div className="canvas-container">
-        <Canvas onClick={() => console.log("click c")}>
-          <MultiViewport />
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} />
-        </Canvas>
+        <Canvas>{/* Pass maximized state to the viewport logic */}</Canvas>
       </div>
 
       <div className="viewport-selection">
-        {[0, 1, 2, 3].map((index) => (
-          <div
-            key={index}
-            className={`viewport ${activeViewport === index ? "active" : ""}`}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              setActiveViewport(index);
-              console.log("click v");
-            }}
-          >
-            <ViewSelection viewportId={index} />
+        {!maximizedViewport &&
+          Object.keys(viewports).map((index) => (
+            <div
+              key={index}
+              className={`viewport ${activeViewport === index ? "active" : ""}`}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                setActiveViewport(index);
+              }}
+            >
+              <ViewSelection viewportId={index} />
+            </div>
+          ))}
+
+        {maximizedViewport && (
+          <div className="viewport maximized">
+            <ViewSelection viewportId={maximizedViewport} />
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
