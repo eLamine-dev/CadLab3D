@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 
+import SceneObjects from "./SceneObjects";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import sceneInstance from "../state/Scene";
@@ -75,6 +76,7 @@ export default function Workspace() {
       <div className="canvas-container">
         <Canvas onClick={() => console.log("click c")}>
           <MultiViewport />
+          <SceneObjects />
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
         </Canvas>

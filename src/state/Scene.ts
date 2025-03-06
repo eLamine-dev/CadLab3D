@@ -37,6 +37,9 @@ class SceneSingleton {
         new THREE.MeshStandardMaterial({ color: 0x0000ff })
       );
       blueBox.position.set(0, 3, 0);
+      blueBox.castShadow = true;
+      blueBox.receiveShadow = true;
+      blueBox.layers.enable(0);
       this.scene.add(blueBox);
       this.objects.set("blueBox", blueBox);
 
@@ -53,7 +56,15 @@ class SceneSingleton {
     return this.scene;
   }
 
-  addObject(name: string, object: THREE.Object3D) {
+  addObject(name: string, object: THREE.Object3D, position = [0, 0, 0]) {
+    object.position.set(...position);
+
+    if (object instanceof THREE.Mesh) {
+      object.castShadow = true;
+      object.receiveShadow = true;
+      object.layers.enable(0);
+    }
+
     this.scene.add(object);
     this.objects.set(name, object);
   }
