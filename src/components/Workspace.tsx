@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import sceneInstance from "../state/Scene";
@@ -6,7 +8,7 @@ import ViewSelection from "./ViewSelection";
 
 function MultiViewport() {
   const arrayCamera = useArrayCamera();
-  const { setActiveViewport, viewports } = useViewportStore();
+  const { maximizedViewport, activeViewport } = useViewportStore();
   const { gl, size } = useThree();
 
   useFrame(() => {
@@ -24,57 +26,91 @@ function MultiViewport() {
       [halfWidth, 0],
     ];
 
-    requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      if (maximizedViewport !== null) {
+        gl.setViewport(0, 0, fullWidth, fullHeight);
+        gl.setScissor(0, 0, fullWidth, fullHeight);
+        gl.setScissorTest(true);
+        gl.render(
+          sceneInstance.getScene(),
+          arrayCamera.cameras[activeViewport]
+        );
+        return;
+      }
+
       arrayCamera.cameras.forEach((cam, index) => {
         const [x, y] = viewportPositions[index];
-
         gl.setViewport(x, y, halfWidth, halfHeight);
         gl.setScissor(x, y, halfWidth, halfHeight);
         gl.setScissorTest(true);
         gl.render(sceneInstance.getScene(), cam);
-      })
-    );
+      });
+    });
   });
 
   return null;
 }
-
 export default function Workspace() {
   const {
     setActiveViewport,
     activeViewport,
-    maximizedViewport,
     setMaximizedViewport,
-    viewports,
+    maximizedViewport,
   } = useViewportStore();
 
-  return (
-    <div className={`workspace ${maximizedViewport ? "maximized" : ""}`}>
-      <div className="canvas-container">
-        <Canvas>{/* Pass maximized state to the viewport logic */}</Canvas>
-      </div>
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.altKey && e.code === "KeyW") {
+        setMaximizedViewport(
+          maximizedViewport !== null ? null : activeViewport
+        );
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeViewport, maximizedViewport, setMaximizedViewport]);
 
-      <div className="viewport-selection">
-        {!maximizedViewport &&
-          Object.keys(viewports).map((index) => (
+  return (
+    <div className="workspace">
+      <div className="canvas-container">
+        <Canvas onClick={() => console.log("click c")}>
+          <MultiViewport />
+          <ambientLight intensity={0.5} />
+          <pointLight position={[10, 10, 10]} />
+        </Canvas>
+      </div>
+      {maximizedViewport !== null && (
+        <div className="viewport-selection maximized">
+          <div
+            key={maximizedViewport}
+            className="viewport active"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              setActiveViewport(maximizedViewport);
+              console.log("click v");
+            }}
+          >
+            <ViewSelection viewportId={maximizedViewport} />
+          </div>
+        </div>
+      )}
+      {maximizedViewport == null && (
+        <div className="viewport-selection">
+          {[0, 1, 2, 3].map((index) => (
             <div
               key={index}
               className={`viewport ${activeViewport === index ? "active" : ""}`}
               onMouseDown={(e) => {
                 e.stopPropagation();
                 setActiveViewport(index);
+                console.log("click v");
               }}
             >
               <ViewSelection viewportId={index} />
             </div>
           ))}
-
-        {maximizedViewport && (
-          <div className="viewport maximized">
-            <ViewSelection viewportId={maximizedViewport} />
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

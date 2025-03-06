@@ -6,8 +6,13 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 export function useArrayCamera() {
   const { size, set, gl } = useThree();
-  const { activeViewport, setAsCostum, viewports, setCameraMatrix } =
-    useViewportStore();
+  const {
+    activeViewport,
+    setAsCustom,
+    viewports,
+    setCameraMatrix,
+    maximizedViewport,
+  } = useViewportStore();
   const controlsRef = useRef<OrbitControls[]>([]);
 
   const arrayCamera = useMemo(() => {
@@ -52,16 +57,14 @@ export function useArrayCamera() {
       controls.addEventListener("end", () => {
         cam.updateMatrix();
         setCameraMatrix(index, cam.matrix.clone());
-
-        if (!viewports[index].isCostum) {
-          setAsCostum(index);
+        if (!viewports[index].isCustom) {
+          setAsCustom(index);
         }
-        console.log(viewports[index]);
       });
 
       controlsRef.current.push(controls);
     });
-  }, [arrayCamera, gl]);
+  }, [arrayCamera, gl, maximizedViewport]);
 
   useEffect(() => {
     controlsRef.current.forEach((ctrl, index) => {
