@@ -7,14 +7,18 @@ import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
 
 export default function SceneObjects() {
-  const { gl } = useThree();
-  const { activeViewport } = useViewportStore();
+  const { gl, size } = useThree();
+  const { activeViewport, maximizedViewport } = useViewportStore();
   const arrayCamera = useArrayCamera();
   const activeCamera = arrayCamera.cameras[activeViewport];
 
   const [selectedObject, setSelectedObject] = useState<THREE.Object3D | null>(
     null
   );
+  const [hoveredObject, setHoveredObject] = useState<THREE.Object3D | null>(
+    null
+  );
+  const [originalColor, setOriginalColor] = useState<THREE.Color | null>(null);
   const [transformControls, setTransformControls] =
     useState<TransformControls | null>(null);
 
@@ -26,7 +30,6 @@ export default function SceneObjects() {
       sceneInstance.getScene().add(controls);
       setTransformControls(controls);
 
-      // Disable OrbitControls while dragging
       controls.addEventListener("dragging-changed", (event) => {
         controls.enabled = !event.value;
       });
@@ -50,79 +53,127 @@ export default function SceneObjects() {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    const onPointerDown = (event) => {
+    const getViewportForActiveCamera = () => {
+      if (maximizedViewport !== null) {
+        return { x: 0, y: 0, width: size.width, height: size.height };
+      }
+      const viewports = [
+        {
+          x: 0,
+          y: size.height / 2,
+          width: size.width / 2,
+          height: size.height / 2,
+        },
+        {
+          x: size.width / 2,
+          y: size.height / 2,
+          width: size.width / 2,
+          height: size.height / 2,
+        },
+        { x: 0, y: 0, width: size.width / 2, height: size.height / 2 },
+        {
+          x: size.width / 2,
+          y: 0,
+          width: size.width / 2,
+          height: size.height / 2,
+        },
+      ];
+      return viewports[activeViewport];
+    };
+
+    const mapMouseToViewport = (event: MouseEvent) => {
+      const viewport = getViewportForActiveCamera();
+
+      const canvasX =
+        event.clientX - gl.domElement.getBoundingClientRect().left;
+      const canvasY = event.clientY - gl.domElement.getBoundingClientRect().top;
+
+      const viewportX = (canvasX - viewport.x) / viewport.width;
+      const viewportY = (canvasY - viewport.y) / viewport.height;
+
+      mouse.x = viewportX * 2 - 1;
+      mouse.y = -(viewportY * 2 - 1);
+    };
+
+    const onPointerMove = (event: MouseEvent) => {
       if (!activeCamera) return;
 
-      if (maximizedViewport !== null) {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      mapMouseToViewport(event);
 
-        raycaster.setFromCamera(mouse, activeCamera);
+      activeCamera.updateMatrixWorld();
+      activeCamera.updateProjectionMatrix();
+      raycaster.setFromCamera(mouse, activeCamera);
 
-        const sceneChildren = sceneInstance.getScene().children;
-        console.log("Scene children:", sceneChildren);
+      let intersects = raycaster.intersectObjects(
+        sceneInstance.getScene().children,
+        true
+      );
+      intersects = intersects.filter(
+        (obj) => !(obj.object instanceof THREE.GridHelper)
+      );
 
-        let intersects = raycaster.intersectObjects(sceneChildren, true);
-        intersects = intersects.filter(
-          (obj) => !(obj.object instanceof THREE.GridHelper)
-        );
+      if (intersects.length > 0) {
+        const hovered = intersects[0].object;
+        if (hovered !== hoveredObject) {
+          if (hoveredObject && originalColor) {
+            (hoveredObject as THREE.Mesh).material.color.copy(originalColor);
+          }
 
-        console.log("Raycast Intersects:", intersects);
+          setHoveredObject(hovered);
+          setOriginalColor((hovered as THREE.Mesh).material.color.clone());
 
-        if (intersects.length > 0) {
-          console.log("Selected Object:", intersects[0].object);
-          setSelectedObject(intersects[0].object);
-        } else {
-          console.log("No Object Selected");
-          setSelectedObject(null);
+          (hovered as THREE.Mesh).material.color.set(0xff0000);
         }
       } else {
-        const fullWidth = size.width;
-        const fullHeight = size.height;
-        const halfWidth = fullWidth / 2;
-        const halfHeight = fullHeight / 2;
-
-        const viewportPositions = [
-          [0, halfHeight],
-          [halfWidth, halfHeight],
-          [0, 0],
-          [halfWidth, 0],
-        ];
-
-        const [x, y] = viewportPositions[activeViewport];
-
-        const viewportX = event.clientX - x;
-        const viewportY = event.clientY - y;
-
-        mouse.x = (viewportX / halfWidth) * 2 - 1;
-        mouse.y = -(viewportY / halfHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, activeCamera);
-        let intersects = raycaster.intersectObjects(
-          sceneInstance.getScene().children,
-          true
-        );
-
-        intersects = intersects.filter(
-          (obj) => !(obj.object instanceof THREE.GridHelper)
-        );
-
-        console.log("Viewport:", activeViewport, "Mouse:", mouse);
-        console.log("Raycast Intersects:", intersects);
-
-        if (intersects.length > 0) {
-          console.log("Selected Object:", intersects[0].object);
-          setSelectedObject(intersects[0].object);
-        } else {
-          console.log("No Object Selected");
-          setSelectedObject(null);
+        if (hoveredObject && originalColor) {
+          (hoveredObject as THREE.Mesh).material.color.copy(originalColor);
+          setHoveredObject(null);
+          setOriginalColor(null);
         }
       }
     };
 
+    const onPointerDown = (event: MouseEvent) => {
+      if (!activeCamera) return;
+
+      mapMouseToViewport(event);
+
+      activeCamera.updateMatrixWorld();
+      activeCamera.updateProjectionMatrix();
+      raycaster.setFromCamera(mouse, activeCamera);
+
+      let intersects = raycaster.intersectObjects(
+        sceneInstance.getScene().children,
+        true
+      );
+      intersects = intersects.filter(
+        (obj) => !(obj.object instanceof THREE.GridHelper)
+      );
+
+      console.log(intersects);
+
+      if (intersects.length > 0) {
+        setSelectedObject(intersects[0].object);
+      } else {
+        setSelectedObject(null);
+      }
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerdown", onPointerDown);
-    return () => window.removeEventListener("pointerdown", onPointerDown);
-  }, [activeCamera]);
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [
+    activeCamera,
+    size,
+    activeViewport,
+    maximizedViewport,
+    hoveredObject,
+    originalColor,
+    gl,
+  ]);
 
   return null;
 }
