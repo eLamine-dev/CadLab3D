@@ -40,9 +40,9 @@ export default function SceneObjects() {
       let x, y;
 
       const viewports = [
-        { x: 0, y: 0.5 }, //Top left
-        { x: 0.5, y: 0.5 }, // Top right
-        { x: 0.5, y: 0 }, // Bottom-left
+        { x: 0, y: 0 }, //Top left
+        { x: 0.5, y: 0 }, // Top right
+        { x: 0, y: 0.5 }, // Bottom-left
         { x: 0.5, y: 0.5 }, // Bottom-right
       ];
 
@@ -51,15 +51,13 @@ export default function SceneObjects() {
 
         x = ((canvasX - viewport.x * canvas.width) * 2) / canvas.width;
         y = ((canvasY - viewport.y * canvas.height) * 2) / canvas.height;
-
-        mouse.x = x * 2 - 1;
-        mouse.y = -(y * 2 - 1);
       } else {
         x = canvasX / canvas.width;
         y = canvasY / canvas.height;
-        mouse.x = x * 2 - 1;
-        mouse.y = -(y * 2 - 1);
       }
+
+      mouse.x = x * 2 - 1;
+      mouse.y = -(y * 2 - 1);
 
       console.log(" Adjusted Mouse NDC:", mouse);
 
