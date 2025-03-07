@@ -52,6 +52,7 @@ export function useArrayCamera() {
 
     arrayCamera.cameras.forEach((cam, index) => {
       const controls = new OrbitControls(cam, gl.domElement);
+      controls.enablePan = true;
       controls.enabled = index === activeViewport;
 
       controls.addEventListener("end", () => {

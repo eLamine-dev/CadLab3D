@@ -5,6 +5,7 @@ import * as THREE from "three";
 import sceneInstance from "../state/Scene";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
+import { useSimulatedMouse } from "../hooks/useSimulatedMouse"; // ✅ Import Hook
 
 export default function SceneObjects() {
   const { gl, size } = useThree();
@@ -21,6 +22,8 @@ export default function SceneObjects() {
   const [originalColor, setOriginalColor] = useState<THREE.Color | null>(null);
   const [transformControls, setTransformControls] =
     useState<TransformControls | null>(null);
+
+  useSimulatedMouse();
 
   useEffect(() => {
     if (!activeCamera || !gl) return;
@@ -52,48 +55,6 @@ export default function SceneObjects() {
   useEffect(() => {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-
-    const getViewportForActiveCamera = () => {
-      if (maximizedViewport !== null) {
-        return { x: 0, y: 0, width: size.width, height: size.height };
-      }
-      const viewports = [
-        {
-          x: 0,
-          y: size.height / 2,
-          width: size.width / 2,
-          height: size.height / 2,
-        },
-        {
-          x: size.width / 2,
-          y: size.height / 2,
-          width: size.width / 2,
-          height: size.height / 2,
-        },
-        { x: 0, y: 0, width: size.width / 2, height: size.height / 2 },
-        {
-          x: size.width / 2,
-          y: 0,
-          width: size.width / 2,
-          height: size.height / 2,
-        },
-      ];
-      return viewports[activeViewport];
-    };
-
-    const mapMouseToViewport = (event: MouseEvent) => {
-      const viewport = getViewportForActiveCamera();
-
-      const canvasX =
-        event.clientX - gl.domElement.getBoundingClientRect().left;
-      const canvasY = event.clientY - gl.domElement.getBoundingClientRect().top;
-
-      const viewportX = (canvasX - viewport.x) / viewport.width;
-      const viewportY = (canvasY - viewport.y) / viewport.height;
-
-      mouse.x = viewportX * 2 - 1;
-      mouse.y = -(viewportY * 2 - 1);
-    };
 
     const onPointerMove = (event: MouseEvent) => {
       if (!activeCamera) return;
@@ -133,37 +94,9 @@ export default function SceneObjects() {
       }
     };
 
-    const onPointerDown = (event: MouseEvent) => {
-      if (!activeCamera) return;
-
-      mapMouseToViewport(event);
-
-      activeCamera.updateMatrixWorld();
-      activeCamera.updateProjectionMatrix();
-      raycaster.setFromCamera(mouse, activeCamera);
-
-      let intersects = raycaster.intersectObjects(
-        sceneInstance.getScene().children,
-        true
-      );
-      intersects = intersects.filter(
-        (obj) => !(obj.object instanceof THREE.GridHelper)
-      );
-
-      console.log(intersects);
-
-      if (intersects.length > 0) {
-        setSelectedObject(intersects[0].object);
-      } else {
-        setSelectedObject(null);
-      }
-    };
-
     window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerdown", onPointerDown);
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerdown", onPointerDown);
     };
   }, [
     activeCamera,
