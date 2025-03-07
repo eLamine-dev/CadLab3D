@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import { useViewportStore } from "../state/viewportStore";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { TransformControls } from "three/addons/controls/TransformControls.js";
 
 export function useArrayCamera() {
   const { size, set, gl } = useThree();
@@ -13,7 +14,8 @@ export function useArrayCamera() {
     setCameraMatrix,
     maximizedViewport,
   } = useViewportStore();
-  const controlsRef = useRef<OrbitControls[]>([]);
+  const orbitControlsRef = useRef<OrbitControls[]>([]);
+  const transformControlsRef = useRef<TransformControls[]>([]);
 
   const arrayCamera = useMemo(() => {
     const width = size.width / 2;
@@ -39,6 +41,7 @@ export function useArrayCamera() {
               0.1,
               1000
             );
+      // camera.up = view.settings.cameraSettings.up;
       camera.applyMatrix4(view.settings.matrix);
       cameras.push(camera);
     });
@@ -47,8 +50,8 @@ export function useArrayCamera() {
   }, [size, viewports]);
 
   useEffect(() => {
-    controlsRef.current.forEach((ctrl) => ctrl.dispose());
-    controlsRef.current = [];
+    orbitControlsRef.current.forEach((ctrl) => ctrl.dispose());
+    orbitControlsRef.current = [];
 
     arrayCamera.cameras.forEach((cam, index) => {
       const controls = new OrbitControls(cam, gl.domElement);
@@ -63,15 +66,20 @@ export function useArrayCamera() {
         }
       });
 
-      controlsRef.current.push(controls);
+      orbitControlsRef.current.push(controls);
+
+      const transformControls = new TransformControls(cam, gl.domElement);
+      transformControls.enabled = index === activeViewport;
+
+      transformControlsRef.current.push(transformControls);
     });
   }, [arrayCamera, gl, maximizedViewport]);
 
   useEffect(() => {
-    controlsRef.current.forEach((ctrl, index) => {
+    orbitControlsRef.current.forEach((ctrl, index) => {
       ctrl.enabled = index === activeViewport;
     });
   }, [activeViewport]);
 
-  return arrayCamera;
+  return { arrayCamera, transformControlsRef };
 }

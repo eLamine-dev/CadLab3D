@@ -46,6 +46,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [0, 0, 10],
+      up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
     matrix: null,
@@ -60,6 +61,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [-10, 0, 0],
+      up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
     matrix: null,
@@ -75,6 +77,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [10, 0, 0],
+      up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
     matrix: null,
@@ -89,6 +92,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [0, 0, -10],
+      up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
     matrix: null,
@@ -103,6 +107,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [0, -10, 0],
+      up: [0, 0, 1],
       ...BASE_ORTHO_CAM,
     },
     matrix: null,

@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { useThree } from "@react-three/fiber";
-import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 import * as THREE from "three";
 import sceneInstance from "../state/Scene";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
-import { useSimulatedMouse } from "../hooks/useSimulatedMouse"; // ✅ Import Hook
 
 export default function SceneObjects() {
-  const { gl, size } = useThree();
+  const { gl } = useThree();
   const { activeViewport, maximizedViewport } = useViewportStore();
-  const arrayCamera = useArrayCamera();
+  const { arrayCamera, transformControlsRef } = useArrayCamera(); // ✅ Get TransformControls
   const activeCamera = arrayCamera.cameras[activeViewport];
 
   const [selectedObject, setSelectedObject] = useState<THREE.Object3D | null>(
@@ -20,46 +18,50 @@ export default function SceneObjects() {
     null
   );
   const [originalColor, setOriginalColor] = useState<THREE.Color | null>(null);
-  const [transformControls, setTransformControls] =
-    useState<TransformControls | null>(null);
-
-  useSimulatedMouse();
 
   useEffect(() => {
     if (!activeCamera || !gl) return;
 
-    if (!transformControls) {
-      const controls = new TransformControls(activeCamera, gl.domElement);
-      sceneInstance.getScene().add(controls);
-      setTransformControls(controls);
+    const transformControls = transformControlsRef.current[activeViewport]; // ✅ Get TransformControls for active viewport
+    if (!transformControls) return;
 
-      controls.addEventListener("dragging-changed", (event) => {
-        controls.enabled = !event.value;
-      });
+    const raycaster = transformControls.getRaycaster();
+    console.log(raycaster);
 
-      return () => {
-        sceneInstance.getScene().remove(controls);
-        controls.dispose();
-      };
-    }
-  }, [activeCamera, gl]);
-
-  useEffect(() => {
-    if (transformControls && selectedObject) {
-      transformControls.attach(selectedObject);
-    } else if (transformControls) {
-      transformControls.detach();
-    }
-  }, [selectedObject]);
-
-  useEffect(() => {
-    const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
     const onPointerMove = (event: MouseEvent) => {
       if (!activeCamera) return;
 
-      mapMouseToViewport(event);
+      const canvas = gl.domElement;
+      const canvasX = event.clientX;
+      const canvasY = event.clientY;
+
+      let x, y;
+
+      const viewports = [
+        { x: 0, y: 0.5 }, //Top left
+        { x: 0.5, y: 0.5 }, // Top right
+        { x: 0.5, y: 0 }, // Bottom-left
+        { x: 0.5, y: 0.5 }, // Bottom-right
+      ];
+
+      if (maximizedViewport === null) {
+        const viewport = viewports[activeViewport];
+
+        x = ((canvasX - viewport.x * canvas.width) * 2) / canvas.width;
+        y = ((canvasY - viewport.y * canvas.height) * 2) / canvas.height;
+
+        mouse.x = x * 2 - 1;
+        mouse.y = -(y * 2 - 1);
+      } else {
+        x = canvasX / canvas.width;
+        y = canvasY / canvas.height;
+        mouse.x = x * 2 - 1;
+        mouse.y = -(y * 2 - 1);
+      }
+
+      console.log(" Adjusted Mouse NDC:", mouse);
 
       activeCamera.updateMatrixWorld();
       activeCamera.updateProjectionMatrix();
@@ -79,11 +81,9 @@ export default function SceneObjects() {
           if (hoveredObject && originalColor) {
             (hoveredObject as THREE.Mesh).material.color.copy(originalColor);
           }
-
           setHoveredObject(hovered);
           setOriginalColor((hovered as THREE.Mesh).material.color.clone());
-
-          (hovered as THREE.Mesh).material.color.set(0xff0000);
+          (hovered as THREE.Mesh).material.color.set(0x000000);
         }
       } else {
         if (hoveredObject && originalColor) {
@@ -94,19 +94,11 @@ export default function SceneObjects() {
       }
     };
 
-    window.addEventListener("pointermove", onPointerMove);
+    gl.domElement.addEventListener("pointermove", onPointerMove);
     return () => {
-      window.removeEventListener("pointermove", onPointerMove);
+      gl.domElement.removeEventListener("pointermove", onPointerMove);
     };
-  }, [
-    activeCamera,
-    size,
-    activeViewport,
-    maximizedViewport,
-    hoveredObject,
-    originalColor,
-    gl,
-  ]);
+  }, [activeCamera, hoveredObject, originalColor, gl]);
 
   return null;
 }

@@ -8,7 +8,7 @@ import { useViewportStore } from "../state/viewportStore";
 import ViewSelection from "./ViewSelection";
 
 function MultiViewport() {
-  const arrayCamera = useArrayCamera();
+  const { arrayCamera } = useArrayCamera();
   const { maximizedViewport, activeViewport } = useViewportStore();
   const { gl, size } = useThree();
 
