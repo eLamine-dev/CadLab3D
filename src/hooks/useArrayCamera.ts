@@ -22,12 +22,7 @@ export function useArrayCamera() {
     const height = size.height / 2;
     const aspect = width / height;
 
-    const cameras = [
-      // new THREE.PerspectiveCamera(50, aspect, 0.1, 1000),
-      // new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
-      // new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
-      // new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 1000),
-    ];
+    const cameras = [];
 
     Object.values(viewports).forEach((view) => {
       const camera =
@@ -58,20 +53,38 @@ export function useArrayCamera() {
       controls.enablePan = true;
       controls.enabled = index === activeViewport;
 
+      const camSettings = viewports[index].settings.cameraSettings;
+      if (camSettings.position) {
+        cam.position.copy(camSettings.position);
+      }
+      if (camSettings.target) {
+        controls.target.copy(camSettings.target);
+      }
+      if (cam instanceof THREE.OrthographicCamera && camSettings.zoom) {
+        cam.zoom = camSettings.zoom;
+        cam.updateProjectionMatrix();
+      }
+
+      controls.update();
+
       controls.addEventListener("end", () => {
+        controls.update();
         cam.updateMatrix();
-        setCameraMatrix(index, cam.matrix.clone());
+
+        setCameraMatrix(
+          index,
+          cam.matrix.clone(),
+          cam.position.clone(),
+          controls.target.clone(),
+          cam.zoom
+        );
+
         if (!viewports[index].isCustom) {
           setAsCustom(index);
         }
       });
 
       orbitControlsRef.current.push(controls);
-
-      const transformControls = new TransformControls(cam, gl.domElement);
-      transformControls.enabled = index === activeViewport;
-
-      transformControlsRef.current.push(transformControls);
     });
   }, [arrayCamera, gl, maximizedViewport]);
 
@@ -81,5 +94,5 @@ export function useArrayCamera() {
     });
   }, [activeViewport]);
 
-  return { arrayCamera, transformControlsRef };
+  return { arrayCamera };
 }

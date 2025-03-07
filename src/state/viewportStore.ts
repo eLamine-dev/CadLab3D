@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 const BASE_ORTHO_CAM = {
   zoom: 1.5,
-  target: [0, 0, 0],
+  target: new THREE.Vector3(0, 0, 0),
   near: 0.1,
   far: 1000,
 };
@@ -14,7 +14,7 @@ export const defaultViews = {
     cameraType: "PerspectiveCamera",
     cameraSettings: {
       position: [7, 7, 7],
-      target: [0, 0, 0],
+      target: new THREE.Vector3(0, 0, 0),
       fov: 50,
       near: 0.1,
       far: 1000,
@@ -102,6 +102,7 @@ export const defaultViews = {
       new THREE.Vector3(1, 1, 1)
     ),
   },
+
   Bottom: {
     id: "Bottom",
     cameraType: "OrthographicCamera",
@@ -204,7 +205,7 @@ export const useViewportStore = create((set, get) => ({
     }));
   },
 
-  setCameraMatrix: (viewportId, matrix) =>
+  setCameraMatrix: (viewportId, matrix, position, target, zoom) =>
     set((state) => ({
       ...state,
       viewports: {
@@ -214,6 +215,12 @@ export const useViewportStore = create((set, get) => ({
           settings: {
             ...state.viewports[viewportId].settings,
             matrix: matrix,
+            cameraSettings: {
+              ...state.viewports[viewportId].settings.cameraSettings,
+              position: position,
+              target: target,
+              zoom: zoom,
+            },
           },
         },
       },
