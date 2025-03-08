@@ -2,8 +2,9 @@ import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import { useViewportStore } from "../state/viewportStore";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { TransformControls } from "three/addons/controls/TransformControls.js";
+import CameraControls from "camera-controls"; // ✅ Use CameraControls
+
+CameraControls.install({ THREE });
 
 export function useArrayCamera() {
   const { size, set, gl } = useThree();
@@ -14,14 +15,13 @@ export function useArrayCamera() {
     setCameraMatrix,
     maximizedViewport,
   } = useViewportStore();
-  const orbitControlsRef = useRef<OrbitControls[]>([]);
-  const transformControlsRef = useRef<TransformControls[]>([]);
+
+  const controlsRef = useRef<CameraControls[]>([]);
 
   const arrayCamera = useMemo(() => {
     const width = size.width / 2;
     const height = size.height / 2;
     const aspect = width / height;
-
     const cameras = [];
 
     Object.values(viewports).forEach((view) => {
@@ -36,9 +36,13 @@ export function useArrayCamera() {
               0.1,
               1000
             );
-      // camera.up = view.settings.cameraSettings.up;
-      camera.applyMatrix4(view.settings.matrix);
 
+      // camera.applyMatrix4(view.settings.matrix);
+      if (view.settings.cameraSettings.position) {
+        camera.position.copy(
+          new THREE.Vector3(...view.settings.cameraSettings.position)
+        );
+      }
       cameras.push(camera);
     });
 
@@ -46,40 +50,54 @@ export function useArrayCamera() {
   }, [size, viewports]);
 
   useEffect(() => {
-    orbitControlsRef.current.forEach((ctrl) => ctrl.dispose());
-    orbitControlsRef.current = [];
+    controlsRef.current.forEach((ctrl) => ctrl.dispose());
+    controlsRef.current = [];
 
     arrayCamera.cameras.forEach((cam, index) => {
-      const controls = new OrbitControls(cam, gl.domElement);
-      controls.enablePan = true;
+      const controls = new CameraControls(cam, gl.domElement);
       controls.enabled = index === activeViewport;
+
       const camSettings = viewports[index].settings.cameraSettings;
-      controls.target.copy(camSettings.target);
 
-      controls.update();
+      if (camSettings.position) {
+        cam.position.copy(camSettings.position);
+      }
+      if (camSettings.target) {
+        controls.setTarget(
+          camSettings.target.x,
+          camSettings.target.y,
+          camSettings.target.z
+        );
+      }
+      if (cam instanceof THREE.OrthographicCamera && camSettings.distance) {
+        controls.dollyTo(camSettings.distance, false);
+      }
 
-      controls.addEventListener("end", () => {
-        controls.update();
-        cam.updateMatrix();
-
-        setCameraMatrix(index, cam.matrix.clone(), controls.target);
-
-        console.log("after modif", camSettings.target);
-
+      controls.addEventListener("controlend", () => {
+        const position = new THREE.Vector3();
+        controls.getPosition(position);
+        const target = new THREE.Vector3();
+        controls.getTarget(target);
+        const distance = controls.distance;
+        setCameraMatrix(index, position, target, distance);
         if (!viewports[index].isCustom) {
           setAsCustom(index);
         }
       });
 
-      orbitControlsRef.current.push(controls);
+      controlsRef.current.push(controls);
     });
   }, [arrayCamera, gl, maximizedViewport]);
 
   useEffect(() => {
-    orbitControlsRef.current.forEach((ctrl, index) => {
+    controlsRef.current.forEach((ctrl, index) => {
       ctrl.enabled = index === activeViewport;
     });
   }, [activeViewport]);
+
+  useFrame((_, delta) => {
+    controlsRef.current.forEach((ctrl) => ctrl.update(delta));
+  });
 
   return { arrayCamera };
 }
