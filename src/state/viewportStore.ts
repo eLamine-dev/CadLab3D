@@ -205,7 +205,7 @@ export const useViewportStore = create((set, get) => ({
     }));
   },
 
-  setCameraMatrix: (viewportId, position, target, distance) =>
+  setCameraMatrix: (viewportId, position, target, distance, zoom) =>
     set((state) => ({
       ...state,
       viewports: {
@@ -219,6 +219,7 @@ export const useViewportStore = create((set, get) => ({
               position: position,
               target: target,
               distance: distance,
+              zoom: zoom,
             },
           },
         },

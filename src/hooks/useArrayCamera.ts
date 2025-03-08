@@ -72,9 +72,13 @@ export function useArrayCamera() {
           false
         );
       }
-      if (cam instanceof THREE.OrthographicCamera && camSettings.distance) {
-        controls.dollyTo(camSettings.distance, false);
+
+      if (cam instanceof THREE.OrthographicCamera) {
+        controls.zoomTo(camSettings.zoom, false);
       }
+      // if (cam instanceof THREE.OrthographicCamera && camSettings.distance) {
+      //   controls.dollyTo(camSettings.distance, false);
+      // }
 
       controls.addEventListener("controlend", () => {
         const position = new THREE.Vector3();
@@ -82,7 +86,12 @@ export function useArrayCamera() {
         const target = new THREE.Vector3();
         controls.getTarget(target);
         const distance = controls.distance;
-        setCameraMatrix(index, position, target, distance);
+
+        let zoom = null;
+        if (cam instanceof THREE.OrthographicCamera) {
+          zoom = cam.zoom;
+        }
+        setCameraMatrix(index, position, target, distance, zoom);
         if (!viewports[index].isCustom) {
           setAsCustom(index);
         }
