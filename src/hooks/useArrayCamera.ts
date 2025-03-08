@@ -38,6 +38,7 @@ export function useArrayCamera() {
             );
       // camera.up = view.settings.cameraSettings.up;
       camera.applyMatrix4(view.settings.matrix);
+
       cameras.push(camera);
     });
 
@@ -52,18 +53,8 @@ export function useArrayCamera() {
       const controls = new OrbitControls(cam, gl.domElement);
       controls.enablePan = true;
       controls.enabled = index === activeViewport;
-
       const camSettings = viewports[index].settings.cameraSettings;
-      if (camSettings.position) {
-        cam.position.copy(camSettings.position);
-      }
-      if (camSettings.target) {
-        controls.target.copy(camSettings.target);
-      }
-      if (cam instanceof THREE.OrthographicCamera && camSettings.zoom) {
-        cam.zoom = camSettings.zoom;
-        cam.updateProjectionMatrix();
-      }
+      controls.target.copy(camSettings.target);
 
       controls.update();
 
@@ -71,13 +62,9 @@ export function useArrayCamera() {
         controls.update();
         cam.updateMatrix();
 
-        setCameraMatrix(
-          index,
-          cam.matrix.clone(),
-          cam.position.clone(),
-          controls.target.clone(),
-          cam.zoom
-        );
+        setCameraMatrix(index, cam.matrix.clone(), controls.target);
+
+        console.log("after modif", camSettings.target);
 
         if (!viewports[index].isCustom) {
           setAsCustom(index);

@@ -23,7 +23,6 @@ export default function SceneObjects() {
     if (!activeCamera || !gl) return;
 
     const raycaster = new THREE.Raycaster();
-    console.log(raycaster);
 
     const mouse = new THREE.Vector2();
 
