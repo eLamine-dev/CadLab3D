@@ -56,17 +56,20 @@ export function useArrayCamera() {
     arrayCamera.cameras.forEach((cam, index) => {
       const controls = new CameraControls(cam, gl.domElement);
       controls.enabled = index === activeViewport;
+      controls.smoothTime = 0;
+      controls.draggingSmoothTime = 0;
 
       const camSettings = viewports[index].settings.cameraSettings;
 
       if (camSettings.position) {
-        cam.position.copy(camSettings.position);
+        cam.position.copy(new THREE.Vector3(...camSettings.position));
       }
       if (camSettings.target) {
         controls.setTarget(
           camSettings.target.x,
           camSettings.target.y,
-          camSettings.target.z
+          camSettings.target.z,
+          false
         );
       }
       if (cam instanceof THREE.OrthographicCamera && camSettings.distance) {
