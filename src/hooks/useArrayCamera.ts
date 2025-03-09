@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import { useViewportStore } from "../state/viewportStore";
-import CameraControls from "camera-controls"; // ✅ Use CameraControls
+import CameraControls from "camera-controls";
 
 CameraControls.install({ THREE });
 
@@ -14,6 +14,7 @@ export function useArrayCamera() {
     viewports,
     setCameraMatrix,
     maximizedViewport,
+    setZoom,
   } = useViewportStore();
 
   const controlsRef = useRef<CameraControls[]>([]);
@@ -38,7 +39,7 @@ export function useArrayCamera() {
             );
 
       // camera.applyMatrix4(view.settings.matrix);
-      camera.up.set(...view.settings.cameraSettings.up);
+      // camera.up.set(...view.settings.cameraSettings.up);
 
       camera.position.copy(
         new THREE.Vector3(...view.settings.cameraSettings.position)
@@ -49,6 +50,15 @@ export function useArrayCamera() {
 
     return new THREE.ArrayCamera(cameras);
   }, [size, viewports]);
+
+  useEffect(() => {
+    controlsRef.current.forEach((control, index) => {
+      const camera = control.camera;
+
+      camera.updateProjectionMatrix();
+      setZoom(camera.zoom, index);
+    });
+  }, [maximizedViewport, activeViewport]);
 
   useEffect(() => {
     controlsRef.current.forEach((ctrl) => ctrl.dispose());
@@ -81,9 +91,8 @@ export function useArrayCamera() {
           false
         );
       }
-      if (camSettings.up) {
-        cam.up.set(...camSettings.up);
-      }
+
+      cam.up.set(0, 1, 0);
 
       if (cam instanceof THREE.OrthographicCamera) {
         controls.zoomTo(camSettings.zoom, false);
@@ -99,14 +108,9 @@ export function useArrayCamera() {
         const target = new THREE.Vector3();
         controls.getTarget(target);
 
-        let zoom = null;
         const distance = controls.distance;
 
-        if (cam instanceof THREE.OrthographicCamera) {
-          zoom = cam.zoom;
-        }
-
-        setCameraMatrix(index, position, target, distance, zoom);
+        setCameraMatrix(index, position, target, distance);
         cam.updateMatrixWorld();
 
         const previousRotation =
@@ -119,23 +123,22 @@ export function useArrayCamera() {
         camQuaternion.normalize();
 
         const rotationChanged = previousRotation.angleTo(camQuaternion) > 0.001;
-        console.log(
-          "Rotation Changed:",
-          rotationChanged,
-          "Angle:",
-          previousRotation.angleTo(camQuaternion)
-        );
 
-        if (rotationChanged) {
-          if (!viewports[index].isCustom) {
-            setAsCustom(index);
-          }
+        if (
+          rotationChanged &&
+          !viewports[index].isCustom &&
+          cam instanceof THREE.OrthographicCamera
+        ) {
+          setAsCustom(index);
         }
+
+        cam.updateProjectionMatrix();
+        setZoom(cam.zoom, index);
       });
 
       controlsRef.current.push(controls);
     });
-  }, [arrayCamera, gl, maximizedViewport, viewports]);
+  }, [arrayCamera, gl, maximizedViewport, viewports, activeViewport]);
 
   useEffect(() => {
     controlsRef.current.forEach((ctrl, index) => {

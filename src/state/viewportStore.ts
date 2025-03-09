@@ -181,13 +181,13 @@ export const useViewportStore = create((set, get) => ({
         ...state.viewports,
         [viewportId]: {
           ...state.viewports[viewportId],
-          settings: {
-            ...state.viewports[viewportId].settings,
-            cameraSettings: {
-              ...state.viewports[viewportId].settings.cameraSettings,
-              up: [0, 1, 0],
-            },
-          },
+          // settings: {
+          //   ...state.viewports[viewportId].settings,
+          //   cameraSettings: {
+          //     ...state.viewports[viewportId].settings.cameraSettings,
+          //     up: [0, 1, 0],
+          //   },
+          // },
           isCustom: true,
         },
       },
@@ -213,7 +213,26 @@ export const useViewportStore = create((set, get) => ({
     }));
   },
 
-  setCameraMatrix: (viewportId, position, target, distance, zoom) =>
+  setZoom: (newZoom, viewportId) => {
+    set((state) => ({
+      ...state,
+      viewports: {
+        ...state.viewports,
+        [viewportId]: {
+          ...state.viewports[viewportId],
+          settings: {
+            ...state.viewports[viewportId].settings,
+            cameraSettings: {
+              ...state.viewports[viewportId].settings.cameraSettings,
+              zoom: newZoom,
+            },
+          },
+        },
+      },
+    }));
+  },
+
+  setCameraMatrix: (viewportId, position, target, distance) =>
     set((state) => ({
       ...state,
       viewports: {
@@ -227,7 +246,6 @@ export const useViewportStore = create((set, get) => ({
               position: position,
               target: target,
               distance: distance,
-              zoom: zoom,
             },
           },
         },
