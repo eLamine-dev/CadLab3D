@@ -15,6 +15,7 @@ export const defaultViews = {
     cameraSettings: {
       position: [7, 7, 7],
       target: new THREE.Vector3(0, 0, 0),
+      up: [0, 1, 0],
       fov: 50,
       near: 0.1,
       far: 1000,
@@ -31,7 +32,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [0, 10, 0],
-      up: [0, 1, 0],
+      up: [0, 0, 1],
       ...BASE_ORTHO_CAM,
     },
     matrix: null,
@@ -108,7 +109,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [0, -10, 0],
-      up: [0, 1, 0],
+      up: [0, 0, -1],
       ...BASE_ORTHO_CAM,
     },
     matrix: null,
@@ -180,6 +181,13 @@ export const useViewportStore = create((set, get) => ({
         ...state.viewports,
         [viewportId]: {
           ...state.viewports[viewportId],
+          settings: {
+            ...state.viewports[viewportId].settings,
+            cameraSettings: {
+              ...state.viewports[viewportId].settings.cameraSettings,
+              up: [0, 1, 0],
+            },
+          },
           isCustom: true,
         },
       },

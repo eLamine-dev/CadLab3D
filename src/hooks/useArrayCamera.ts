@@ -38,7 +38,7 @@ export function useArrayCamera() {
             );
 
       // camera.applyMatrix4(view.settings.matrix);
-      camera.up.set(0, 0, 1);
+      camera.up.set(...view.settings.cameraSettings.up);
 
       camera.position.copy(
         new THREE.Vector3(...view.settings.cameraSettings.position)
@@ -81,17 +81,13 @@ export function useArrayCamera() {
           false
         );
       }
-
-      // if (viewports[index].id === "Top" || viewports[index].id === "Bottom") {
-      //   controls.setRotation(cam.quaternion.x, cam.quaternion.y, 0, false); // ✅ Lock roll axis
-      // }
+      if (camSettings.up) {
+        cam.up.set(...camSettings.up);
+      }
 
       if (cam instanceof THREE.OrthographicCamera) {
         controls.zoomTo(camSettings.zoom, false);
       }
-      // if (cam instanceof THREE.OrthographicCamera && camSettings.distance) {
-      //   controls.dollyTo(camSettings.distance, false);
-      // }
 
       controls.addEventListener("controlstart", () => {
         cam.userData.previousRotation = cam.quaternion.clone();
@@ -130,14 +126,16 @@ export function useArrayCamera() {
           previousRotation.angleTo(camQuaternion)
         );
 
-        if (rotationChanged && !viewports[index].isCustom) {
-          setAsCustom(index);
+        if (rotationChanged) {
+          if (!viewports[index].isCustom) {
+            setAsCustom(index);
+          }
         }
       });
 
       controlsRef.current.push(controls);
     });
-  }, [arrayCamera, gl, maximizedViewport]);
+  }, [arrayCamera, gl, maximizedViewport, viewports]);
 
   useEffect(() => {
     controlsRef.current.forEach((ctrl, index) => {
