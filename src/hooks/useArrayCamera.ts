@@ -39,9 +39,7 @@ export function useArrayCamera() {
 
       camera.up.set(...view.settings.cameraSettings.up);
 
-      camera.position.copy(
-        new THREE.Vector3(...view.settings.cameraSettings.position)
-      );
+      camera.position.copy(view.settings.cameraSettings.position);
 
       cameras.push(camera);
     });

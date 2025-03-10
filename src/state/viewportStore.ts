@@ -14,7 +14,7 @@ export const defaultViews = {
     cameraType: "PerspectiveCamera",
     cameraSettings: {
       zoom: 1,
-      position: [7, 7, 7],
+      position: new THREE.Vector3(7, 7, 7),
       target: new THREE.Vector3(0, 0, 0),
       up: [0, 1, 0],
       fov: 50,
@@ -27,7 +27,7 @@ export const defaultViews = {
     id: "Top",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: [0, 10, 0],
+      position: new THREE.Vector3(0, 10, 0),
       up: [0, 0, -1],
       ...BASE_ORTHO_CAM,
     },
@@ -36,7 +36,7 @@ export const defaultViews = {
     id: "Front",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: [0, 0, 10],
+      position: new THREE.Vector3(0, 0, 10),
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
@@ -45,7 +45,7 @@ export const defaultViews = {
     id: "Left",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: [-10, 0, 0],
+      position: new THREE.Vector3(-10, 0, 0),
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
@@ -55,7 +55,7 @@ export const defaultViews = {
     id: "Right",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: [10, 0, 0],
+      position: new THREE.Vector3(10, 0, 0),
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
@@ -64,7 +64,7 @@ export const defaultViews = {
     id: "Back",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: [0, 0, -10],
+      position: new THREE.Vector3(0, 0, -10),
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
@@ -74,7 +74,7 @@ export const defaultViews = {
     id: "Bottom",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: [0, -10, 0],
+      position: new THREE.Vector3(0, -10, 0),
       up: [0, 0, 1],
       ...BASE_ORTHO_CAM,
     },

@@ -6,6 +6,7 @@ import { useArrayCamera } from "../hooks/useArrayCamera";
 import sceneInstance from "../state/Scene";
 import { useViewportStore } from "../state/viewportStore";
 import ViewSelection from "./ViewSelection";
+import TransformCtrls from "./TransformCtrls";
 
 function MultiViewport() {
   const { arrayCamera } = useArrayCamera();
@@ -74,9 +75,10 @@ export default function Workspace() {
   return (
     <div className="workspace">
       <div className="canvas-container">
-        <Canvas onClick={() => console.log("click c")}>
+        <Canvas>
           <MultiViewport />
           <SceneObjects />
+          <TransformCtrls />
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
         </Canvas>

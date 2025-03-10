@@ -13,7 +13,7 @@ function interceptAndRedispatch(event: MouseEvent, canvas: HTMLCanvasElement) {
   const canvasY = event.clientY - rect.top;
 
   let correctedX, correctedY;
-  const viewports = [
+  const viewportsOffset = [
     { x: 0, y: 0 }, // Top-left
     { x: 0.5, y: 0 }, // Top-right
     { x: 0, y: 0.5 }, // Bottom-left
@@ -21,7 +21,7 @@ function interceptAndRedispatch(event: MouseEvent, canvas: HTMLCanvasElement) {
   ];
 
   if (maximizedViewport === null) {
-    const viewport = viewports[activeViewport];
+    const viewport = viewportsOffset[activeViewport];
     correctedX = (canvasX - viewport.x * rect.width) * 2;
     correctedY = (canvasY - viewport.y * rect.height) * 2;
   } else {
