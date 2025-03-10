@@ -15,6 +15,7 @@ export function useArrayCamera() {
     setCameraMatrix,
     maximizedViewport,
     setZoom,
+    updateCamSettings,
   } = useViewportStore();
 
   const controlsRef = useRef<CameraControls[]>([]);
@@ -54,11 +55,23 @@ export function useArrayCamera() {
   useEffect(() => {
     controlsRef.current.forEach((control, index) => {
       const camera = control.camera;
-
+      const position = new THREE.Vector3();
+      control.getPosition(position);
+      const target = new THREE.Vector3();
+      control.getTarget(target);
       const storedZoom = viewports[index].settings.cameraSettings.zoom;
+      const storedPosition = viewports[index].settings.cameraSettings.position;
       if (camera.zoom !== storedZoom) {
-        setZoom(camera.zoom, index);
+        updateCamSettings(index, {
+          zoom: camera.zoom,
+        });
+      } else if (position !== storedPosition) {
+        updateCamSettings(index, {
+          position,
+          target,
+        });
       }
+      camera.updateMatrixWorld();
       camera.updateProjectionMatrix();
     });
   }, [maximizedViewport, activeViewport]);
@@ -112,7 +125,13 @@ export function useArrayCamera() {
 
         cam.updateProjectionMatrix();
         cam.updateMatrixWorld();
-        setCameraMatrix(index, position, target, distance, cam.zoom);
+
+        updateCamSettings(index, {
+          position,
+          target,
+          distance,
+          zoom: cam.zoom,
+        });
 
         const previousRotation =
           cam.userData.previousRotation || cam.quaternion.clone();

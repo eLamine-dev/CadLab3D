@@ -28,7 +28,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [0, 10, 0],
-      up: [0, 0, 1],
+      up: [0, 0, -1],
       ...BASE_ORTHO_CAM,
     },
   },
@@ -75,7 +75,7 @@ export const defaultViews = {
     cameraType: "OrthographicCamera",
     cameraSettings: {
       position: [0, -10, 0],
-      up: [0, 0, -1],
+      up: [0, 0, 1],
       ...BASE_ORTHO_CAM,
     },
   },
@@ -188,7 +188,7 @@ export const useViewportStore = create((set, get) => ({
     }));
   },
 
-  setCameraMatrix: (viewportId, position, target, distance, zoom) =>
+  updateCamSettings: (viewportId, updates) =>
     set((state) => ({
       ...state,
       viewports: {
@@ -199,10 +199,7 @@ export const useViewportStore = create((set, get) => ({
             ...state.viewports[viewportId].settings,
             cameraSettings: {
               ...state.viewports[viewportId].settings.cameraSettings,
-              position: position,
-              target: target,
-              distance: distance,
-              zoom: zoom,
+              ...updates,
             },
           },
         },
