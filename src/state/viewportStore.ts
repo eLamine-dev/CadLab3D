@@ -13,19 +13,15 @@ export const defaultViews = {
     id: "Perspective",
     cameraType: "PerspectiveCamera",
     cameraSettings: {
+      zoom: 1,
       position: [7, 7, 7],
       target: new THREE.Vector3(0, 0, 0),
       up: [0, 1, 0],
       fov: 50,
       near: 0.1,
       far: 1000,
+      distance: 10,
     },
-    matrix: null,
-    initialMatrix: new THREE.Matrix4().compose(
-      new THREE.Vector3(7, 7, 7),
-      new THREE.Quaternion(),
-      new THREE.Vector3(1, 1, 1)
-    ),
   },
   Top: {
     id: "Top",
@@ -35,12 +31,6 @@ export const defaultViews = {
       up: [0, 0, 1],
       ...BASE_ORTHO_CAM,
     },
-    matrix: null,
-    initialMatrix: new THREE.Matrix4().compose(
-      new THREE.Vector3(0, 10, 0),
-      new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)),
-      new THREE.Vector3(1, 1, 1)
-    ),
   },
   Front: {
     id: "Front",
@@ -50,12 +40,6 @@ export const defaultViews = {
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
-    matrix: null,
-    initialMatrix: new THREE.Matrix4().compose(
-      new THREE.Vector3(0, 0, 10),
-      new THREE.Quaternion(),
-      new THREE.Vector3(1, 1, 1)
-    ),
   },
   Left: {
     id: "Left",
@@ -65,12 +49,6 @@ export const defaultViews = {
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
-    matrix: null,
-    initialMatrix: new THREE.Matrix4().compose(
-      new THREE.Vector3(-10, 0, 0),
-      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 2, 0)),
-      new THREE.Vector3(1, 1, 1)
-    ),
   },
 
   Right: {
@@ -81,12 +59,6 @@ export const defaultViews = {
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
-    matrix: null,
-    initialMatrix: new THREE.Matrix4().compose(
-      new THREE.Vector3(10, 0, 0),
-      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -Math.PI / 2, 0)),
-      new THREE.Vector3(1, 1, 1)
-    ),
   },
   Back: {
     id: "Back",
@@ -96,12 +68,6 @@ export const defaultViews = {
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
-    matrix: null,
-    initialMatrix: new THREE.Matrix4().compose(
-      new THREE.Vector3(0, 0, -10),
-      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI, 0)),
-      new THREE.Vector3(1, 1, 1)
-    ),
   },
 
   Bottom: {
@@ -112,12 +78,6 @@ export const defaultViews = {
       up: [0, 0, -1],
       ...BASE_ORTHO_CAM,
     },
-    matrix: null,
-    initialMatrix: new THREE.Matrix4().compose(
-      new THREE.Vector3(0, -10, 0),
-      new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0)),
-      new THREE.Vector3(1, 1, 1)
-    ),
   },
 };
 
@@ -131,7 +91,6 @@ export const useViewportStore = create((set, get) => ({
       id: 0,
       settings: {
         ...defaultViews.Perspective,
-        matrix: defaultViews.Perspective.initialMatrix,
       },
       isCustom: false,
     },
@@ -140,7 +99,6 @@ export const useViewportStore = create((set, get) => ({
       id: 1,
       settings: {
         ...defaultViews.Top,
-        matrix: defaultViews.Top.initialMatrix,
       },
       isCustom: false,
     },
@@ -149,7 +107,6 @@ export const useViewportStore = create((set, get) => ({
       id: 2,
       settings: {
         ...defaultViews.Front,
-        matrix: defaultViews.Front.initialMatrix,
       },
       isCustom: false,
     },
@@ -158,7 +115,6 @@ export const useViewportStore = create((set, get) => ({
       id: 3,
       settings: {
         ...defaultViews.Left,
-        matrix: defaultViews.Left.initialMatrix,
       },
       isCustom: false,
     },
@@ -181,13 +137,13 @@ export const useViewportStore = create((set, get) => ({
         ...state.viewports,
         [viewportId]: {
           ...state.viewports[viewportId],
-          // settings: {
-          //   ...state.viewports[viewportId].settings,
-          //   cameraSettings: {
-          //     ...state.viewports[viewportId].settings.cameraSettings,
-          //     up: [0, 1, 0],
-          //   },
-          // },
+          settings: {
+            ...state.viewports[viewportId].settings,
+            cameraSettings: {
+              ...state.viewports[viewportId].settings.cameraSettings,
+              up: [0, 1, 0],
+            },
+          },
           isCustom: true,
         },
       },
@@ -232,7 +188,7 @@ export const useViewportStore = create((set, get) => ({
     }));
   },
 
-  setCameraMatrix: (viewportId, position, target, distance) =>
+  setCameraMatrix: (viewportId, position, target, distance, zoom) =>
     set((state) => ({
       ...state,
       viewports: {
@@ -246,6 +202,7 @@ export const useViewportStore = create((set, get) => ({
               position: position,
               target: target,
               distance: distance,
+              zoom: zoom,
             },
           },
         },

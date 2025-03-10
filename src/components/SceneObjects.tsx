@@ -34,21 +34,24 @@ export default function SceneObjects() {
       const canvasY = event.clientY - canvas.top;
 
       let x, y;
-      const viewports = [
-        { x: 0, y: 0 }, // Top-left
-        { x: 0.5, y: 0 }, // Top-right
-        { x: 0, y: 0.5 }, // Bottom-left
-        { x: 0.5, y: 0.5 }, // Bottom-right
-      ];
+      // const viewports = [
+      //   { x: 0, y: 0 }, // Top-left
+      //   { x: 0.5, y: 0 }, // Top-right
+      //   { x: 0, y: 0.5 }, // Bottom-left
+      //   { x: 0.5, y: 0.5 }, // Bottom-right
+      // ];
 
-      if (maximizedViewport === null) {
-        const viewport = viewports[activeViewport];
-        x = ((canvasX - viewport.x * canvas.width) * 2) / canvas.width;
-        y = ((canvasY - viewport.y * canvas.height) * 2) / canvas.height;
-      } else {
-        x = canvasX / canvas.width;
-        y = canvasY / canvas.height;
-      }
+      // if (maximizedViewport === null) {
+      //   const viewport = viewports[activeViewport];
+      //   x = ((canvasX - viewport.x * canvas.width) * 2) / canvas.width;
+      //   y = ((canvasY - viewport.y * canvas.height) * 2) / canvas.height;
+      // } else {
+      //   x = canvasX / canvas.width;
+      //   y = canvasY / canvas.height;
+      // }
+
+      x = canvasX / canvas.width;
+      y = canvasY / canvas.height;
 
       mouse.x = x * 2 - 1;
       mouse.y = -(y * 2 - 1);

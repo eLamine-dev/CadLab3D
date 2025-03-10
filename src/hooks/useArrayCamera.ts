@@ -39,7 +39,7 @@ export function useArrayCamera() {
             );
 
       // camera.applyMatrix4(view.settings.matrix);
-      // camera.up.set(...view.settings.cameraSettings.up);
+      camera.up.set(...view.settings.cameraSettings.up);
 
       camera.position.copy(
         new THREE.Vector3(...view.settings.cameraSettings.position)
@@ -55,8 +55,11 @@ export function useArrayCamera() {
     controlsRef.current.forEach((control, index) => {
       const camera = control.camera;
 
+      const storedZoom = viewports[index].settings.cameraSettings.zoom;
+      if (camera.zoom !== storedZoom) {
+        setZoom(camera.zoom, index);
+      }
       camera.updateProjectionMatrix();
-      setZoom(camera.zoom, index);
     });
   }, [maximizedViewport, activeViewport]);
 
@@ -76,6 +79,7 @@ export function useArrayCamera() {
 
       if (cam instanceof THREE.PerspectiveCamera) {
         controls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+        controls.dollyToCursor = true;
       }
 
       const camSettings = viewports[index].settings.cameraSettings;
@@ -92,11 +96,7 @@ export function useArrayCamera() {
         );
       }
 
-      cam.up.set(0, 1, 0);
-
-      if (cam instanceof THREE.OrthographicCamera) {
-        controls.zoomTo(camSettings.zoom, false);
-      }
+      controls.zoomTo(camSettings.zoom, false);
 
       controls.addEventListener("controlstart", () => {
         cam.userData.previousRotation = cam.quaternion.clone();
@@ -110,8 +110,9 @@ export function useArrayCamera() {
 
         const distance = controls.distance;
 
-        setCameraMatrix(index, position, target, distance);
+        cam.updateProjectionMatrix();
         cam.updateMatrixWorld();
+        setCameraMatrix(index, position, target, distance, cam.zoom);
 
         const previousRotation =
           cam.userData.previousRotation || cam.quaternion.clone();
@@ -131,9 +132,6 @@ export function useArrayCamera() {
         ) {
           setAsCustom(index);
         }
-
-        cam.updateProjectionMatrix();
-        setZoom(cam.zoom, index);
       });
 
       controlsRef.current.push(controls);
