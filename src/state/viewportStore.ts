@@ -151,8 +151,6 @@ export const useViewportStore = create((set, get) => ({
   },
 
   setViewportSettings: (viewportId: number, newView) => {
-    console.log(viewportId, newView);
-
     set((state) => ({
       ...state,
       viewports: {
@@ -161,28 +159,8 @@ export const useViewportStore = create((set, get) => ({
           ...state.viewports[viewportId],
           settings: {
             ...defaultViews[newView],
-            matrix: defaultViews[newView].initialMatrix,
           },
           isCustom: false,
-        },
-      },
-    }));
-  },
-
-  setZoom: (newZoom, viewportId) => {
-    set((state) => ({
-      ...state,
-      viewports: {
-        ...state.viewports,
-        [viewportId]: {
-          ...state.viewports[viewportId],
-          settings: {
-            ...state.viewports[viewportId].settings,
-            cameraSettings: {
-              ...state.viewports[viewportId].settings.cameraSettings,
-              zoom: newZoom,
-            },
-          },
         },
       },
     }));

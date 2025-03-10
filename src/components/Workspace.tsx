@@ -88,8 +88,7 @@ export default function Workspace() {
             className="viewport active"
             onMouseDown={(e) => {
               e.stopPropagation();
-              setActiveViewport(maximizedViewport);
-              console.log("click v");
+              // setActiveViewport(maximizedViewport);
             }}
           >
             <ViewSelection viewportId={maximizedViewport} />
@@ -105,7 +104,6 @@ export default function Workspace() {
               onMouseDown={(e) => {
                 e.stopPropagation();
                 setActiveViewport(index);
-                console.log("click v");
               }}
             >
               <ViewSelection viewportId={index} />

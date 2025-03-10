@@ -7,14 +7,12 @@ import CameraControls from "camera-controls";
 CameraControls.install({ THREE });
 
 export function useArrayCamera() {
-  const { size, set, gl } = useThree();
+  const { size, gl } = useThree();
   const {
     activeViewport,
     setAsCustom,
     viewports,
-    setCameraMatrix,
     maximizedViewport,
-    setZoom,
     updateCamSettings,
   } = useViewportStore();
 
@@ -39,7 +37,6 @@ export function useArrayCamera() {
               1000
             );
 
-      // camera.applyMatrix4(view.settings.matrix);
       camera.up.set(...view.settings.cameraSettings.up);
 
       camera.position.copy(
@@ -93,6 +90,8 @@ export function useArrayCamera() {
       if (cam instanceof THREE.PerspectiveCamera) {
         controls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
         controls.dollyToCursor = true;
+      } else {
+        controls.truckSpeed = 1;
       }
 
       const camSettings = viewports[index].settings.cameraSettings;
