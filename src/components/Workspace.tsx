@@ -8,6 +8,8 @@ import { useViewportStore } from "../state/viewportStore";
 import ViewSelection from "./ViewSelection";
 import TransformCtrls from "./TransformCtrls";
 import CameraCtrls from "./CameraCtrls";
+import { CameraControls } from "@react-three/drei";
+import Controls from "./Controls";
 
 function MultiViewport() {
   const { arrayCamera } = useArrayCamera();
@@ -53,6 +55,7 @@ function MultiViewport() {
 
   return null;
 }
+
 export default function Workspace() {
   const {
     setActiveViewport,
@@ -79,8 +82,7 @@ export default function Workspace() {
         <Canvas>
           <MultiViewport />
           <SceneObjects />
-          {/* <TransformCtrls /> */}
-          <CameraCtrls />
+          <Controls />
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
         </Canvas>

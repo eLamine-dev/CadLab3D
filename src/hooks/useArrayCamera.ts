@@ -25,7 +25,7 @@ export function useArrayCamera() {
     const cameras = [];
 
     Object.values(viewports).forEach((view) => {
-      const camera =
+      const cam =
         view.settings.cameraType === "PerspectiveCamera"
           ? new THREE.PerspectiveCamera(50, aspect, 0.1, 1000)
           : new THREE.OrthographicCamera(
@@ -37,39 +37,23 @@ export function useArrayCamera() {
               1000
             );
 
-      camera.up.set(...view.settings.cameraSettings.up);
+      // camera.up.set(...view.settings.cameraSettings.up);
 
-      camera.position.copy(view.settings.cameraSettings.position);
+      // camera.position.copy(view.settings.cameraSettings.position);
 
-      cameras.push(camera);
+      const camSettings = view.settings.cameraSettings;
+      cam.position.copy(camSettings.position);
+      cam.lookAt(camSettings.target);
+      // cam.zoom = camSettings.zoom || 1;
+      cam.updateProjectionMatrix();
+
+      // return cam;
+
+      cameras.push(cam);
     });
 
     return new THREE.ArrayCamera(cameras);
   }, [size, viewports]);
-
-  // useEffect(() => {
-  //   controlsRef.current.forEach((control, index) => {
-  //     const camera = control.camera;
-  //     const position = new THREE.Vector3();
-  //     control.getPosition(position);
-  //     const target = new THREE.Vector3();
-  //     control.getTarget(target);
-  //     const storedZoom = viewports[index].settings.cameraSettings.zoom;
-  //     const storedPosition = viewports[index].settings.cameraSettings.position;
-  //     if (camera.zoom !== storedZoom) {
-  //       updateCamSettings(index, {
-  //         zoom: camera.zoom,
-  //       });
-  //     } else if (position !== storedPosition) {
-  //       updateCamSettings(index, {
-  //         position,
-  //         target,
-  //       });
-  //     }
-  //     camera.updateMatrixWorld();
-  //     camera.updateProjectionMatrix();
-  //   });
-  // }, [maximizedViewport, activeViewport]);
 
   // useEffect(() => {
   //   controlsRef.current.forEach((ctrl) => ctrl.dispose());
@@ -153,6 +137,30 @@ export function useArrayCamera() {
   //     controlsRef.current.push(controls);
   //   });
   // }, [arrayCamera, gl, maximizedViewport, viewports, activeViewport]);
+
+  // useEffect(() => {
+  //   controlsRef.current.forEach((control, index) => {
+  //     const camera = control.camera;
+  //     const position = new THREE.Vector3();
+  //     control.getPosition(position);
+  //     const target = new THREE.Vector3();
+  //     control.getTarget(target);
+  //     const storedZoom = viewports[index].settings.cameraSettings.zoom;
+  //     const storedPosition = viewports[index].settings.cameraSettings.position;
+  //     if (camera.zoom !== storedZoom) {
+  //       updateCamSettings(index, {
+  //         zoom: camera.zoom,
+  //       });
+  //     } else if (position !== storedPosition) {
+  //       updateCamSettings(index, {
+  //         position,
+  //         target,
+  //       });
+  //     }
+  //     camera.updateMatrixWorld();
+  //     camera.updateProjectionMatrix();
+  //   });
+  // }, [maximizedViewport, activeViewport]);
 
   // useEffect(() => {
   //   controlsRef.current.forEach((ctrl, index) => {

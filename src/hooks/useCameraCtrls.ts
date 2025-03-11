@@ -7,7 +7,7 @@ import { useArrayCamera } from "../hooks/useArrayCamera";
 
 CameraControls.install({ THREE });
 
-export function CameraCtrls() {
+export function useCameraControls() {
   const { gl } = useThree();
   const { arrayCamera } = useArrayCamera();
   const {
@@ -17,7 +17,6 @@ export function CameraCtrls() {
     updateCamSettings,
     maximizedViewport,
   } = useViewportStore();
-
   const controlsRef = useRef<CameraControls[]>([]);
 
   useEffect(() => {
@@ -137,5 +136,5 @@ export function CameraCtrls() {
     controlsRef.current.forEach((ctrl) => ctrl.update(delta));
   });
 
-  return null;
+  return { controlsRef };
 }
