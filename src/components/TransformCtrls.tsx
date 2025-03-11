@@ -46,6 +46,8 @@ export default function TransformControlsComponent() {
         (obj) => !(obj.object instanceof THREE.GridHelper)
       );
 
+      console.log(intersects);
+
       if (intersects.length > 0) {
         setSelectedObject(intersects[0].object);
       } else {
@@ -57,7 +59,7 @@ export default function TransformControlsComponent() {
     return () => {
       gl.domElement.removeEventListener("click", onPointerDown);
     };
-  }, [activeCamera, gl]);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -77,13 +79,13 @@ export default function TransformControlsComponent() {
     return () => {
       scene.remove(transformControlsRef.current);
     };
-  }, [selectedObject, scene]);
-
-  useEffect(() => {
-    if (transformControlsRef.current) {
-      transformControlsRef.current.visible = !!selectedObject;
-    }
   }, [selectedObject]);
+
+  // useEffect(() => {
+  //   if (transformControlsRef.current) {
+  //     transformControlsRef.current.visible = !!selectedObject;
+  //   }
+  // }, [selectedObject]);
 
   return (
     <>
@@ -94,6 +96,7 @@ export default function TransformControlsComponent() {
           mode={transformMode}
           camera={activeCamera}
           // onMouseDown={(e) => e.preventDefault()}
+
           onChange={() => selectedObject.updateMatrixWorld()}
         />
       )}

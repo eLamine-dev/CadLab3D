@@ -6,6 +6,6 @@ import * as THREE from "three";
 import { useCorrectedMouse } from "./hooks/useCorrectedMouse";
 
 export default function App() {
-  useCorrectedMouse();
+  // useCorrectedMouse();
   return <Workspace />;
 }

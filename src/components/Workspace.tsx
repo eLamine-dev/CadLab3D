@@ -7,6 +7,7 @@ import sceneInstance from "../state/Scene";
 import { useViewportStore } from "../state/viewportStore";
 import ViewSelection from "./ViewSelection";
 import TransformCtrls from "./TransformCtrls";
+import CameraCtrls from "./CameraCtrls";
 
 function MultiViewport() {
   const { arrayCamera } = useArrayCamera();
@@ -78,7 +79,8 @@ export default function Workspace() {
         <Canvas>
           <MultiViewport />
           <SceneObjects />
-          <TransformCtrls />
+          {/* <TransformCtrls /> */}
+          <CameraCtrls />
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
         </Canvas>

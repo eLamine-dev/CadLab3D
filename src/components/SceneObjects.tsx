@@ -11,9 +11,6 @@ export default function SceneObjects() {
   const { arrayCamera } = useArrayCamera();
   const activeCamera = arrayCamera.cameras[activeViewport];
 
-  const [selectedObject, setSelectedObject] = useState<THREE.Object3D | null>(
-    null
-  );
   const [hoveredObject, setHoveredObject] = useState<THREE.Object3D | null>(
     null
   );
