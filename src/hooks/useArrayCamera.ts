@@ -16,7 +16,7 @@ export function useArrayCamera() {
     updateCamSettings,
   } = useViewportStore();
 
-  // const controlsRef = useRef<CameraControls[]>([]);
+  const controlsRef = useRef<CameraControls[]>([]);
 
   const arrayCamera = useMemo(() => {
     const width = size.width / 2;
@@ -46,8 +46,6 @@ export function useArrayCamera() {
       cam.lookAt(camSettings.target);
       // cam.zoom = camSettings.zoom || 1;
       cam.updateProjectionMatrix();
-
-      // return cam;
 
       cameras.push(cam);
     });

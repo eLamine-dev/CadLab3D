@@ -60,6 +60,11 @@ export function useCameraControls() {
         cam.userData.previousRotation = cam.quaternion.clone();
       });
 
+      controls.addEventListener("control", () => {
+        cam.updateProjectionMatrix();
+        cam.updateMatrixWorld();
+      });
+
       controls.addEventListener("controlend", () => {
         const position = new THREE.Vector3();
         controls.getPosition(position);

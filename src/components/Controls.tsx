@@ -1,5 +1,5 @@
-import { useCameraControls } from "../hooks/useCameraCtrls";
-import { useFrame } from "@react-three/fiber";
+import CameraCtrls from "./CameraCtrls";
+
 import TransformCtrls from "./TransformCtrls";
 
 export default function Controls() {
@@ -13,6 +13,7 @@ export default function Controls() {
       //   controlsRef.current.forEach((ctrl) => (ctrl.enabled = true))
       // }
       />
+      {/* <CameraCtrls /> */}
     </>
   );
 }

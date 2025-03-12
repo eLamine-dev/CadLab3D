@@ -11,50 +11,50 @@ import CameraCtrls from "./CameraCtrls";
 import { CameraControls } from "@react-three/drei";
 import Controls from "./Controls";
 
-function MultiViewport() {
-  const { arrayCamera } = useArrayCamera();
-  const { maximizedViewport, activeViewport } = useViewportStore();
-  const { gl, size } = useThree();
+// function MultiViewport() {
+//   const { arrayCamera } = useArrayCamera();
+//   const { maximizedViewport, activeViewport } = useViewportStore();
+//   const { gl, size } = useThree();
 
-  useFrame(() => {
-    if (!arrayCamera) return;
+//   useFrame(() => {
+//     if (!arrayCamera) return;
 
-    const fullWidth = size.width;
-    const fullHeight = size.height;
-    const halfWidth = fullWidth / 2;
-    const halfHeight = fullHeight / 2;
+//     const fullWidth = size.width;
+//     const fullHeight = size.height;
+//     const halfWidth = fullWidth / 2;
+//     const halfHeight = fullHeight / 2;
 
-    const viewportPositions = [
-      [0, halfHeight],
-      [halfWidth, halfHeight],
-      [0, 0],
-      [halfWidth, 0],
-    ];
+//     const viewportPositions = [
+//       [0, halfHeight],
+//       [halfWidth, halfHeight],
+//       [0, 0],
+//       [halfWidth, 0],
+//     ];
 
-    requestAnimationFrame(() => {
-      if (maximizedViewport !== null) {
-        gl.setViewport(0, 0, fullWidth, fullHeight);
-        gl.setScissor(0, 0, fullWidth, fullHeight);
-        gl.setScissorTest(true);
-        gl.render(
-          sceneInstance.getScene(),
-          arrayCamera.cameras[activeViewport]
-        );
-        return;
-      }
+//     requestAnimationFrame(() => {
+//       if (maximizedViewport !== null) {
+//         gl.setViewport(0, 0, fullWidth, fullHeight);
+//         gl.setScissor(0, 0, fullWidth, fullHeight);
+//         gl.setScissorTest(true);
+//         gl.render(
+//           sceneInstance.getScene(),
+//           arrayCamera.cameras[activeViewport]
+//         );
+//         return;
+//       }
 
-      arrayCamera.cameras.forEach((cam, index) => {
-        const [x, y] = viewportPositions[index];
-        gl.setViewport(x, y, halfWidth, halfHeight);
-        gl.setScissor(x, y, halfWidth, halfHeight);
-        gl.setScissorTest(true);
-        gl.render(sceneInstance.getScene(), cam);
-      });
-    });
-  });
+//       arrayCamera.cameras.forEach((cam, index) => {
+//         const [x, y] = viewportPositions[index];
+//         gl.setViewport(x, y, halfWidth, halfHeight);
+//         gl.setScissor(x, y, halfWidth, halfHeight);
+//         gl.setScissorTest(true);
+//         gl.render(sceneInstance.getScene(), cam);
+//       });
+//     });
+//   });
 
-  return null;
-}
+//   return null;
+// }
 
 export default function Workspace() {
   const {
@@ -80,9 +80,10 @@ export default function Workspace() {
     <div className="workspace">
       <div className="canvas-container">
         <Canvas>
-          <MultiViewport />
+          {/* <MultiViewport /> */}
           <SceneObjects />
           <Controls />
+          <CameraCtrls />
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
         </Canvas>
