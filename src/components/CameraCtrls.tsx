@@ -15,7 +15,6 @@ export default function CameraCtrls() {
     maximizedViewport,
   } = useViewportStore();
   const controlsRef = useRef<CameraControls[]>([]);
-  console.log(controlsRef.current);
 
   const arrayCamera = useMemo(() => {
     const width = size.width / 2;
@@ -45,121 +44,6 @@ export default function CameraCtrls() {
     return new THREE.ArrayCamera(cameras);
   }, [size, viewports]);
 
-  useEffect(() => {
-    const activeCam = arrayCamera.cameras[activeViewport];
-    if (activeCam) {
-      activeCam.updateProjectionMatrix();
-      activeCam.updateMatrixWorld();
-    }
-  }, [activeViewport, arrayCamera]);
-
-  //-----------------------------
-  useEffect(() => {
-    arrayCamera.cameras.forEach((cam, index) => {
-      const controls = controlsRef.current[index];
-      controls.enabled = index === activeViewport;
-      controls.smoothTime = 0;
-      controls.draggingSmoothTime = 0;
-
-      controls.minPolarAngle = -Infinity;
-      controls.maxPolarAngle = Infinity;
-      controls.azimuthRotateSpeed = 1;
-
-      if (cam instanceof THREE.PerspectiveCamera) {
-        // controls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
-        controls.dollyToCursor = true;
-      } else {
-        controls.truckSpeed = 1;
-      }
-
-      const camSettings = viewports[index].settings.cameraSettings;
-
-      if (camSettings.position) {
-        cam.position.copy(camSettings.position);
-      }
-      if (camSettings.target) {
-        controls.setTarget(
-          camSettings.target.x,
-          camSettings.target.y,
-          camSettings.target.z,
-          false
-        );
-      }
-
-      controls.zoomTo(camSettings.zoom, false);
-
-      controls.addEventListener("controlstart", () => {
-        cam.userData.previousRotation = cam.quaternion.clone();
-      });
-
-      controls.addEventListener("controlend", () => {
-        const position = new THREE.Vector3();
-        controls.getPosition(position);
-        const target = new THREE.Vector3();
-        controls.getTarget(target);
-
-        const distance = controls.distance;
-
-        cam.updateProjectionMatrix();
-        cam.updateMatrixWorld();
-
-        updateCamSettings(index, {
-          position,
-          target,
-          distance,
-          zoom: cam.zoom,
-        });
-
-        const previousRotation =
-          cam.userData.previousRotation || cam.quaternion.clone();
-
-        const camQuaternion = new THREE.Quaternion();
-        cam.getWorldQuaternion(camQuaternion);
-
-        previousRotation.normalize();
-        camQuaternion.normalize();
-
-        const rotationChanged = previousRotation.angleTo(camQuaternion) > 0.001;
-
-        if (
-          rotationChanged &&
-          !viewports[index].isCustom &&
-          cam instanceof THREE.OrthographicCamera
-        ) {
-          setAsCustom(index);
-        }
-      });
-    });
-  }, [arrayCamera, gl, maximizedViewport, viewports, activeViewport]);
-
-  useEffect(() => {
-    controlsRef.current.forEach((control, index) => {
-      const camera = control.camera;
-      const position = new THREE.Vector3();
-      control.getPosition(position);
-      const target = new THREE.Vector3();
-      control.getTarget(target);
-      const storedZoom = viewports[index].settings.cameraSettings.zoom;
-      const storedPosition = viewports[index].settings.cameraSettings.position;
-      if (camera.zoom !== storedZoom) {
-        updateCamSettings(index, {
-          zoom: camera.zoom,
-        });
-      } else if (position !== storedPosition) {
-        updateCamSettings(index, {
-          position,
-          target,
-        });
-      }
-      camera.updateMatrixWorld();
-      camera.updateProjectionMatrix();
-    });
-  }, [maximizedViewport, activeViewport]);
-
-  useFrame((_, delta) => {
-    controlsRef.current.forEach((ctrl) => ctrl.update(delta));
-  });
-  //--------------------------------
   useFrame(() => {
     if (!arrayCamera) return;
 
@@ -197,6 +81,127 @@ export default function CameraCtrls() {
     });
   });
 
+  useEffect(() => {
+    controlsRef.current.forEach((ctrl) => {
+      if (ctrl) ctrl.dispose();
+    });
+    controlsRef.current = [];
+  }, [activeViewport]);
+
+  useEffect(() => {
+    if (controlsRef.current.length === 0) return;
+    controlsRef.current.forEach((control, index) => {
+      const camera = control.camera;
+      const position = new THREE.Vector3();
+      control.getPosition(position);
+      const target = new THREE.Vector3();
+      control.getTarget(target);
+      const storedZoom = viewports[index].settings.cameraSettings.zoom;
+      const storedPosition = viewports[index].settings.cameraSettings.position;
+      if (camera.zoom !== storedZoom) {
+        updateCamSettings(index, {
+          zoom: camera.zoom,
+        });
+      } else if (position !== storedPosition) {
+        updateCamSettings(index, {
+          position,
+          target,
+        });
+      }
+      camera.updateMatrixWorld();
+      camera.updateProjectionMatrix();
+      console.log(viewports[index].settings);
+    });
+  }, [maximizedViewport, activeViewport]);
+
+  useEffect(() => {
+    arrayCamera.cameras.forEach((cam, index) => {
+      const controls = controlsRef.current[index];
+      if (!controls) return;
+      // controls.enabled = index === activeViewport;
+      controls.smoothTime = 0;
+      controls.draggingSmoothTime = 0;
+
+      controls.minPolarAngle = -Infinity;
+      controls.maxPolarAngle = Infinity;
+      controls.azimuthRotateSpeed = 1;
+
+      if (cam instanceof THREE.PerspectiveCamera) {
+        // controls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+        controls.dollyToCursor = true;
+      } else {
+        controls.truckSpeed = 1;
+      }
+
+      const camSettings = viewports[index].settings.cameraSettings;
+
+      if (camSettings.position) {
+        cam.position.copy(camSettings.position);
+      }
+
+      if (camSettings.target) {
+        controls.setTarget(
+          camSettings.target.x,
+          camSettings.target.y,
+          camSettings.target.z,
+          false
+        );
+      }
+
+      if (cam.zoom !== camSettings.zoom) {
+        controls.zoomTo(camSettings.zoom, false);
+        cam.zoom = camSettings.zoom;
+      }
+
+      cam.updateProjectionMatrix();
+      cam.updateMatrixWorld();
+
+      controls.addEventListener("controlstart", () => {
+        cam.userData.previousRotation = cam.quaternion.clone();
+      });
+
+      controls.addEventListener("controlend", () => {
+        const position = new THREE.Vector3();
+        controls.getPosition(position);
+        const target = new THREE.Vector3();
+        controls.getTarget(target);
+
+        const distance = controls.distance;
+
+        updateCamSettings(index, {
+          position,
+          target,
+          distance,
+          zoom: cam.zoom,
+        });
+
+        const previousRotation =
+          cam.userData.previousRotation || cam.quaternion.clone();
+
+        const camQuaternion = new THREE.Quaternion();
+        cam.getWorldQuaternion(camQuaternion);
+
+        previousRotation.normalize();
+        camQuaternion.normalize();
+
+        const rotationChanged = previousRotation.angleTo(camQuaternion) > 0.001;
+
+        if (
+          rotationChanged &&
+          !viewports[index].isCustom &&
+          cam instanceof THREE.OrthographicCamera
+        ) {
+          setAsCustom(index);
+        }
+      });
+    });
+  }, [arrayCamera, gl, maximizedViewport, viewports, activeViewport]);
+
+  useFrame((_, delta) => {
+    controlsRef.current.forEach((ctrl) => ctrl.update(delta));
+  });
+  //--------------------------------
+
   return (
     <>
       <primitive object={arrayCamera} />
@@ -214,47 +219,10 @@ export default function CameraCtrls() {
           maxPolarAngle={Infinity}
           azimuthRotateSpeed={1}
           // mouseButtons={{
-          //   wheel:
-          //     cam instanceof THREE.PerspectiveCamera
-          //       ? CameraControls.ACTION.DOLLY
-          //       : undefined,
+          //   wheel: THREE.ACTION.DOLLY,
           // }}
-
           dollyToCursor={cam instanceof THREE.PerspectiveCamera}
           truckSpeed={cam instanceof THREE.PerspectiveCamera ? undefined : 1}
-          // onEnd={(e) => {
-          //   const position = new THREE.Vector3();
-          //   controlsRef.current[index].getPosition(position);
-          //   const target = new THREE.Vector3();
-          //   controlsRef.current[index].getTarget(target);
-          //   const distance = controlsRef.current[index].distance;
-          //   cam.updateProjectionMatrix();
-          //   cam.updateMatrixWorld();
-          //   updateCamSettings(index, {
-          //     position,
-          //     target,
-          //     distance,
-          //     zoom: cam.zoom,
-          //   });
-
-          //   const previousRotation =
-          //     cam.userData.previousRotation || cam.quaternion.clone();
-          //   const camQuaternion = new THREE.Quaternion();
-          //   cam.getWorldQuaternion(camQuaternion);
-
-          //   previousRotation.normalize();
-          //   camQuaternion.normalize();
-          //   const rotationChanged =
-          //     previousRotation.angleTo(camQuaternion) > 0.001;
-
-          //   if (
-          //     rotationChanged &&
-          //     !viewports[index].isCustom &&
-          //     cam instanceof THREE.OrthographicCamera
-          //   ) {
-          //     setAsCustom(index);
-          //   }
-          // }}
         />
       ))}
     </>
