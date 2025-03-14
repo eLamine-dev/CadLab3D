@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 import { useViewportStore } from "../state/viewportStore";
@@ -44,6 +44,8 @@ export default function CameraCtrls() {
     return new THREE.ArrayCamera(cameras);
   }, [size, viewports]);
 
+  const [forceUpdate, setForceUpdate] = useState(0);
+
   useFrame(() => {
     if (!arrayCamera) return;
 
@@ -82,41 +84,63 @@ export default function CameraCtrls() {
   });
 
   useEffect(() => {
-    controlsRef.current.forEach((ctrl) => {
-      if (ctrl) ctrl.dispose();
-    });
-    controlsRef.current = [];
+    return () => {
+      // console.log("Disposing old controls after state update...");
+      controlsRef.current.forEach((ctrl) => {
+        if (ctrl) ctrl.dispose();
+      });
+      controlsRef.current = [];
+    };
   }, [activeViewport]);
 
   useEffect(() => {
-    if (controlsRef.current.length === 0) return;
-    controlsRef.current.forEach((control, index) => {
-      const camera = control.camera;
-      const position = new THREE.Vector3();
-      control.getPosition(position);
-      const target = new THREE.Vector3();
-      control.getTarget(target);
-      const storedZoom = viewports[index].settings.cameraSettings.zoom;
-      const storedPosition = viewports[index].settings.cameraSettings.position;
-      if (camera.zoom !== storedZoom) {
-        updateCamSettings(index, {
-          zoom: camera.zoom,
-        });
-      } else if (position !== storedPosition) {
-        updateCamSettings(index, {
-          position,
-          target,
-        });
-      }
-      camera.updateMatrixWorld();
-      camera.updateProjectionMatrix();
-      console.log(viewports[index].settings);
-    });
-  }, [maximizedViewport, activeViewport]);
+    if (controlsRef.current.length === 0) {
+      console.log("Waiting for controls to initialize...");
+      setForceUpdate((prev) => prev + 1);
+
+      return;
+    }
+
+    try {
+      controlsRef.current.forEach((control, index) => {
+        const camera = control.camera;
+        if (!camera) {
+          return;
+        }
+
+        const position = new THREE.Vector3();
+        control.getPosition(position);
+        const target = new THREE.Vector3();
+        control.getTarget(target);
+        const storedZoom = viewports[index].settings.cameraSettings.zoom;
+        const storedPosition =
+          viewports[index].settings.cameraSettings.position;
+
+        if (camera.zoom !== storedZoom) {
+          updateCamSettings(index, { zoom: camera.zoom });
+        } else if (!position.equals(storedPosition)) {
+          updateCamSettings(index, { position, target });
+        }
+
+        console.log(viewports[index].settings.cameraSettings);
+      });
+    } catch (error) {
+      console.error("❌ Error inside forEach loop:", error);
+    }
+
+    // return () => {
+    //   // console.log("Disposing old controls after state update...");
+    //   controlsRef.current.forEach((ctrl) => {
+    //     if (ctrl) ctrl.dispose();
+    //   });
+    //   controlsRef.current = [];
+    // };
+  }, [activeViewport]);
 
   useEffect(() => {
     arrayCamera.cameras.forEach((cam, index) => {
       const controls = controlsRef.current[index];
+
       if (!controls) return;
       // controls.enabled = index === activeViewport;
       controls.smoothTime = 0;
@@ -152,9 +176,6 @@ export default function CameraCtrls() {
         controls.zoomTo(camSettings.zoom, false);
         cam.zoom = camSettings.zoom;
       }
-
-      cam.updateProjectionMatrix();
-      cam.updateMatrixWorld();
 
       controls.addEventListener("controlstart", () => {
         cam.userData.previousRotation = cam.quaternion.clone();
@@ -195,7 +216,7 @@ export default function CameraCtrls() {
         }
       });
     });
-  }, [arrayCamera, gl, maximizedViewport, viewports, activeViewport]);
+  }, [arrayCamera, gl, viewports]);
 
   useFrame((_, delta) => {
     controlsRef.current.forEach((ctrl) => ctrl.update(delta));
@@ -209,7 +230,7 @@ export default function CameraCtrls() {
         <CameraControls
           key={index}
           ref={(el) => {
-            controlsRef.current[index] = el;
+            if (el) controlsRef.current[index] = el;
           }}
           camera={cam}
           enabled={index === activeViewport}
