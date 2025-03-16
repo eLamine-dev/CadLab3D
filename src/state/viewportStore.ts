@@ -2,7 +2,7 @@ import { create } from "zustand";
 import * as THREE from "three";
 
 const BASE_ORTHO_CAM = {
-  zoom: 1.5,
+  zoom: 3,
   target: new THREE.Vector3(0, 0, 0),
   // target: [0, 0, 0],
   near: 0.1,

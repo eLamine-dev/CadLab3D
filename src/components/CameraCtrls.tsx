@@ -36,6 +36,7 @@ export default function CameraCtrls() {
 
       const camSettings = view.settings.cameraSettings;
       cam.position.copy(camSettings.position);
+      cam.zoom = camSettings.zoom;
       cam.lookAt(camSettings.target);
       cam.updateProjectionMatrix();
       return cam;
@@ -83,15 +84,15 @@ export default function CameraCtrls() {
     });
   });
 
-  useEffect(() => {
-    return () => {
-      // console.log("Disposing old controls after state update...");
-      controlsRef.current.forEach((ctrl) => {
-        if (ctrl) ctrl.dispose();
-      });
-      controlsRef.current = [];
-    };
-  }, [activeViewport]);
+  // useEffect(() => {
+  //   return () => {
+  //     // console.log("Disposing old controls after state update...");
+  //     controlsRef.current.forEach((ctrl) => {
+  //       if (ctrl) ctrl.dispose();
+  //     });
+  //     controlsRef.current = [];
+  //   };
+  // }, [activeViewport]);
 
   useEffect(() => {
     if (controlsRef.current.length === 0) {
@@ -103,7 +104,7 @@ export default function CameraCtrls() {
 
     try {
       controlsRef.current.forEach((control, index) => {
-        const camera = control.camera;
+        const camera = arrayCamera.cameras[index];
         if (!camera) {
           return;
         }
@@ -115,8 +116,10 @@ export default function CameraCtrls() {
         const storedZoom = viewports[index].settings.cameraSettings.zoom;
         const storedPosition =
           viewports[index].settings.cameraSettings.position;
-
+        console.log(camera.zoom);
         if (camera.zoom !== storedZoom) {
+          console.log("zzoom saved");
+
           updateCamSettings(index, { zoom: camera.zoom });
         } else if (!position.equals(storedPosition)) {
           updateCamSettings(index, { position, target });
@@ -128,14 +131,14 @@ export default function CameraCtrls() {
       console.error("❌ Error inside forEach loop:", error);
     }
 
-    // return () => {
-    //   // console.log("Disposing old controls after state update...");
-    //   controlsRef.current.forEach((ctrl) => {
-    //     if (ctrl) ctrl.dispose();
-    //   });
-    //   controlsRef.current = [];
-    // };
-  }, [activeViewport]);
+    return () => {
+      // console.log("Disposing old controls after state update...");
+      controlsRef.current.forEach((ctrl) => {
+        if (ctrl) ctrl.dispose();
+      });
+      controlsRef.current = [];
+    };
+  }, [activeViewport, forceUpdate]);
 
   useEffect(() => {
     arrayCamera.cameras.forEach((cam, index) => {
@@ -174,7 +177,6 @@ export default function CameraCtrls() {
 
       if (cam.zoom !== camSettings.zoom) {
         controls.zoomTo(camSettings.zoom, false);
-        cam.zoom = camSettings.zoom;
       }
 
       controls.addEventListener("controlstart", () => {
@@ -216,7 +218,7 @@ export default function CameraCtrls() {
         }
       });
     });
-  }, [arrayCamera, gl, viewports]);
+  }, [arrayCamera, gl, viewports, forceUpdate]);
 
   useFrame((_, delta) => {
     controlsRef.current.forEach((ctrl) => ctrl.update(delta));
@@ -225,7 +227,7 @@ export default function CameraCtrls() {
 
   return (
     <>
-      <primitive object={arrayCamera} />
+      {/* <primitive object={arrayCamera} /> */}
       {arrayCamera.cameras.map((cam, index) => (
         <CameraControls
           key={index}
