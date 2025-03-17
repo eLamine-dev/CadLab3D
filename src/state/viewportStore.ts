@@ -175,7 +175,9 @@ export const useViewportStore = create((set, get) => ({
     }));
   },
 
-  updateCamSettings: (viewportId, updates) =>
+  updateCamSettings: (viewportId, updates) => {
+    console.log("updates", updates);
+
     set((state) => ({
       ...state,
       viewports: {
@@ -191,7 +193,8 @@ export const useViewportStore = create((set, get) => ({
           },
         },
       },
-    })),
+    }));
+  },
 
   setMaximizedViewport: (viewportId) => {
     set((state) => ({
