@@ -1,12 +1,13 @@
 import * as THREE from "three";
-import { useEffect, useMemo, useRef } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
+import sceneInstance from "../state/Scene";
 import { useViewportStore } from "../state/viewportStore";
+import { useEffect, useMemo, useRef } from "react";
 import CameraControls from "camera-controls";
 
 CameraControls.install({ THREE });
 
-export function useArrayCamera() {
+export default function MultiViewport() {
   const { size, gl } = useThree();
   const {
     activeViewport,
@@ -39,9 +40,7 @@ export function useArrayCamera() {
 
       camera.up.set(...view.settings.cameraSettings.up);
 
-      camera.position.copy(
-        new THREE.Vector3(...view.settings.cameraSettings.position)
-      );
+      camera.position.copy(view.settings.cameraSettings.position);
 
       cameras.push(camera);
     });
@@ -50,6 +49,7 @@ export function useArrayCamera() {
   }, [size, viewports]);
 
   useEffect(() => {
+    if (controlsRef.current.length == 0) return;
     controlsRef.current.forEach((control, index) => {
       const camera = control.camera;
       const position = new THREE.Vector3();
@@ -166,5 +166,40 @@ export function useArrayCamera() {
     controlsRef.current.forEach((ctrl) => ctrl.update(delta));
   });
 
-  return { arrayCamera };
+  useFrame(() => {
+    const fullWidth = size.width;
+    const fullHeight = size.height;
+    const halfWidth = fullWidth / 2;
+    const halfHeight = fullHeight / 2;
+
+    const viewportPositions = [
+      [0, halfHeight],
+      [halfWidth, halfHeight],
+      [0, 0],
+      [halfWidth, 0],
+    ];
+
+    requestAnimationFrame(() => {
+      if (maximizedViewport !== null) {
+        gl.setViewport(0, 0, fullWidth, fullHeight);
+        gl.setScissor(0, 0, fullWidth, fullHeight);
+        gl.setScissorTest(true);
+        gl.render(
+          sceneInstance.getScene(),
+          arrayCamera.cameras[activeViewport]
+        );
+        return;
+      }
+
+      arrayCamera.cameras.forEach((cam, index) => {
+        const [x, y] = viewportPositions[index];
+        gl.setViewport(x, y, halfWidth, halfHeight);
+        gl.setScissor(x, y, halfWidth, halfHeight);
+        gl.setScissorTest(true);
+        gl.render(sceneInstance.getScene(), cam);
+      });
+    });
+  });
+
+  return null;
 }

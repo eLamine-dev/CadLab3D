@@ -1,15 +1,18 @@
 import { useEffect } from "react";
+import * as THREE from "three";
 
-import SceneObjects from "./SceneObjects";
+// import SceneObjects from "./SceneObjects";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
-import { useArrayCamera } from "../hooks/useArrayCamera";
+
 import sceneInstance from "../state/Scene";
 import { useViewportStore } from "../state/viewportStore";
 import ViewSelection from "./ViewSelection";
-import TransformCtrls from "./TransformCtrls";
+// import TransformCtrls from "./TransformCtrls";
 import CameraCtrls from "./CameraCtrls";
-import { CameraControls } from "@react-three/drei";
+
 import Controls from "./Controls";
+// import { useArrayCamera } from "../hooks/useArrayCamera";
+// import MultiViewport from "./MultiViewport";
 
 // function MultiViewport() {
 //   const { arrayCamera } = useArrayCamera();
@@ -81,9 +84,10 @@ export default function Workspace() {
       <div className="canvas-container">
         <Canvas>
           {/* <MultiViewport /> */}
-          <SceneObjects />
+          {/* <SceneObjects /> */}
           {/* <Controls /> */}
           <CameraCtrls />
+
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
         </Canvas>
