@@ -45,7 +45,7 @@ export default function CameraCtrls() {
     });
 
     return new THREE.ArrayCamera(cameras);
-  }, [size, viewports]);
+  }, [size]);
 
   useEffect(() => {
     controlsRef.current.forEach((control, index) => {
@@ -94,7 +94,7 @@ export default function CameraCtrls() {
       );
 
       controls.camera.zoom = camSettings.zoom;
-      // controls.zoomTo(camSettings.zoom, false);
+      controls.zoomTo(camSettings.zoom, false);
 
       // controls.camera.updateProjectionMatrix();
       // controls.camera.updateMatrixWorld();
