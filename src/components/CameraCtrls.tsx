@@ -5,7 +5,7 @@ import { CameraControls } from "@react-three/drei";
 import { useViewportStore } from "../state/viewportStore";
 import sceneInstance from "../state/Scene";
 
-export default function CameraCtrls() {
+export default function CameraCtrls({ dragging }) {
   const { size, gl } = useThree();
   const {
     activeViewport,
@@ -65,7 +65,9 @@ export default function CameraCtrls() {
         updateCamSettings(index, {
           zoom: camera.zoom,
         });
-      } else if (
+      }
+
+      if (
         !position.equals(storedPosition)
         // &&
         // camera instanceof THREE.PerspectiveCamera
@@ -122,7 +124,7 @@ export default function CameraCtrls() {
             }
           }}
           camera={cam}
-          enabled={index === activeViewport}
+          enabled={index === activeViewport && !dragging}
           smoothTime={0}
           draggingSmoothTime={0}
           minPolarAngle={-Infinity}

@@ -1,19 +1,14 @@
+import { useState } from "react";
 import CameraCtrls from "./CameraCtrls";
 
 import TransformCtrls from "./TransformCtrls";
 
 export default function Controls() {
+  const [dragging, setDragging] = useState(false);
   return (
     <>
-      <TransformCtrls
-      // disableCameraControls={() =>
-      //   controlsRef.current.forEach((ctrl) => (ctrl.enabled = false))
-      // }
-      // enableCameraControls={() =>
-      //   controlsRef.current.forEach((ctrl) => (ctrl.enabled = true))
-      // }
-      />
-      {/* <CameraCtrls /> */}
+      <TransformCtrls setDragging={setDragging} />
+      <CameraCtrls dragging={dragging} />
     </>
   );
 }

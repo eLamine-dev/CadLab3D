@@ -6,7 +6,7 @@ import sceneInstance from "../state/Scene";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
 
-export default function TransformControlsComponent() {
+export default function TransformControlsComponent({ setDragging }) {
   const { gl } = useThree();
   const { activeViewport } = useViewportStore();
   const { arrayCamera } = useArrayCamera();
@@ -96,7 +96,8 @@ export default function TransformControlsComponent() {
           mode={transformMode}
           camera={activeCamera}
           // onMouseDown={(e) => e.preventDefault()}
-
+          onMouseDown={() => setDragging(true)}
+          onMouseUp={() => setDragging(false)}
           onChange={() => selectedObject.updateMatrixWorld()}
         />
       )}

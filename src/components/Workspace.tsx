@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import * as THREE from "three";
 
-// import SceneObjects from "./SceneObjects";
+import SceneObjects from "./SceneObjects";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 
 import sceneInstance from "../state/Scene";
@@ -84,9 +84,9 @@ export default function Workspace() {
       <div className="canvas-container">
         <Canvas>
           {/* <MultiViewport /> */}
-          {/* <SceneObjects /> */}
-          {/* <Controls /> */}
-          <CameraCtrls />
+          <SceneObjects />
+          <Controls />
+          {/* <CameraCtrls /> */}
 
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
