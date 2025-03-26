@@ -176,7 +176,7 @@ export const useViewportStore = create((set, get) => ({
   },
 
   updateCamSettings: (viewportId, updates) => {
-    console.log("updates", updates);
+    // console.log("updates", updates);
 
     set((state) => ({
       ...state,

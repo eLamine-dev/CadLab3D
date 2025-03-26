@@ -132,6 +132,7 @@ export default function CameraCtrls({ dragging }) {
           azimuthRotateSpeed={1}
           dollyToCursor={cam instanceof THREE.PerspectiveCamera}
           truckSpeed={cam instanceof THREE.OrthographicCamera ? 1 : undefined}
+          makeDefault
           // onEnd={() => saveSettings(index)}
         />
       );

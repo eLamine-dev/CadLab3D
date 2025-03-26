@@ -6,7 +6,7 @@ import sceneInstance from "../state/Scene";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
 
-export default function TransformControlsComponent({ setDragging }) {
+export default function TransformCtrls({ setDragging }) {
   const { gl } = useThree();
   const { activeViewport } = useViewportStore();
   const { arrayCamera } = useArrayCamera();
@@ -16,11 +16,7 @@ export default function TransformControlsComponent({ setDragging }) {
   const [selectedObject, setSelectedObject] = useState<THREE.Object3D | null>(
     null
   );
-  const [transformMode, setTransformMode] = useState<
-    "translate" | "rotate" | "scale"
-  >("translate");
-
-  const transformControlsRef = useRef<THREE.Object3D | null>(null);
+  const transformControlsRef = useRef(null);
 
   useEffect(() => {
     if (!activeCamera || !gl) return;
@@ -30,23 +26,23 @@ export default function TransformControlsComponent({ setDragging }) {
 
     const onPointerDown = (event: MouseEvent) => {
       if (!activeCamera) return;
+
       const canvas = gl.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - canvas.left) / canvas.width) * 2 - 1;
       mouse.y = -((event.clientY - canvas.top) / canvas.height) * 2 + 1;
 
       activeCamera.updateMatrixWorld();
       activeCamera.updateProjectionMatrix();
-      raycaster.setFromCamera(mouse, activeCamera);
 
-      let intersects = raycaster.intersectObjects(
-        sceneInstance.getScene().children,
-        true
-      );
+      raycaster.setFromCamera(mouse, activeCamera);
+      let intersects = raycaster.intersectObjects(scene.children, true);
+
+      // Exclude grid helpers
       intersects = intersects.filter(
         (obj) => !(obj.object instanceof THREE.GridHelper)
       );
 
-      console.log(intersects);
+      console.log(intersects); // Debugging selection
 
       if (intersects.length > 0) {
         setSelectedObject(intersects[0].object);
@@ -61,43 +57,17 @@ export default function TransformControlsComponent({ setDragging }) {
     };
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "t") setTransformMode("translate");
-      if (e.key === "r") setTransformMode("rotate");
-      if (e.key === "s") setTransformMode("scale");
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  useEffect(() => {
-    if (!selectedObject || !transformControlsRef.current) return;
-
-    scene.add(transformControlsRef.current);
-    return () => {
-      scene.remove(transformControlsRef.current);
-    };
-  }, [selectedObject]);
-
-  // useEffect(() => {
-  //   if (transformControlsRef.current) {
-  //     transformControlsRef.current.visible = !!selectedObject;
-  //   }
-  // }, [selectedObject]);
-
   return (
     <>
       {selectedObject && (
         <TransformControls
           ref={transformControlsRef}
           object={selectedObject}
-          mode={transformMode}
+          mode="translate"
           camera={activeCamera}
-          // onMouseDown={(e) => e.preventDefault()}
-          onMouseDown={() => setDragging(true)}
-          onMouseUp={() => setDragging(false)}
+          enabled={!!selectedObject}
+          onPointerDown={() => setDragging(true)}
+          onPointerUp={() => setDragging(false)}
           onChange={() => selectedObject.updateMatrixWorld()}
         />
       )}
