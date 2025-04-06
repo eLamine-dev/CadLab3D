@@ -6,7 +6,7 @@ import { useViewportStore } from "../state/viewportStore";
 import sceneInstance from "../state/Scene";
 
 export default function CameraCtrls({ dragging }) {
-  const { size, gl } = useThree();
+  const { size, gl, scene } = useThree();
   const {
     activeViewport,
     previousViewport,

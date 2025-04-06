@@ -9,6 +9,7 @@ import { useViewportStore } from "../state/viewportStore";
 import ViewSelection from "./ViewSelection";
 // import TransformCtrls from "./TransformCtrls";
 import CameraCtrls from "./CameraCtrls";
+import SceneBridge from "./SceneBridge";
 
 import Controls from "./Controls";
 // import { useArrayCamera } from "../hooks/useArrayCamera";
@@ -87,6 +88,7 @@ export default function Workspace() {
           <SceneObjects />
           <Controls />
           {/* <CameraCtrls /> */}
+          <SceneBridge />
 
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
