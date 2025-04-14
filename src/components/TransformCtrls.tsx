@@ -1,83 +1,33 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { TransformControls } from "@react-three/drei";
-// import sceneInstance from "../state/Scene";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
+import { useSelectionStore } from "../state/selectionStore";
 
 export default function TransformControlsComponent({ setDragging }) {
   const { gl, scene } = useThree();
-
   const { activeViewport } = useViewportStore();
   const { arrayCamera } = useArrayCamera();
   const activeCamera = arrayCamera.cameras[activeViewport];
-  // const scene = sceneInstance.getScene();
-
-  const [selectedObject, setSelectedObject] = useState<THREE.Object3D | null>(
-    null
-  );
-  const [transformMode, setTransformMode] = useState<
-    "translate" | "rotate" | "scale"
-  >("translate");
 
   const transformControlsRef = useRef<THREE.Object3D | null>(null);
 
-  useEffect(() => {
-    if (!activeCamera || !gl) return;
+  const selectedObjects = useSelectionStore((state) => state.selected);
+  const selectedObject = selectedObjects[0] ?? null; // You can change this if you want multi-object control
 
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    const onPointerDown = (event: MouseEvent) => {
-      if (!activeCamera) return;
-      const canvas = gl.domElement.getBoundingClientRect();
-      mouse.x = ((event.clientX - canvas.left) / canvas.width) * 2 - 1;
-      mouse.y = -((event.clientY - canvas.top) / canvas.height) * 2 + 1;
-
-      // activeCamera.updateMatrixWorld();
-      // activeCamera.updateProjectionMatrix();
-      raycaster.setFromCamera(mouse, activeCamera);
-
-      let intersects = raycaster.intersectObjects(scene.children, true);
-      intersects = intersects.filter(
-        (obj) => !(obj.object instanceof THREE.GridHelper)
-      );
-
-      console.log(intersects);
-
-      if (intersects.length > 0) {
-        setSelectedObject(intersects[0].object);
-      } else {
-        setSelectedObject(null);
-      }
-    };
-
-    gl.domElement.addEventListener("click", onPointerDown);
-    return () => {
-      gl.domElement.removeEventListener("click", onPointerDown);
-    };
-  }, []);
+  const transformMode = useRef<"translate" | "rotate" | "scale">("translate");
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "t") setTransformMode("translate");
-      if (e.key === "r") setTransformMode("rotate");
-      if (e.key === "s") setTransformMode("scale");
+      if (e.key === "t") transformMode.current = "translate";
+      if (e.key === "r") transformMode.current = "rotate";
+      if (e.key === "s") transformMode.current = "scale";
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
-
-  // useEffect(() => {
-  //   if (!selectedObject || !transformControlsRef.current) return;
-
-  //   scene.add(transformControlsRef.current);
-  //   return () => {
-  //     scene.remove(transformControlsRef.current);
-  //   };
-  // }, [selectedObject]);
 
   useEffect(() => {
     if (transformControlsRef.current) {
@@ -90,13 +40,11 @@ export default function TransformControlsComponent({ setDragging }) {
       {selectedObject && (
         <TransformControls
           ref={transformControlsRef}
-          object={scene.getObjectByName(selectedObject.name)}
-          mode={transformMode}
+          object={scene.getObjectById(selectedObject.id)}
+          mode={transformMode.current}
           camera={activeCamera}
-          // onMouseDown={(e) => e.preventDefault()}
-          // onPointerDown={() => setDragging(true)}
-          // onPointerUp={() => setDragging(false)}
-          // onChange={() => selectedObject.updateMatrixWorld()}
+          onPointerDown={() => setDragging?.(true)}
+          onPointerUp={() => setDragging?.(false)}
         />
       )}
     </>
