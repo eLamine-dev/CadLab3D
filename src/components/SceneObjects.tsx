@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import sceneInstance from "../state/Scene";
+// import sceneInstance from "../state/Scene";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
 
 export default function SceneObjects() {
-  const { gl } = useThree();
+  const { gl, scene } = useThree();
   const { activeViewport, maximizedViewport } = useViewportStore();
   const { arrayCamera } = useArrayCamera();
   const activeCamera = arrayCamera.cameras[activeViewport];
@@ -40,10 +40,7 @@ export default function SceneObjects() {
       activeCamera.updateProjectionMatrix();
       raycaster.setFromCamera(mouse, activeCamera);
 
-      let intersects = raycaster.intersectObjects(
-        sceneInstance.getScene().children,
-        true
-      );
+      let intersects = raycaster.intersectObjects(scene.children, true);
       intersects = intersects.filter(
         (obj) => !(obj.object instanceof THREE.GridHelper)
       );

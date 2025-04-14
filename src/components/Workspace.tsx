@@ -85,7 +85,7 @@ export default function Workspace() {
       <div className="canvas-container">
         <Canvas>
           {/* <MultiViewport /> */}
-          <SceneObjects />
+          {/* <SceneObjects /> */}
           <Controls />
           {/* <CameraCtrls /> */}
           <SceneBridge />
