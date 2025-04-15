@@ -6,20 +6,18 @@ import { useObjectInteraction } from "../hooks/useObjectInteraction";
 import MultiViewport from "./MultiViewport";
 
 export default function Controls() {
-  const [cameraEnabled, setCameraEnabled] = useState(true);
-  useEffect(() => {
-    console.log("Camera controls enabled from:", cameraEnabled);
-  }, [cameraEnabled]);
+  const [cameraCtrlsEnabled, setCameraCtrlsEnabled] = useState(true);
+
   useObjectInteraction();
 
   return (
     <>
       <TransformCtrls
-        onDragStart={() => setCameraEnabled(false)}
-        onDragEnd={() => setCameraEnabled(true)}
+        onDragStart={() => setCameraCtrlsEnabled(false)}
+        onDragEnd={() => setCameraCtrlsEnabled(true)}
       />
-      {/* <MultiViewport enabled={cameraEnabled} /> */}
-      <CameraCtrls enabled={cameraEnabled} />
+      {/* <MultiViewport enabled={cameraCtrlsEnabled} /> */}
+      <CameraCtrls enabled={cameraCtrlsEnabled} />
     </>
   );
 }

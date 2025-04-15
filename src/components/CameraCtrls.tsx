@@ -124,7 +124,7 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
             }
           }}
           camera={cam}
-          enabled={enabled}
+          // enabled={enabled}
           smoothTime={0}
           draggingSmoothTime={0}
           minPolarAngle={-Infinity}
@@ -139,7 +139,13 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
     });
 
     setControlsMap(newControls);
-  }, [arrayCamera, viewports, enabled]);
+  }, [arrayCamera, viewports]);
+
+  // useEffect(() => {
+  //   controlsRef.current.forEach((ctrl) => {
+  //     ctrl.enabled = enabled;
+  //   });
+  // }, [enabled]);
 
   useFrame((_, delta) => {
     controlsRef.current.forEach((ctrl) => ctrl.update(delta));
