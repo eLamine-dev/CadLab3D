@@ -5,7 +5,8 @@ import { TransformControls } from "@react-three/drei";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
 import { useSelectionStore } from "../state/selectionStore";
-import { TransformControls as ThreeTransformControls } from "three/examples/jsm/controls/TransformControls";
+import { TransformControls as ThreeTransformControls } from "three/addons/controls/TransformControls.js";
+import { log } from "three/tsl";
 
 export default function TransformControlsComponent({
   onDragStart,
@@ -36,22 +37,25 @@ export default function TransformControlsComponent({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // useEffect(() => {
-  //   const controls = transformControlsRef.current;
-  //   if (!controls || !selectedObject) return;
+  useEffect(() => {
+    const controls = transformControlsRef.current;
+    if (!controls || !selectedObject) return;
 
-  //   controls.addEventListener("dragging-changed", (e: any) => {
-  //     if (e.value) {
-  //       onDragStart?.();
-  //     } else {
-  //       onDragEnd?.();
-  //     }
-  //   });
+    const handleChange = (e: { value: boolean }) => {
+      console.log("event", e.value);
 
-  //   return () => {
-  //     controls.removeEventListener("dragging-changed", () => {});
-  //   };
-  // }, [selectedObject, onDragStart, onDragEnd]);
+      if (e.value) {
+        onDragStart?.();
+      } else {
+        onDragEnd?.();
+      }
+    };
+
+    controls.addEventListener("dragging-changed", handleChange);
+    return () => {
+      controls.removeEventListener("dragging-changed", handleChange);
+    };
+  }, [selectedObject, onDragStart, onDragEnd]);
 
   // useEffect(() => {
   //   if (transformControlsRef.current) {

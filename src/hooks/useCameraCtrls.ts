@@ -7,8 +7,8 @@ import { useArrayCamera } from "../hooks/useArrayCamera";
 
 CameraControls.install({ THREE });
 
-export function useCameraControls() {
-  const { gl } = useThree();
+export function useCameraControls(enabled) {
+  const { gl, scene } = useThree();
   const { arrayCamera } = useArrayCamera();
   const {
     activeViewport,

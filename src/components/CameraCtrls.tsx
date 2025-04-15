@@ -48,10 +48,6 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
   }, [size]);
 
   useEffect(() => {
-    console.log("Camera controls enabled:", enabled);
-  }, [enabled]);
-
-  useEffect(() => {
     controlsRef.current.forEach((control, index) => {
       const camera = control.camera;
       camera.updateProjectionMatrix();
@@ -82,7 +78,7 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
         });
       }
     });
-  }, [maximizedViewport, activeViewport]);
+  }, [maximizedViewport, activeViewport, enabled]);
 
   useEffect(() => {
     controlsRef.current.forEach((controls, index) => {
@@ -128,7 +124,7 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
             }
           }}
           camera={cam}
-          // enabled={index === activeViewport}
+          enabled={enabled}
           smoothTime={0}
           draggingSmoothTime={0}
           minPolarAngle={-Infinity}
@@ -143,7 +139,7 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
     });
 
     setControlsMap(newControls);
-  }, [arrayCamera, viewports]);
+  }, [arrayCamera, viewports, enabled]);
 
   useFrame((_, delta) => {
     controlsRef.current.forEach((ctrl) => ctrl.update(delta));
@@ -219,10 +215,6 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
   //   setAsCustom(index);
   // }
   // };
-
-  useFrame((_, delta) => {
-    controlsRef.current.forEach((ctrl) => ctrl.update(delta));
-  });
 
   return <>{controlsMap[activeViewport]}</>;
 }

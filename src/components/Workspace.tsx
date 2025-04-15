@@ -12,6 +12,7 @@ import CameraCtrls from "./CameraCtrls";
 import SceneBridge from "./SceneBridge";
 
 import Controls from "./Controls";
+import MultiViewport from "./MultiViewport";
 // import { useArrayCamera } from "../hooks/useArrayCamera";
 // import MultiViewport from "./MultiViewport";
 
@@ -84,7 +85,7 @@ export default function Workspace() {
     <div className="workspace">
       <div className="canvas-container">
         <Canvas>
-          {/* <MultiViewport /> */}
+          <MultiViewport />
           {/* <SceneObjects /> */}
           <Controls />
           {/* <CameraCtrls /> */}
@@ -116,7 +117,7 @@ export default function Workspace() {
               className={`viewport ${activeViewport === index ? "active" : ""}`}
               onMouseDown={(e) => {
                 e.stopPropagation();
-                setActiveViewport(index);
+                if (activeViewport !== index) setActiveViewport(index);
               }}
             >
               <ViewSelection viewportId={index} />
