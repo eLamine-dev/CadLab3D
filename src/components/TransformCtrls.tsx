@@ -5,17 +5,24 @@ import { TransformControls } from "@react-three/drei";
 import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
 import { useSelectionStore } from "../state/selectionStore";
+import { TransformControls as ThreeTransformControls } from "three/examples/jsm/controls/TransformControls";
 
-export default function TransformControlsComponent({ setDragging }) {
+export default function TransformControlsComponent({
+  onDragStart,
+  onDragEnd,
+}: {
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
+}) {
   const { gl, scene } = useThree();
   const { activeViewport } = useViewportStore();
   const { arrayCamera } = useArrayCamera();
   const activeCamera = arrayCamera.cameras[activeViewport];
 
-  const transformControlsRef = useRef<THREE.Object3D | null>(null);
+  const transformControlsRef = useRef<ThreeTransformControls | null>(null);
 
   const selectedObjects = useSelectionStore((state) => state.selected);
-  const selectedObject = selectedObjects[0] ?? null; // You can change this if you want multi-object control
+  const selectedObject = selectedObjects[0] ?? null;
 
   const transformMode = useRef<"translate" | "rotate" | "scale">("translate");
 
@@ -29,22 +36,44 @@ export default function TransformControlsComponent({ setDragging }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    if (transformControlsRef.current) {
-      transformControlsRef.current.visible = !!selectedObject;
-    }
-  }, [selectedObject]);
+  // useEffect(() => {
+  //   const controls = transformControlsRef.current;
+  //   if (!controls || !selectedObject) return;
+
+  //   controls.addEventListener("dragging-changed", (e: any) => {
+  //     if (e.value) {
+  //       onDragStart?.();
+  //     } else {
+  //       onDragEnd?.();
+  //     }
+  //   });
+
+  //   return () => {
+  //     controls.removeEventListener("dragging-changed", () => {});
+  //   };
+  // }, [selectedObject, onDragStart, onDragEnd]);
+
+  // useEffect(() => {
+  //   if (transformControlsRef.current) {
+  //     transformControlsRef.current.visible = !!selectedObject;
+  //   }
+  // }, [selectedObject]);
 
   return (
     <>
       {selectedObject && (
         <TransformControls
           ref={transformControlsRef}
+          visible={!!selectedObject}
           object={scene.getObjectById(selectedObject.id)}
           mode={transformMode.current}
           camera={activeCamera}
-          onPointerDown={() => setDragging?.(true)}
-          onPointerUp={() => setDragging?.(false)}
+          // onMouseDown={() => {
+          //   onDragStart?.();
+          // }}
+          // onMouseUp={() => {
+          //   onDragEnd?.();
+          // }}
         />
       )}
     </>

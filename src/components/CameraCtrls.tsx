@@ -3,9 +3,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 import { useViewportStore } from "../state/viewportStore";
-import sceneInstance from "../state/Scene";
+// import sceneInstance from "../state/Scene";
 
-export default function CameraCtrls({ dragging }) {
+export default function CameraCtrls({ enabled }: { enabled: boolean }) {
   const { size, gl, scene } = useThree();
   const {
     activeViewport,
@@ -46,6 +46,10 @@ export default function CameraCtrls({ dragging }) {
 
     return new THREE.ArrayCamera(cameras);
   }, [size]);
+
+  useEffect(() => {
+    console.log("Camera controls enabled:", enabled);
+  }, [enabled]);
 
   useEffect(() => {
     controlsRef.current.forEach((control, index) => {
@@ -124,7 +128,7 @@ export default function CameraCtrls({ dragging }) {
             }
           }}
           camera={cam}
-          enabled={index === activeViewport && !dragging}
+          // enabled={index === activeViewport}
           smoothTime={0}
           draggingSmoothTime={0}
           minPolarAngle={-Infinity}
@@ -162,10 +166,7 @@ export default function CameraCtrls({ dragging }) {
         gl.setViewport(0, 0, fullWidth, fullHeight);
         gl.setScissor(0, 0, fullWidth, fullHeight);
         gl.setScissorTest(true);
-        gl.render(
-          sceneInstance.getScene(),
-          arrayCamera.cameras[activeViewport]
-        );
+        gl.render(scene, arrayCamera.cameras[activeViewport]);
         return;
       }
 
@@ -174,54 +175,54 @@ export default function CameraCtrls({ dragging }) {
         gl.setViewport(x, y, halfWidth, halfHeight);
         gl.setScissor(x, y, halfWidth, halfHeight);
         gl.setScissorTest(true);
-        gl.render(sceneInstance.getScene(), cam);
+        gl.render(scene, cam);
       });
     });
   });
 
-  const saveSettings = (index: number) => {
-    // const camera = arrayCamera.cameras[index];
-    // const controls = controlsRef.current.get(index);
-    // if (!camera || !controls) return;
-    // const position = new THREE.Vector3();
-    // const target = new THREE.Vector3();
-    // controls.getPosition(position);
-    // controls.getTarget(target);
-    // updateCamSettings(index, { position, target, zoom: camera.zoom });
-    // controlsRef.current.forEach((control, index) => {
-    //   const camera = control.camera;
-    //   camera.updateProjectionMatrix();
-    //   camera.updateMatrixWorld();
-    //   const position = new THREE.Vector3();
-    //   control.getPosition(position);
-    //   const target = new THREE.Vector3();
-    //   control.getTarget(target);
-    //   const storedZoom = viewports[index].settings.cameraSettings.zoom;
-    //   const storedPosition = viewports[index].settings.cameraSettings.position;
-    //   updateCamSettings(index, {
-    //     position,
-    //     target,
-    //     zoom: camera.zoom,
-    //   });
-    // });
-    // const previousRotation =
-    //   camera.userData.previousRotation || camera.quaternion.clone();
-    // const camQuaternion = new THREE.Quaternion();
-    // camera.getWorldQuaternion(camQuaternion);
-    // previousRotation.normalize();
-    // camQuaternion.normalize();
-    // if (
-    //   previousRotation.angleTo(camQuaternion) > 0.001 &&
-    //   !viewports[index].isCustom &&
-    //   camera instanceof THREE.OrthographicCamera
-    // ) {
-    //   setAsCustom(index);
-    // }
-  };
+  // const saveSettings = (index: number) => {
+  // const camera = arrayCamera.cameras[index];
+  // const controls = controlsRef.current.get(index);
+  // if (!camera || !controls) return;
+  // const position = new THREE.Vector3();
+  // const target = new THREE.Vector3();
+  // controls.getPosition(position);
+  // controls.getTarget(target);
+  // updateCamSettings(index, { position, target, zoom: camera.zoom });
+  // controlsRef.current.forEach((control, index) => {
+  //   const camera = control.camera;
+  //   camera.updateProjectionMatrix();
+  //   camera.updateMatrixWorld();
+  //   const position = new THREE.Vector3();
+  //   control.getPosition(position);
+  //   const target = new THREE.Vector3();
+  //   control.getTarget(target);
+  //   const storedZoom = viewports[index].settings.cameraSettings.zoom;
+  //   const storedPosition = viewports[index].settings.cameraSettings.position;
+  //   updateCamSettings(index, {
+  //     position,
+  //     target,
+  //     zoom: camera.zoom,
+  //   });
+  // });
+  // const previousRotation =
+  //   camera.userData.previousRotation || camera.quaternion.clone();
+  // const camQuaternion = new THREE.Quaternion();
+  // camera.getWorldQuaternion(camQuaternion);
+  // previousRotation.normalize();
+  // camQuaternion.normalize();
+  // if (
+  //   previousRotation.angleTo(camQuaternion) > 0.001 &&
+  //   !viewports[index].isCustom &&
+  //   camera instanceof THREE.OrthographicCamera
+  // ) {
+  //   setAsCustom(index);
+  // }
+  // };
 
   useFrame((_, delta) => {
     controlsRef.current.forEach((ctrl) => ctrl.update(delta));
   });
 
-  return <>{Object.values(controlsMap)}</>;
+  return <>{controlsMap[activeViewport]}</>;
 }

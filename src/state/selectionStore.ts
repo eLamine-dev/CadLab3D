@@ -27,6 +27,7 @@ export const useSelectionStore = create<SelectionState>((set, get) => ({
   toggleSelected: (object, append = false) => {
     const current = get().selected;
     const isAlreadySelected = current.includes(object);
+    console.log(object);
 
     if (append) {
       if (isAlreadySelected) {

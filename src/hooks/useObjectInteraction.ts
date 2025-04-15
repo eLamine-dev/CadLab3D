@@ -52,7 +52,7 @@ export const useObjectInteraction = () => {
           const newMesh = hit as THREE.Mesh;
           if (newMesh.material) {
             setOriginalColor((newMesh.material as any).color.clone());
-            (newMesh.material as any).color.set(0xffffff);
+            newMesh.material.color.set(0xffffff);
           }
 
           setHovered(hit);
@@ -61,7 +61,7 @@ export const useObjectInteraction = () => {
         if (hovered && originalColor) {
           const mesh = hovered as THREE.Mesh;
           if (mesh.material) {
-            (mesh.material as any).color.copy(originalColor);
+            mesh.material.color.copy(originalColor);
           }
         }
         setHovered(null);
