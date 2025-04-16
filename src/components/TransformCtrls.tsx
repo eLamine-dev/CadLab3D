@@ -6,7 +6,6 @@ import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
 import { useSelectionStore } from "../state/selectionStore";
 import { TransformControls as ThreeTransformControls } from "three/addons/controls/TransformControls.js";
-import { log } from "three/tsl";
 
 export default function TransformControlsComponent({
   onDragStart,
@@ -39,11 +38,10 @@ export default function TransformControlsComponent({
 
   useEffect(() => {
     const controls = transformControlsRef.current;
+
     if (!controls || !selectedObject) return;
 
     const handleChange = (e: { value: boolean }) => {
-      console.log("event", e.value);
-
       if (e.value) {
         onDragStart?.();
       } else {
@@ -72,12 +70,11 @@ export default function TransformControlsComponent({
           object={scene.getObjectById(selectedObject.id)}
           mode={transformMode.current}
           camera={activeCamera}
-          // onMouseDown={() => {
-          //   onDragStart?.();
-          // }}
-          // onMouseUp={() => {
-          //   onDragEnd?.();
-          // }}
+          translationSnap={0.05}
+          rotationSnap={THREE.MathUtils.degToRad(5)}
+          scaleSnap={0.1}
+
+          // size={0.5}
         />
       )}
     </>

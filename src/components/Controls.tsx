@@ -4,18 +4,19 @@ import CameraCtrls from "./CameraCtrls";
 import TransformCtrls from "./TransformCtrls";
 import { useObjectInteraction } from "../hooks/useObjectInteraction";
 import MultiViewport from "./MultiViewport";
+import { useCameraControls } from "../hooks/useCameraCtrls";
 
 export default function Controls() {
   const [cameraCtrlsEnabled, setCameraCtrlsEnabled] = useState(true);
 
-  useObjectInteraction();
+  // useObjectInteraction();
 
   return (
     <>
-      <TransformCtrls
+      {/* <TransformCtrls
         onDragStart={() => setCameraCtrlsEnabled(false)}
         onDragEnd={() => setCameraCtrlsEnabled(true)}
-      />
+      /> */}
       {/* <MultiViewport enabled={cameraCtrlsEnabled} /> */}
       <CameraCtrls enabled={cameraCtrlsEnabled} />
     </>

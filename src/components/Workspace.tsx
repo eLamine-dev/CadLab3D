@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as THREE from "three";
 
 import SceneObjects from "./SceneObjects";
@@ -13,6 +13,7 @@ import SceneBridge from "./SceneBridge";
 
 import Controls from "./Controls";
 import MultiViewport from "./MultiViewport";
+import ObjectInteraction from "./ObjectInteraction";
 // import { useArrayCamera } from "../hooks/useArrayCamera";
 // import MultiViewport from "./MultiViewport";
 
@@ -85,12 +86,12 @@ export default function Workspace() {
     <div className="workspace">
       <div className="canvas-container">
         <Canvas>
-          <MultiViewport />
           {/* <SceneObjects /> */}
           <Controls />
+          {/* <MultiViewport /> */}
           {/* <CameraCtrls /> */}
           <SceneBridge />
-
+          {/* <ObjectInteraction /> */}
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />
         </Canvas>

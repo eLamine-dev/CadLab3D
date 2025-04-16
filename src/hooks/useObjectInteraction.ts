@@ -8,7 +8,7 @@ import { useArrayCamera } from "./useArrayCamera";
 export const useObjectInteraction = () => {
   const { gl, scene } = useThree();
   const { activeViewport } = useViewportStore();
-  const { arrayCamera } = useArrayCamera();
+  // const { arrayCamera } = useArrayCamera();
   const activeCamera = arrayCamera.cameras[activeViewport];
 
   const raycaster = useRef(new THREE.Raycaster());
@@ -30,11 +30,12 @@ export const useObjectInteraction = () => {
       mouse.current.set(x, y);
       activeCamera.updateMatrixWorld();
       activeCamera.updateProjectionMatrix();
+
       raycaster.current.setFromCamera(mouse.current, activeCamera);
 
       return raycaster.current
         .intersectObjects(scene.children, true)
-        .filter((o) => !(o.object instanceof THREE.GridHelper));
+        .filter((o) => o.object instanceof THREE.Mesh);
     };
 
     const handlePointerMove = (event: MouseEvent) => {
@@ -69,12 +70,21 @@ export const useObjectInteraction = () => {
       }
     };
 
+    // const handleClick = (event: MouseEvent) => {
+    //   const hits = getIntersections(event);
+    //   if (hits.length > 0) {
+    //     const isMulti = event.ctrlKey || event.metaKey;
+    //     const selected = hits[0].object;
+    //     useSelectionStore.getState().toggleSelected(selected, isMulti);
+    //   } else {
+    //     useSelectionStore.getState().setSelected([]);
+    //   }
+    // };
+
     const handleClick = (event: MouseEvent) => {
-      const hits = getIntersections(event);
-      if (hits.length > 0) {
+      if (hovered) {
         const isMulti = event.ctrlKey || event.metaKey;
-        const selected = hits[0].object;
-        useSelectionStore.getState().toggleSelected(selected, isMulti);
+        useSelectionStore.getState().toggleSelected(hovered, isMulti);
       } else {
         useSelectionStore.getState().setSelected([]);
       }
