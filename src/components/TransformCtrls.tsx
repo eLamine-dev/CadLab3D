@@ -27,7 +27,7 @@ export default function TransformControlsComponent({
     const camera = arrayCamera.cameras[activeViewport];
     if (!camera) return;
     setActiveCamera(camera);
-  }, [arrayCamera]);
+  }, [arrayCamera, activeViewport]);
 
   const transformControlsRef = useRef<ThreeTransformControls | null>(null);
 

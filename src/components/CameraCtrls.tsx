@@ -114,7 +114,7 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
           dollyToCursor={cam instanceof THREE.PerspectiveCamera}
           truckSpeed={cam instanceof THREE.OrthographicCamera ? 1 : undefined}
           makeDefault
-          //   onEnd={() => saveSettings(index)}
+          onEnd={() => saveSettings(index)}
         />
       );
     });

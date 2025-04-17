@@ -9,7 +9,17 @@ export const useObjectInteraction = () => {
   const { gl, scene } = useThree();
   const { activeViewport, arrayCamera } = useViewportStore();
   // const { arrayCamera } = useArrayCamera();
-  const activeCamera = arrayCamera.cameras[activeViewport];
+  // const activeCamera = arrayCamera.cameras[activeViewport];
+
+  const [activeCamera, setActiveCamera] = useState(null);
+
+  useEffect(() => {
+    if (!arrayCamera) return;
+
+    const camera = arrayCamera.cameras[activeViewport];
+    if (!camera) return;
+    setActiveCamera(camera);
+  }, [arrayCamera, activeViewport]);
 
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
