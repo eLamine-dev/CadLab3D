@@ -15,71 +15,15 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
     viewports,
     updateCamSettings,
     maximizedViewport,
+    arrayCamera,
   } = useViewportStore();
 
-  const { arrayCamera } = useArrayCamera();
+  //   const arrayCamera = useViewportStore((state) => state.arrayCamera);
 
   const controlsRef = useRef<Map<number, CameraControls>>(new Map());
   const [controlsMap, setControlsMap] = useState<Record<number, JSX.Element>>(
     {}
   );
-
-  //   useFrame(() => {
-  //     const fullWidth = size.width;
-  //     const fullHeight = size.height;
-  //     const halfWidth = fullWidth / 2;
-  //     const halfHeight = fullHeight / 2;
-  //     const viewportPositions = [
-  //       [0, halfHeight],
-  //       [halfWidth, halfHeight],
-  //       [0, 0],
-  //       [halfWidth, 0],
-  //     ];
-
-  //     requestAnimationFrame(() => {
-  //       if (maximizedViewport !== null) {
-  //         gl.setViewport(0, 0, fullWidth, fullHeight);
-  //         gl.setScissor(0, 0, fullWidth, fullHeight);
-  //         gl.setScissorTest(true);
-  //         gl.render(scene, arrayCamera.cameras[maximizedViewport]);
-  //         return;
-  //       }
-
-  //       arrayCamera.cameras.forEach((cam, index) => {
-  //         const [x, y] = viewportPositions[index];
-  //         gl.setViewport(x, y, halfWidth, halfHeight);
-  //         gl.setScissor(x, y, halfWidth, halfHeight);
-  //         gl.setScissorTest(true);
-  //         gl.render(scene, cam);
-  //       });
-  //     });
-  //   });
-
-  //   const arrayCamera = useMemo(() => {
-  //     const width = size.width / 2;
-  //     const height = size.height / 2;
-  //     const aspect = width / height;
-
-  //     const cameras = Object.values(viewports).map((view) => {
-  //       const camera =
-  //         view.settings.cameraType === "PerspectiveCamera"
-  //           ? new THREE.PerspectiveCamera(50, aspect, 0.1, 1000)
-  //           : new THREE.OrthographicCamera(
-  //               -5 * aspect,
-  //               5 * aspect,
-  //               5,
-  //               -5,
-  //               0.1,
-  //               1000
-  //             );
-
-  //       camera.up.set(...view.settings.cameraSettings.up);
-  //       camera.position.copy(view.settings.cameraSettings.position);
-  //       return camera;
-  //     });
-
-  //     return new THREE.ArrayCamera(cameras);
-  //   }, [size, viewports]);
 
   useEffect(() => {
     controlsRef.current.forEach((control, index) => {
@@ -114,31 +58,33 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
     });
   }, [maximizedViewport, activeViewport, enabled]);
 
+  //   useEffect(() => {
+  //     controlsRef.current.forEach((controls, index) => {
+  //       if (!controls) return;
+  //       const camSettings = viewports[index].settings.cameraSettings;
+
+  //       controls.setLookAt(
+  //         camSettings.position.x,
+  //         camSettings.position.y,
+  //         camSettings.position.z,
+  //         camSettings.target.x,
+  //         camSettings.target.y,
+  //         camSettings.target.z,
+  //         false
+  //       );
+
+  //       controls.camera.zoom = camSettings.zoom;
+  //       controls.zoomTo(camSettings.zoom, false);
+
+  //       controls.camera.updateProjectionMatrix();
+  //       controls.camera.updateMatrixWorld();
+  //       controls.updateCameraUp();
+  //     });
+  //   }, [controlsMap]);
+
   useEffect(() => {
-    controlsRef.current.forEach((controls, index) => {
-      if (!controls) return;
-      const camSettings = viewports[index].settings.cameraSettings;
+    if (!arrayCamera) return;
 
-      controls.setLookAt(
-        camSettings.position.x,
-        camSettings.position.y,
-        camSettings.position.z,
-        camSettings.target.x,
-        camSettings.target.y,
-        camSettings.target.z,
-        false
-      );
-
-      controls.camera.zoom = camSettings.zoom;
-      controls.zoomTo(camSettings.zoom, false);
-
-      controls.camera.updateProjectionMatrix();
-      controls.camera.updateMatrixWorld();
-      controls.updateCameraUp();
-    });
-  }, [controlsMap]);
-
-  useEffect(() => {
     const newControls: Record<number, JSX.Element> = {};
 
     arrayCamera.cameras.forEach((cam, index) => {
@@ -159,7 +105,7 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
             }
           }}
           camera={cam}
-          enabled={enabled}
+          enabled={true}
           smoothTime={0}
           draggingSmoothTime={0}
           minPolarAngle={-Infinity}
@@ -168,13 +114,13 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
           dollyToCursor={cam instanceof THREE.PerspectiveCamera}
           truckSpeed={cam instanceof THREE.OrthographicCamera ? 1 : undefined}
           makeDefault
-          onEnd={() => saveSettings(index)}
+          //   onEnd={() => saveSettings(index)}
         />
       );
     });
 
     setControlsMap(newControls);
-  }, [arrayCamera, viewports]);
+  }, [arrayCamera]);
 
   // useEffect(() => {
   //   controlsRef.current.forEach((ctrl) => {

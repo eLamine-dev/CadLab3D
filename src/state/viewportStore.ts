@@ -94,6 +94,12 @@ export const useViewportStore = create((set, get) => ({
   activeViewport: 0,
   previousViewport: null,
   maximizedViewport: null,
+  arrayCamera: null,
+  setArrayCamera: (cam) => {
+    console.log("arraycam", get().arrayCamera);
+
+    set({ arrayCamera: cam });
+  },
 
   viewports: {
     0: {
@@ -176,7 +182,7 @@ export const useViewportStore = create((set, get) => ({
   },
 
   updateCamSettings: (viewportId, updates) => {
-    // console.log("updates", updates);
+    console.log("updates", updates);
 
     set((state) => ({
       ...state,

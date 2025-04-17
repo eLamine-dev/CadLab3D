@@ -7,6 +7,7 @@ import { useViewportStore } from "../state/viewportStore";
 import TransformCtrls from "./TransformCtrls";
 import { useObjectInteraction } from "../hooks/useObjectInteraction";
 import MultiViewport from "./MultiViewport";
+import { useCameraControls } from "../hooks/useCameraCtrls";
 
 export default function Controls() {
   const [cameraCtrlsEnabled, setCameraCtrlsEnabled] = useState(true);
@@ -14,7 +15,7 @@ export default function Controls() {
   const { size, gl, scene } = useThree();
   const { activeViewport, maximizedViewport, viewports } = useViewportStore();
 
-  const { arrayCamera } = useArrayCamera();
+  useCameraControls();
 
   // useObjectInteraction();
 
@@ -25,7 +26,7 @@ export default function Controls() {
         onDragEnd={() => setCameraCtrlsEnabled(true)}
       /> */}
       {/* <MultiViewport enabled={cameraCtrlsEnabled} /> */}
-      <CameraCtrls enabled={cameraCtrlsEnabled} />
+      {/* <CameraCtrls enabled={cameraCtrlsEnabled} /> */}
     </>
   );
 }
