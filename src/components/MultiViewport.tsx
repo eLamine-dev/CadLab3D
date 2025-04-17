@@ -8,7 +8,7 @@ import { useArrayCamera } from "../hooks/useArrayCamera";
 
 export default function MultiViewport() {
   const { size, gl, scene } = useThree();
-  const { activeViewport, maximizedViewport } = useViewportStore();
+  const { activeViewport, maximizedViewport, viewports } = useViewportStore();
 
   const { arrayCamera } = useArrayCamera();
 
@@ -29,7 +29,7 @@ export default function MultiViewport() {
         gl.setViewport(0, 0, fullWidth, fullHeight);
         gl.setScissor(0, 0, fullWidth, fullHeight);
         gl.setScissorTest(true);
-        gl.render(scene, arrayCamera.cameras[activeViewport]);
+        gl.render(scene, arrayCamera.cameras[maximizedViewport]);
         return;
       }
 

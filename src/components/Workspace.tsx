@@ -87,10 +87,11 @@ export default function Workspace() {
       <div className="canvas-container">
         <Canvas>
           {/* <SceneObjects /> */}
-          <Controls />
-          {/* <MultiViewport /> */}
-          {/* <CameraCtrls /> */}
+          <MultiViewport />
           <SceneBridge />
+          <Controls />
+
+          {/* <CameraCtrls enabled={true} /> */}
           {/* <ObjectInteraction /> */}
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />

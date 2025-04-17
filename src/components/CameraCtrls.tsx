@@ -17,80 +17,69 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
     maximizedViewport,
   } = useViewportStore();
 
-  // const { arrayCamera } = useArrayCamera();
+  const { arrayCamera } = useArrayCamera();
 
   const controlsRef = useRef<Map<number, CameraControls>>(new Map());
   const [controlsMap, setControlsMap] = useState<Record<number, JSX.Element>>(
     {}
   );
 
-  const arrayCamera = useMemo(() => {
-    const width = size.width / 2;
-    const height = size.height / 2;
-    const aspect = width / height;
+  //   useFrame(() => {
+  //     const fullWidth = size.width;
+  //     const fullHeight = size.height;
+  //     const halfWidth = fullWidth / 2;
+  //     const halfHeight = fullHeight / 2;
+  //     const viewportPositions = [
+  //       [0, halfHeight],
+  //       [halfWidth, halfHeight],
+  //       [0, 0],
+  //       [halfWidth, 0],
+  //     ];
 
-    const cameras = Object.values(viewports).map((view) => {
-      const camera =
-        view.settings.cameraType === "PerspectiveCamera"
-          ? new THREE.PerspectiveCamera(50, aspect, 0.1, 1000)
-          : new THREE.OrthographicCamera(
-              -5 * aspect,
-              5 * aspect,
-              5,
-              -5,
-              0.1,
-              1000
-            );
+  //     requestAnimationFrame(() => {
+  //       if (maximizedViewport !== null) {
+  //         gl.setViewport(0, 0, fullWidth, fullHeight);
+  //         gl.setScissor(0, 0, fullWidth, fullHeight);
+  //         gl.setScissorTest(true);
+  //         gl.render(scene, arrayCamera.cameras[maximizedViewport]);
+  //         return;
+  //       }
 
-      camera.up.set(...view.settings.cameraSettings.up);
-      camera.position.copy(view.settings.cameraSettings.position);
-      return camera;
-    });
+  //       arrayCamera.cameras.forEach((cam, index) => {
+  //         const [x, y] = viewportPositions[index];
+  //         gl.setViewport(x, y, halfWidth, halfHeight);
+  //         gl.setScissor(x, y, halfWidth, halfHeight);
+  //         gl.setScissorTest(true);
+  //         gl.render(scene, cam);
+  //       });
+  //     });
+  //   });
 
-    return new THREE.ArrayCamera(cameras);
-  }, [size]);
+  //   const arrayCamera = useMemo(() => {
+  //     const width = size.width / 2;
+  //     const height = size.height / 2;
+  //     const aspect = width / height;
 
-  useFrame(() => {
-    const fullWidth = size.width;
-    const fullHeight = size.height;
-    const halfWidth = fullWidth / 2;
-    const halfHeight = fullHeight / 2;
-    const viewportPositions = [
-      [0, halfHeight],
-      [halfWidth, halfHeight],
-      [0, 0],
-      [halfWidth, 0],
-    ];
+  //     const cameras = Object.values(viewports).map((view) => {
+  //       const camera =
+  //         view.settings.cameraType === "PerspectiveCamera"
+  //           ? new THREE.PerspectiveCamera(50, aspect, 0.1, 1000)
+  //           : new THREE.OrthographicCamera(
+  //               -5 * aspect,
+  //               5 * aspect,
+  //               5,
+  //               -5,
+  //               0.1,
+  //               1000
+  //             );
 
-    requestAnimationFrame(() => {
-      if (maximizedViewport !== null) {
-        gl.setViewport(0, 0, fullWidth, fullHeight);
-        gl.setScissor(0, 0, fullWidth, fullHeight);
-        gl.setScissorTest(true);
-        gl.render(scene, arrayCamera.cameras[activeViewport]);
-        return;
-      }
+  //       camera.up.set(...view.settings.cameraSettings.up);
+  //       camera.position.copy(view.settings.cameraSettings.position);
+  //       return camera;
+  //     });
 
-      arrayCamera.cameras.forEach((cam, index) => {
-        const [x, y] = viewportPositions[index];
-        gl.setViewport(x, y, halfWidth, halfHeight);
-        gl.setScissor(x, y, halfWidth, halfHeight);
-        gl.setScissorTest(true);
-        gl.render(scene, cam);
-      });
-    });
-  });
-
-  useEffect(() => {
-    arrayCamera.cameras.forEach((cam, index) => {
-      const camSettings = viewports[index].settings.cameraSettings;
-      cam.position.copy(camSettings.position);
-      cam.lookAt(camSettings.target);
-      cam.zoom = camSettings.zoom;
-      cam.updateProjectionMatrix();
-      cam.updateMatrixWorld();
-    });
-  }, [viewports]);
+  //     return new THREE.ArrayCamera(cameras);
+  //   }, [size, viewports]);
 
   useEffect(() => {
     controlsRef.current.forEach((control, index) => {
