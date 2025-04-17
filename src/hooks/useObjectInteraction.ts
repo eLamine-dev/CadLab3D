@@ -7,7 +7,7 @@ import { useArrayCamera } from "./useArrayCamera";
 
 export const useObjectInteraction = () => {
   const { gl, scene } = useThree();
-  const { activeViewport } = useViewportStore();
+  const { activeViewport, arrayCamera } = useViewportStore();
   // const { arrayCamera } = useArrayCamera();
   const activeCamera = arrayCamera.cameras[activeViewport];
 

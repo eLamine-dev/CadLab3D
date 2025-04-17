@@ -15,18 +15,18 @@ export default function Controls() {
   const { size, gl, scene } = useThree();
   const { activeViewport, maximizedViewport, viewports } = useViewportStore();
 
-  useCameraControls();
+  // useCameraControls();
 
-  // useObjectInteraction();
+  useObjectInteraction();
 
   return (
     <>
-      {/* <TransformCtrls
+      <TransformCtrls
         onDragStart={() => setCameraCtrlsEnabled(false)}
         onDragEnd={() => setCameraCtrlsEnabled(true)}
-      /> */}
+      />
       {/* <MultiViewport enabled={cameraCtrlsEnabled} /> */}
-      {/* <CameraCtrls enabled={cameraCtrlsEnabled} /> */}
+      <CameraCtrls enabled={cameraCtrlsEnabled} />
     </>
   );
 }

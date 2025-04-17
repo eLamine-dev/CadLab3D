@@ -58,29 +58,29 @@ export default function CameraCtrls({ enabled }: { enabled: boolean }) {
     });
   }, [maximizedViewport, activeViewport, enabled]);
 
-  //   useEffect(() => {
-  //     controlsRef.current.forEach((controls, index) => {
-  //       if (!controls) return;
-  //       const camSettings = viewports[index].settings.cameraSettings;
+  useEffect(() => {
+    controlsRef.current.forEach((controls, index) => {
+      if (!controls) return;
+      const camSettings = viewports[index].settings.cameraSettings;
 
-  //       controls.setLookAt(
-  //         camSettings.position.x,
-  //         camSettings.position.y,
-  //         camSettings.position.z,
-  //         camSettings.target.x,
-  //         camSettings.target.y,
-  //         camSettings.target.z,
-  //         false
-  //       );
+      controls.setLookAt(
+        camSettings.position.x,
+        camSettings.position.y,
+        camSettings.position.z,
+        camSettings.target.x,
+        camSettings.target.y,
+        camSettings.target.z,
+        false
+      );
 
-  //       controls.camera.zoom = camSettings.zoom;
-  //       controls.zoomTo(camSettings.zoom, false);
+      controls.camera.zoom = camSettings.zoom;
+      controls.zoomTo(camSettings.zoom, false);
 
-  //       controls.camera.updateProjectionMatrix();
-  //       controls.camera.updateMatrixWorld();
-  //       controls.updateCameraUp();
-  //     });
-  //   }, [controlsMap]);
+      controls.camera.updateProjectionMatrix();
+      controls.camera.updateMatrixWorld();
+      controls.updateCameraUp();
+    });
+  }, [controlsMap]);
 
   useEffect(() => {
     if (!arrayCamera) return;

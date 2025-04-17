@@ -89,9 +89,9 @@ export default function Workspace() {
           {/* <SceneObjects /> */}
           <MultiViewport />
           <SceneBridge />
-          {/* <Controls /> */}
+          <Controls />
 
-          <CameraCtrls enabled={true} />
+          {/* <CameraCtrls enabled={true} /> */}
           {/* <ObjectInteraction /> */}
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} />

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { TransformControls } from "@react-three/drei";
@@ -15,9 +15,19 @@ export default function TransformControlsComponent({
   onDragEnd?: () => void;
 }) {
   const { gl, scene } = useThree();
-  const { activeViewport } = useViewportStore();
-  const { arrayCamera } = useArrayCamera();
-  const activeCamera = arrayCamera.cameras[activeViewport];
+  const { activeViewport, arrayCamera } = useViewportStore();
+
+  // const activeCamera = arrayCamera.cameras[activeViewport];
+
+  const [activeCamera, setActiveCamera] = useState(null);
+
+  useEffect(() => {
+    if (!arrayCamera) return;
+
+    const camera = arrayCamera.cameras[activeViewport];
+    if (!camera) return;
+    setActiveCamera(camera);
+  }, [arrayCamera]);
 
   const transformControlsRef = useRef<ThreeTransformControls | null>(null);
 
