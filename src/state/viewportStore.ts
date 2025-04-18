@@ -146,6 +146,7 @@ export const useViewportStore = create((set, get) => ({
   },
 
   setAsCustom: (viewportId) => {
+    console.log("custom", viewportId);
     set((state) => ({
       ...state,
       viewports: {

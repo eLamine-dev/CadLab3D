@@ -66,6 +66,7 @@ export default function CameraCtrls() {
       cam.zoom = camSettings.zoom;
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
+      cam.userData.previousRotation = cam.quaternion.clone();
 
       newControls[index] = (
         <CameraControls
@@ -143,6 +144,8 @@ export default function CameraCtrls() {
     ) {
       setAsCustom(index);
     }
+
+    saveSettings(index);
   };
 
   return <>{arrayCamera && controlsMap[activeViewport]}</>;
