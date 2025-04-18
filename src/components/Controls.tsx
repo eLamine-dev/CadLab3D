@@ -17,7 +17,7 @@ export default function Controls() {
 
   // useCameraControls();
 
-  useObjectInteraction();
+  // useObjectInteraction();
 
   return (
     <>

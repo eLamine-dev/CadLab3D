@@ -94,7 +94,7 @@ export const useViewportStore = create((set, get) => ({
   activeViewport: 0,
   previousViewport: null,
   maximizedViewport: null,
-  arrayCamera: null,
+  arrayCamera: <THREE.ArrayCamera | null>null,
   setArrayCamera: (cam) => {
     console.log("arraycam", get().arrayCamera);
 

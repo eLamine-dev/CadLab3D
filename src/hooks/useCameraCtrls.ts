@@ -9,7 +9,6 @@ CameraControls.install({ THREE });
 
 export function useCameraControls() {
   const { gl, scene, size } = useThree();
-  // const { arrayCamera } = useArrayCamera();
   const {
     activeViewport,
     setAsCustom,
@@ -19,32 +18,6 @@ export function useCameraControls() {
     arrayCamera,
   } = useViewportStore();
   const controlsRef = useRef<CameraControls[]>([]);
-
-  //   const arrayCamera = useMemo(() => {
-  //     const width = size.width / 2;
-  //     const height = size.height / 2;
-  //     const aspect = width / height;
-
-  //     const cameras = Object.values(viewports).map((view) => {
-  //       const camera =
-  //         view.settings.cameraType === "PerspectiveCamera"
-  //           ? new THREE.PerspectiveCamera(50, aspect, 0.1, 1000)
-  //           : new THREE.OrthographicCamera(
-  //               -5 * aspect,
-  //               5 * aspect,
-  //               5,
-  //               -5,
-  //               0.1,
-  //               1000
-  //             );
-
-  //       camera.up.set(...view.settings.cameraSettings.up);
-  //       camera.position.copy(view.settings.cameraSettings.position);
-  //       return camera;
-  //     });
-
-  //     return new THREE.ArrayCamera(cameras);
-  //   }, [size]);
 
   useEffect(() => {
     controlsRef.current.forEach((ctrl) => ctrl.dispose());

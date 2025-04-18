@@ -7,8 +7,6 @@ export default function MultiViewport() {
   const { size, gl, scene } = useThree();
   const { viewports, maximizedViewport, setArrayCamera, arrayCamera } =
     useViewportStore();
-  // const setArrayCamera = useViewportStore((s) => s.setArrayCamera);
-  // const arrayCamera = useViewportStore((s) => s.arrayCamera);
 
   const previousSize = useRef({ width: 0, height: 0 });
   const viewportPositions = useMemo(
@@ -39,8 +37,8 @@ export default function MultiViewport() {
               1000
             );
 
-      camera.up.set(...view.settings.cameraSettings.up);
-      camera.position.copy(view.settings.cameraSettings.position);
+      // camera.up.set(...view.settings.cameraSettings.up);
+      // camera.position.copy(view.settings.cameraSettings.position);
       return camera;
     });
 
@@ -75,7 +73,6 @@ export default function MultiViewport() {
       }
       camera.updateProjectionMatrix();
     });
-    console.log("updating");
   }, [size, arrayCamera]);
 
   useFrame(() => {
