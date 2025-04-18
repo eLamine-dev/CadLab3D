@@ -50,6 +50,10 @@ export default function CameraCtrls() {
   }, [controlsMap, viewports, arrayCamera]);
 
   useEffect(() => {
+    saveSettings(previousViewport);
+  }, [previousViewport]);
+
+  useEffect(() => {
     if (!arrayCamera) return;
 
     const newControls: Record<number, JSX.Element> = {};
@@ -78,10 +82,10 @@ export default function CameraCtrls() {
           minPolarAngle={-Infinity}
           maxPolarAngle={Infinity}
           azimuthRotateSpeed={1}
+          onEnd={() => checkCustomViewRotation(index)}
           dollyToCursor={cam instanceof THREE.PerspectiveCamera}
           truckSpeed={cam instanceof THREE.OrthographicCamera ? 1 : undefined}
           makeDefault
-          onEnd={() => saveSettings(index)}
         />
       );
     });
@@ -97,7 +101,7 @@ export default function CameraCtrls() {
   });
 
   const saveSettings = (index: number) => {
-    const camera = arrayCamera.cameras[index];
+    const camera = arrayCamera?.cameras[index];
     const controls = controlsRef.current.get(index);
     if (!camera || !controls) return;
 
@@ -107,30 +111,41 @@ export default function CameraCtrls() {
     controls.getTarget(target);
 
     updateCamSettings(index, { position, target, zoom: camera.zoom });
+  };
+
+  const checkCustomViewRotation = (index: number) => {
+    console.log("checking");
+
+    const camera = arrayCamera?.cameras[index];
+    if (!camera || !(camera instanceof THREE.OrthographicCamera)) return;
 
     if (!camera.userData.previousRotation) {
       camera.userData.previousRotation = camera.quaternion.clone();
+      console.log(camera.userData.previousRotation);
+
+      return;
     }
 
-    const previousRotation = camera.userData
-      .previousRotation as THREE.Quaternion;
+    const previousRotation = camera.userData.previousRotation;
+
     const camQuaternion = new THREE.Quaternion();
     camera.getWorldQuaternion(camQuaternion);
 
     previousRotation.normalize();
     camQuaternion.normalize();
 
+    const rotationChanged = previousRotation.angleTo(camQuaternion) > 0.001;
+
     if (
-      previousRotation.angleTo(camQuaternion) > 0.001 &&
+      rotationChanged &&
       !viewports[index].isCustom &&
       camera instanceof THREE.OrthographicCamera
     ) {
       setAsCustom(index);
     }
-    camera.userData.previousRotation = camQuaternion.clone();
   };
 
-  return <>{controlsMap[activeViewport]}</>;
+  return <>{arrayCamera && controlsMap[activeViewport]}</>;
 }
 // export default function CameraCtrls() {
 //   const { size, gl, scene } = useThree();
