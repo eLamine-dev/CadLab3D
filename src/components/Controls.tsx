@@ -25,8 +25,7 @@ export default function Controls() {
         onDragStart={() => setCameraCtrlsEnabled(false)}
         onDragEnd={() => setCameraCtrlsEnabled(true)}
       />
-      {/* <MultiViewport enabled={cameraCtrlsEnabled} /> */}
-      <CameraCtrls enabled={cameraCtrlsEnabled} />
+      <CameraCtrls />
     </>
   );
 }

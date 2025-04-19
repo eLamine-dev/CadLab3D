@@ -96,7 +96,7 @@ export const useViewportStore = create((set, get) => ({
   maximizedViewport: null,
   arrayCamera: <THREE.ArrayCamera | null>null,
   setArrayCamera: (cam) => {
-    console.log("arraycam", get().arrayCamera);
+    // console.log("arraycam", get().arrayCamera);
 
     set({ arrayCamera: cam });
   },
@@ -146,7 +146,7 @@ export const useViewportStore = create((set, get) => ({
   },
 
   setAsCustom: (viewportId) => {
-    console.log("custom", viewportId);
+    // console.log("custom", viewportId);
     set((state) => ({
       ...state,
       viewports: {
@@ -183,7 +183,7 @@ export const useViewportStore = create((set, get) => ({
   },
 
   updateCamSettings: (viewportId, updates) => {
-    console.log("updates", updates);
+    // console.log("updates", updates);
 
     set((state) => ({
       ...state,

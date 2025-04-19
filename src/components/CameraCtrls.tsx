@@ -41,6 +41,8 @@ export default function CameraCtrls() {
         false
       );
 
+      camera.up.set(...camSettings.up);
+
       camera.zoom = camSettings.zoom;
       controls.zoomTo(camSettings.zoom, false);
 
@@ -58,12 +60,13 @@ export default function CameraCtrls() {
 
     const newControls: Record<number, JSX.Element> = {};
 
-    arrayCamera.cameras.forEach((cam: THREE.Camera, index) => {
+    arrayCamera.cameras.forEach((cam: THREE.Camera, index: number) => {
       const camSettings = viewports[index].settings.cameraSettings;
 
       cam.position.copy(camSettings.position);
       cam.lookAt(camSettings.target);
       cam.zoom = camSettings.zoom;
+
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
       cam.userData.previousRotation = cam.quaternion.clone();
@@ -115,8 +118,6 @@ export default function CameraCtrls() {
   };
 
   const checkCustomViewRotation = (index: number) => {
-    console.log("checking");
-
     const camera = arrayCamera?.cameras[index];
     if (!camera || !(camera instanceof THREE.OrthographicCamera)) return;
 

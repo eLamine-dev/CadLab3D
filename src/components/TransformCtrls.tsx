@@ -82,7 +82,6 @@ export default function TransformControlsComponent({
           camera={activeCamera}
           translationSnap={0.05}
           rotationSnap={THREE.MathUtils.degToRad(5)}
-          scaleSnap={0.1}
 
           // size={0.5}
         />
