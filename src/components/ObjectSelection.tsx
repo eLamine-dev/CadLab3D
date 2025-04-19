@@ -49,14 +49,24 @@ export default function ObjectSelection() {
     activeCamera.updateMatrixWorld();
     raycaster.current.setFromCamera(mouse.current, activeCamera);
 
-    const intersects = raycaster.current.intersectObjects(scene.children, true);
+    const selectables = [];
+
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh && !obj.userData.nonSelectable) {
+        selectables.push(obj);
+      }
+    });
+
+    const intersects = raycaster.current.intersectObjects(selectables, true);
+    console.log(intersects);
 
     for (const hit of intersects) {
       const obj = hit.object;
       if (
         obj instanceof THREE.Mesh &&
         obj.visible &&
-        !obj.userData.nonSelectable
+        !obj.userData.nonSelectable &&
+        obj.type !== "TransformControlsPlane"
       ) {
         return hit;
       }

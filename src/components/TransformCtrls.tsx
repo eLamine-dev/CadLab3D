@@ -2,22 +2,13 @@ import { use, useEffect, useRef, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { TransformControls } from "@react-three/drei";
-import { useArrayCamera } from "../hooks/useArrayCamera";
 import { useViewportStore } from "../state/viewportStore";
 import { useSelectionStore } from "../state/selectionStore";
 import { TransformControls as ThreeTransformControls } from "three/addons/controls/TransformControls.js";
 
-export default function TransformControlsComponent({
-  onDragStart,
-  onDragEnd,
-}: {
-  onDragStart?: () => void;
-  onDragEnd?: () => void;
-}) {
-  const { gl, scene } = useThree();
+export default function TransformControlsComponent() {
+  const { scene } = useThree();
   const { activeViewport, arrayCamera } = useViewportStore();
-
-  // const activeCamera = arrayCamera.cameras[activeViewport];
 
   const [activeCamera, setActiveCamera] = useState(null);
 
@@ -46,31 +37,6 @@ export default function TransformControlsComponent({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    const controls = transformControlsRef.current;
-
-    if (!controls || !selectedObject) return;
-
-    const handleChange = (e: { value: boolean }) => {
-      if (e.value) {
-        onDragStart?.();
-      } else {
-        onDragEnd?.();
-      }
-    };
-
-    controls.addEventListener("dragging-changed", handleChange);
-    return () => {
-      controls.removeEventListener("dragging-changed", handleChange);
-    };
-  }, [selectedObject, onDragStart, onDragEnd]);
-
-  // useEffect(() => {
-  //   if (transformControlsRef.current) {
-  //     transformControlsRef.current.visible = !!selectedObject;
-  //   }
-  // }, [selectedObject]);
-
   return (
     <>
       {selectedObject && (
@@ -82,8 +48,6 @@ export default function TransformControlsComponent({
           camera={activeCamera}
           translationSnap={0.05}
           rotationSnap={THREE.MathUtils.degToRad(5)}
-
-          // size={0.5}
         />
       )}
     </>
