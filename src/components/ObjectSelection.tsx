@@ -44,32 +44,32 @@ export default function ObjectSelection() {
     const y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
     mouse.current.set(x, y);
 
-    if (!activeCamera) return [];
+    if (!activeCamera) return null;
 
     activeCamera.updateMatrixWorld();
-
     raycaster.current.setFromCamera(mouse.current, activeCamera);
 
-    const selectableMeshes: THREE.Object3D[] = [];
+    const intersects = raycaster.current.intersectObjects(scene.children, true);
 
-    scene.traverse((obj) => {
+    for (const hit of intersects) {
+      const obj = hit.object;
       if (
         obj instanceof THREE.Mesh &&
         obj.visible &&
         !obj.userData.nonSelectable
       ) {
-        selectableMeshes.push(obj);
+        return hit;
       }
-    });
+    }
 
-    return raycaster.current.intersectObjects(selectableMeshes, true);
+    return null;
   };
 
   const handlePointerMove = (event: MouseEvent) => {
-    const hits = getIntersections(event);
-    if (hits.length > 0) {
-      const hit = hits[0].object;
-      if (hit !== hovered) {
+    const hit = getIntersections(event);
+
+    if (hit) {
+      if (hit.object !== hovered) {
         if (hovered && originalColor) {
           const prevMesh = hovered as THREE.Mesh;
           if (prevMesh.material) {
@@ -77,13 +77,13 @@ export default function ObjectSelection() {
           }
         }
 
-        const newMesh = hit as THREE.Mesh;
+        const newMesh = hit.object as THREE.Mesh;
         if (newMesh.material) {
           setOriginalColor((newMesh.material as any).color.clone());
           newMesh.material.color.set(0xffffff);
         }
 
-        setHovered(hit);
+        setHovered(hit.object);
       }
     } else {
       if (hovered && originalColor) {
