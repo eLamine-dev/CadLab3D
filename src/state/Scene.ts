@@ -47,6 +47,7 @@ class SceneSingleton {
     this.objects.set("blueBox", blueBox);
 
     const grid = new THREE.GridHelper(10, 10);
+    grid.userData.nonSelectable = true;
     this._scene.add(grid);
     this.objects.set("grid", grid);
 

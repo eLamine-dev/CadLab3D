@@ -26,6 +26,18 @@ export default function ObjectSelection() {
 
   const canvas = gl.domElement;
 
+  // const getIntersections = (event: MouseEvent) => {
+  //   const bounds = canvas.getBoundingClientRect();
+  //   const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+  //   const y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+  //   mouse.current.set(x, y);
+
+  //   raycaster.current.setFromCamera(mouse.current, activeCamera);
+  //   return raycaster.current
+  //     .intersectObjects(scene.children, true)
+  //     .filter((o) => o.object instanceof THREE.Mesh);
+  // };
+
   const getIntersections = (event: MouseEvent) => {
     const bounds = canvas.getBoundingClientRect();
     const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
@@ -34,10 +46,23 @@ export default function ObjectSelection() {
 
     if (!activeCamera) return [];
 
+    activeCamera.updateMatrixWorld();
+
     raycaster.current.setFromCamera(mouse.current, activeCamera);
-    return raycaster.current
-      .intersectObjects(scene.children, true)
-      .filter((o) => o.object instanceof THREE.Mesh);
+
+    const selectableMeshes: THREE.Object3D[] = [];
+
+    scene.traverse((obj) => {
+      if (
+        obj instanceof THREE.Mesh &&
+        obj.visible &&
+        !obj.userData.nonSelectable
+      ) {
+        selectableMeshes.push(obj);
+      }
+    });
+
+    return raycaster.current.intersectObjects(selectableMeshes, true);
   };
 
   const handlePointerMove = (event: MouseEvent) => {
@@ -87,12 +112,12 @@ export default function ObjectSelection() {
 
     if (!smallDrag || !quickClick) return;
 
-    const hits = getIntersections(event);
-    const clicked = hits[0]?.object;
+    // const hits = getIntersections(event);
+    // const clicked = hits[0]?.object;
 
-    if (clicked) {
+    if (hovered) {
       const isMulti = event.ctrlKey || event.metaKey;
-      useSelectionStore.getState().toggleSelected(clicked, isMulti);
+      useSelectionStore.getState().toggleSelected(hovered, isMulti);
     } else {
       useSelectionStore.getState().clear();
     }
