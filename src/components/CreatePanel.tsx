@@ -1,7 +1,15 @@
 import * as THREE from "three";
 import sceneInstance from "../state/Scene";
 
+import { useMetaStore } from "../state/metaStore";
+
 export default function CreatePanel() {
+  const { setMode } = useMetaStore();
+
+  const startCreation = (createObject) => {
+    setMode("create");
+    createObject();
+  };
   const createBox = () => {
     const box = new THREE.Mesh(
       new THREE.BoxGeometry(1, 1, 1),
@@ -21,8 +29,8 @@ export default function CreatePanel() {
   return (
     <div className="create-panel">
       <h3>Create Object</h3>
-      <button onClick={createBox}>Box</button>
-      <button onClick={createSphere}>Sphere</button>
+      <button onClick={() => startCreation(createBox)}>Box</button>
+      <button onClick={() => startCreation(createSphere)}>Sphere</button>
     </div>
   );
 }
