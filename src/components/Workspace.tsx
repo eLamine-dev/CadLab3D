@@ -4,7 +4,7 @@ import * as THREE from "three";
 import SceneObjects from "./SceneObjects";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 
-import sceneInstance from "../state/Scene";
+import sceneInstance from "../scene/Scene";
 import { useViewportStore } from "../state/viewportStore";
 import ViewSelection from "./ViewSelection";
 // import TransformCtrls from "./TransformCtrls";

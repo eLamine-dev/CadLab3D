@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import sceneInstance from "../state/Scene";
+import sceneInstance from "../scene/Scene";
 
 import { useMetaStore } from "../state/metaStore";
 
