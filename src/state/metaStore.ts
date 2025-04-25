@@ -10,8 +10,7 @@ interface MetaState {
   selection: string[];
   hovered: string | null;
 
-  setMode: (mode: EditorMode) => void;
-  setTool: (tool: ToolName) => void;
+  setMode: (mode: EditorMode, tool: ToolName) => void;
   clearTool: () => void;
   setSelection: (ids: string[]) => void;
   setHovered: (id: string | null) => void;
@@ -23,8 +22,7 @@ export const useMetaStore = create<MetaState>((set) => ({
   selection: [],
   hovered: null,
 
-  setMode: (mode) => set({ mode }),
-  setTool: (tool) => set({ tool }),
+  setMode: (mode, tool) => set({ mode, tool }),
   clearTool: () => set({ tool: null }),
   setSelection: (ids) => set({ selection: ids }),
   setHovered: (id) => set({ hovered: id }),

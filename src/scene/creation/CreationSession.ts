@@ -1,71 +1,66 @@
-// CreationSession.ts
 import sceneInstance from "../Scene";
 
-export class CreationSession {
-  private steps: CreationStep[];
-  private stepIndex = 0;
-  private tool: CreationTool;
-  private currentHandler?: (event: Event) => void;
-  private previewObject?: THREE.Object3D;
+import { boxTool } from "./geometry/boxTool";
+import type { CreationTool, ToolName } from "./creationTypes";
 
-  constructor(toolName) {
-    this.tool = tool;
-    this.steps = tool.getSteps();
-  }
+export function runCreationSession(
+  toolName: ToolName,
+  scene: typeof sceneInstance
+) {
+  const tool = getTool(toolName);
+  const steps = tool.getSteps(scene);
+  let stepIndex = 0;
+  let currentHandler: ((e: Event) => void) | undefined;
 
-  start() {
-    this.executeCurrentStep();
-  }
-
-  private executeCurrentStep() {
-    const step = this.steps[this.stepIndex];
-
-    if (this.currentHandler) {
-      document.removeEventListener(step.eventType, this.currentHandler);
+  function executeCurrentStep() {
+    const step = steps[stepIndex];
+    if (currentHandler) {
+      document.removeEventListener(step.eventType, currentHandler);
     }
-
-    this.currentHandler = (event: Event) => {
+    currentHandler = (event: Event) => {
       step.onEvent(event);
-      this.advanceStep();
+      advanceStep();
     };
-
-    document.addEventListener(step.eventType, this.currentHandler, {
-      once: true,
-    });
+    document.addEventListener(step.eventType, currentHandler, { once: true });
   }
 
-  private advanceStep() {
-    this.stepIndex++;
-    if (this.stepIndex < this.steps.length) {
-      this.executeCurrentStep();
+  function advanceStep() {
+    stepIndex++;
+    if (stepIndex < steps.length) {
+      executeCurrentStep();
     } else {
-      this.finish();
+      finish();
     }
   }
 
-  private finish() {
-    this.cleanup();
-    if (this.tool.onFinish) {
-      this.tool.onFinish();
+  function finish() {
+    cleanup();
+    tool.onFinish?.();
+  }
+
+  function cancel() {
+    cleanup();
+    tool.onCancel?.();
+  }
+
+  function cleanup() {
+    if (currentHandler) {
+      document.removeEventListener(steps[stepIndex]?.eventType, currentHandler);
     }
   }
 
-  cancel() {
-    this.cleanup();
-    if (this.tool.onCancel) {
-      this.tool.onCancel();
-    }
-  }
+  executeCurrentStep();
 
-  private cleanup() {
-    if (this.currentHandler) {
-      document.removeEventListener(
-        this.steps[this.stepIndex].eventType,
-        this.currentHandler
-      );
-    }
-    if (this.previewObject) {
-      sceneInstance.getScene().remove(this.previewObject);
-    }
+  return { cancel };
+}
+
+function getTool(toolName: ToolName): CreationTool {
+  switch (toolName) {
+    case "box":
+      return boxTool;
+    case "sphere":
+      return sphereTool;
+    default:
+      throw new Error("Unknown tool: " + toolName);
   }
 }

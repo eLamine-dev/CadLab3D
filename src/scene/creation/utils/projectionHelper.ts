@@ -1,6 +1,6 @@
 // projectionHelper.ts
 import * as THREE from "three";
-import { useViewportStore } from "../../state/viewportStore";
+import { useViewportStore } from "../../../state/viewportStore";
 
 export function getDrawingPlaneFromViewport(viewportId: number): {
   normal: THREE.Vector3;

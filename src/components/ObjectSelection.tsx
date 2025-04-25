@@ -52,7 +52,11 @@ export default function ObjectSelection() {
     const selectables = [];
 
     scene.traverse((obj) => {
-      if (obj instanceof THREE.Mesh && !obj.userData.nonSelectable) {
+      if (
+        obj instanceof THREE.Mesh &&
+        !obj.userData.nonSelectable &&
+        obj.type !== "TransformControlsPlane"
+      ) {
         selectables.push(obj);
       }
     });

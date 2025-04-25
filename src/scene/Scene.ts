@@ -1,9 +1,11 @@
 import * as THREE from "three";
+import { runCreationSession } from "./creation/CreationSession";
 
 class SceneSingleton {
   static instance: SceneSingleton | null = null;
   private _scene: THREE.Scene | null = null;
   private objects = new Map<string, THREE.Object3D>();
+  private activeSession: ReturnType<typeof runCreationSession> | null = null;
 
   setScene(scene: THREE.Scene) {
     this._scene = scene;
@@ -78,6 +80,16 @@ class SceneSingleton {
       this._scene.remove(obj);
       this.objects.delete(name);
     }
+  }
+
+  creationSession(toolName: ToolName) {
+    this.cancelSession();
+    this.activeSession = runCreationSession(toolName, this);
+  }
+
+  cancelSession() {
+    this.activeSession?.cancel();
+    this.activeSession = null;
   }
 }
 

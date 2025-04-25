@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useMetaStore } from "../state/metaStore";
-import { CreationSession } from "../scene/creation/CreationSession";
+import sceneInstance from "../scene/Scene";
 
 export function useCreate() {
   const { mode, tool } = useMetaStore();
@@ -8,7 +8,6 @@ export function useCreate() {
   useEffect(() => {
     if (mode !== "create") return;
 
-    const session = new CreationSession(tool);
-    session.start();
+    sceneInstance.creationSession(tool);
   }, [mode, tool]);
 }
