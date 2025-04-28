@@ -12,16 +12,18 @@ export function runCreationSession(
   let stepIndex = 0;
   let currentHandler: ((e: Event) => void) | undefined;
 
+  const canvas = scene.getCanvas();
+
   function executeCurrentStep() {
     const step = steps[stepIndex];
     if (currentHandler) {
-      document.removeEventListener(step.eventType, currentHandler);
+      canvas.removeEventListener(step.eventType, currentHandler);
     }
     currentHandler = (event: Event) => {
       step.onEvent(event);
       advanceStep();
     };
-    document.addEventListener(step.eventType, currentHandler, { once: true });
+    canvas.addEventListener(step.eventType, currentHandler, { once: true });
   }
 
   function advanceStep() {
@@ -45,7 +47,7 @@ export function runCreationSession(
 
   function cleanup() {
     if (currentHandler) {
-      document.removeEventListener(steps[stepIndex]?.eventType, currentHandler);
+      canvas.removeEventListener(steps[stepIndex]?.eventType, currentHandler);
     }
   }
 
@@ -58,8 +60,7 @@ function getTool(toolName: ToolName): CreationTool {
   switch (toolName) {
     case "box":
       return boxTool;
-    case "sphere":
-      return sphereTool;
+
     default:
       throw new Error("Unknown tool: " + toolName);
   }

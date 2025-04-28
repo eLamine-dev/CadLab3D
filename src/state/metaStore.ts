@@ -22,7 +22,10 @@ export const useMetaStore = create<MetaState>((set) => ({
   selection: [],
   hovered: null,
 
-  setMode: (mode, tool) => set({ mode, tool }),
+  setMode: (mode, tool) => {
+    set({ mode, tool });
+    console.log(mode, tool);
+  },
   clearTool: () => set({ tool: null }),
   setSelection: (ids) => set({ selection: ids }),
   setHovered: (id) => set({ hovered: id }),

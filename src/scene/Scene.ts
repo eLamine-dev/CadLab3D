@@ -4,11 +4,14 @@ import { runCreationSession } from "./creation/CreationSession";
 class SceneSingleton {
   static instance: SceneSingleton | null = null;
   private _scene: THREE.Scene | null = null;
+
+  private _canvas: HTMLCanvasElement | null = null;
   private objects = new Map<string, THREE.Object3D>();
   private activeSession: ReturnType<typeof runCreationSession> | null = null;
 
-  setScene(scene: THREE.Scene) {
+  bridgeScenes(scene: THREE.Scene, canvas: HTMLCanvasElement) {
     this._scene = scene;
+    this._canvas = canvas;
 
     this.initScene();
   }
@@ -61,6 +64,11 @@ class SceneSingleton {
     return this._scene;
   }
 
+  getCanvas() {
+    if (!this._canvas) throw new Error("Scene not initialized");
+    return this._canvas;
+  }
+
   addObject(name: string, object: THREE.Object3D, position = [0, 0, 0]) {
     object.position.set(...position);
 
@@ -85,6 +93,7 @@ class SceneSingleton {
   creationSession(toolName: ToolName) {
     this.cancelSession();
     this.activeSession = runCreationSession(toolName, this);
+    console.log("hello");
   }
 
   cancelSession() {

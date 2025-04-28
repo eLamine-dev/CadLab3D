@@ -62,7 +62,6 @@ export default function ObjectSelection() {
     });
 
     const intersects = raycaster.current.intersectObjects(selectables, true);
-    console.log(intersects);
 
     for (const hit of intersects) {
       const obj = hit.object;
