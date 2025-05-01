@@ -6,7 +6,7 @@ export function useCreate() {
   const { mode, tool } = useMetaStore();
 
   useEffect(() => {
-    console.log("useCreate", mode, tool);
+    // console.log("useCreate", mode, tool);
     if (mode !== "create") return;
 
     sceneInstance.creationSession(tool);

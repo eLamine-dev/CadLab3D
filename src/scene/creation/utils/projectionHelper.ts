@@ -53,24 +53,20 @@ export function getWorldPointFromMouse(
   const settings = viewports[viewportId].settings;
   const { camera } = settings.cameraSettings;
 
-  // Get mouse coordinates in normalized device coordinates (-1 to +1)
   const mouse = new THREE.Vector2();
   const rect = (event.target as HTMLElement).getBoundingClientRect();
   mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-  // Create ray from camera through mouse position
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  // Get drawing plane based on viewport type
   const plane = getDrawingPlaneFromViewport(viewportId);
   const threePlane = new THREE.Plane(
     plane.normal,
     -plane.origin.dot(plane.normal)
   );
 
-  // Find intersection point
   const intersection = new THREE.Vector3();
   raycaster.ray.intersectPlane(threePlane, intersection);
 

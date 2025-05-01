@@ -13,6 +13,12 @@ class SceneSingleton {
     this._scene = scene;
     this._canvas = canvas;
 
+    canvas.addEventListener("mousedown", (e) => {
+      console.log("mousedown on canvas", e);
+    });
+
+    console.log(this._canvas);
+
     this.initScene();
   }
 

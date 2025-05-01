@@ -18,8 +18,10 @@ export const boxTool: CreationTool = {
 
     return [
       {
-        eventType: "mousedown",
+        eventType: "pointerdown",
         onEvent: (e: MouseEvent) => {
+          console.log(e);
+
           state.viewportId = useViewportStore.getState().activeViewport;
           state.drawingPlane = getDrawingPlaneFromViewport(state.viewportId);
           state.baseCorner1 = getWorldPointFromMouse(e, state.viewportId);
@@ -40,6 +42,7 @@ export const boxTool: CreationTool = {
       {
         eventType: "mousemove",
         onEvent: (e: MouseEvent) => {
+          console.log(e);
           if (!state.baseCorner1 || !state.previewMesh) return;
 
           state.baseCorner2 = getWorldPointFromMouse(e, state.viewportId);
@@ -50,6 +53,7 @@ export const boxTool: CreationTool = {
       {
         eventType: "mouseup",
         onEvent: (e: MouseEvent) => {
+          console.log(e);
           if (!state.previewMesh) return;
 
           state.previewMesh.material = new THREE.MeshBasicMaterial({
@@ -64,6 +68,7 @@ export const boxTool: CreationTool = {
       {
         eventType: "mousemove",
         onEvent: (e: MouseEvent) => {
+          console.log(e);
           if (!state.baseCorner1 || !state.baseCorner2 || !state.previewMesh)
             return;
 

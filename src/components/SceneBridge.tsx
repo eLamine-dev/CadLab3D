@@ -5,6 +5,15 @@ import sceneInstance from "../scene/Scene";
 export default function SceneBridge() {
   const { scene, gl } = useThree();
 
+  // useEffect(() => {
+  //   const canvas = gl.domElement;
+  //   console.log("Canvas element is:", canvas);
+
+  //   canvas.addEventListener("click", (e) => {
+  //     console.log("manual canvas listener fired", e);
+  //   });
+  // }, [scene]);
+
   useEffect(() => {
     sceneInstance.bridgeScenes(scene, gl.domElement);
   }, [scene]);

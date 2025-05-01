@@ -15,18 +15,25 @@ export function runCreationSession(
   const canvas = scene.getCanvas();
 
   function executeCurrentStep() {
+    console.log(canvas);
+
     const step = steps[stepIndex];
     if (currentHandler) {
       canvas.removeEventListener(step.eventType, currentHandler);
     }
     currentHandler = (event: Event) => {
-      step.onEvent(event);
-      advanceStep();
+      console.log("handler", event);
+
+      // step.onEvent(event);
+      // advanceStep();
     };
-    canvas.addEventListener(step.eventType, currentHandler, { once: true });
+    console.log(step.eventType);
+    canvas.addEventListener(step.eventType, currentHandler);
   }
 
   function advanceStep() {
+    console.log("advance");
+
     stepIndex++;
     if (stepIndex < steps.length) {
       executeCurrentStep();
