@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { useSelectionStore } from "../state/selectionStore";
 import { useViewportStore } from "../state/viewportStore";
 
+//TODO: need to be shut down on creation mode
 export default function ObjectSelection() {
   const { gl, scene } = useThree();
   const { activeViewport, arrayCamera } = useViewportStore();

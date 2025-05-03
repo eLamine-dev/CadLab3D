@@ -66,11 +66,12 @@ export default function CameraCtrls() {
       cam.position.copy(camSettings.position);
       cam.lookAt(camSettings.target);
       cam.zoom = camSettings.zoom;
+      cam.up.set(...camSettings.up);
 
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
       cam.userData.previousRotation = cam.quaternion.clone();
-
+      //TODO: disable orbiting when mode is not "free" but keep pan and zoom
       newControls[index] = (
         <CameraControls
           key={index}

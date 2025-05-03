@@ -1,4 +1,3 @@
-// projectionHelper.ts
 import * as THREE from "three";
 import { useViewportStore } from "../../../state/viewportStore";
 
@@ -7,40 +6,26 @@ export function getDrawingPlaneFromViewport(viewportId: number): {
   up: THREE.Vector3;
   origin: THREE.Vector3;
 } {
-  const viewports = useViewportStore.getState().viewports;
-  const settings = viewports[viewportId].settings;
+  const viewport = useViewportStore.getState().viewports[viewportId];
+  const settings = viewport.settings;
   const camera = settings.cameraSettings;
 
+  const cameraUp = new THREE.Vector3(...camera.up);
+  const is3DView =
+    settings.cameraType === "PerspectiveCamera" || viewport.isCustom;
+
   let normal: THREE.Vector3;
-  let origin = new THREE.Vector3(0, 0, 0);
+  const origin = new THREE.Vector3(0, 0, 0);
 
-  if (settings.cameraType === "PerspectiveCamera") {
-    // For perspective view, use ground plane by default
-    normal = new THREE.Vector3(0, 1, 0);
+  if (is3DView) {
+    normal = cameraUp.clone();
   } else {
-    // For orthographic views, use plane perpendicular to view direction
     normal = new THREE.Vector3().copy(camera.position).normalize().negate();
-
-    // Adjust origin based on view type for better snapping
-    switch (settings.id) {
-      case "Top":
-      case "Bottom":
-        origin.y = 0;
-        break;
-      case "Front":
-      case "Back":
-        origin.z = 0;
-        break;
-      case "Left":
-      case "Right":
-        origin.x = 0;
-        break;
-    }
   }
 
   return {
     normal,
-    up: new THREE.Vector3(...camera.up),
+    up: cameraUp,
     origin,
   };
 }
