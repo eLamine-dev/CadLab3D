@@ -23,19 +23,33 @@ export const boxTool: CreationTool = {
           console.log(e);
 
           state.viewportId = useViewportStore.getState().activeViewport;
-          state.drawingPlane = getDrawingPlaneFromViewport(state.viewportId);
+          // state.drawingPlane = getDrawingPlaneFromViewport(state.viewportId);
           state.baseCorner1 = getWorldPointFromMouse(e, state.viewportId);
 
-          state.previewMesh = new THREE.Mesh(
+          // state.previewMesh = new THREE.Mesh(
+          //   new THREE.BoxGeometry(1, 1, 1),
+          //   new THREE.MeshBasicMaterial({
+          //     color: 0x00ff00,
+          //     transparent: true,
+          //     opacity: 0.7,
+          //     wireframe: true,
+          //   })
+          // );
+
+          console.log("point", state.baseCorner1);
+
+          const redBox = new THREE.Mesh(
             new THREE.BoxGeometry(1, 1, 1),
-            new THREE.MeshBasicMaterial({
-              color: 0x00ff00,
-              transparent: true,
-              opacity: 0.7,
-              wireframe: true,
-            })
+            new THREE.MeshStandardMaterial({ color: 0xff0000 })
           );
-          sceneInstance.getScene().add(state.previewMesh);
+
+          redBox.position.set(
+            state.baseCorner1.x,
+            state.baseCorner1.y,
+            state.baseCorner1.z
+          );
+
+          sceneInstance.getScene().add(redBox);
         },
       },
 

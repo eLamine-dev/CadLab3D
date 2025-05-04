@@ -22,10 +22,8 @@ export function runCreationSession(
       canvas.removeEventListener(step.eventType, currentHandler);
     }
     currentHandler = (event: Event) => {
-      console.log("handler", event);
-
-      // step.onEvent(event);
-      // advanceStep();
+      step.onEvent(event);
+      advanceStep();
     };
     console.log(step.eventType);
     canvas.addEventListener(step.eventType, currentHandler);
