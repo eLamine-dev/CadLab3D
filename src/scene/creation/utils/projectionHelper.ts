@@ -36,8 +36,6 @@ export function getWorldPointFromMouse(
 ): THREE.Vector3 {
   const arrayCamera = useViewportStore.getState().arrayCamera;
 
-  console.log(arrayCamera);
-
   const camera = arrayCamera.cameras[viewportId];
 
   const mouse = new THREE.Vector2();

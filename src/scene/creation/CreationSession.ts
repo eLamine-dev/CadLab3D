@@ -1,62 +1,52 @@
 import sceneInstance from "../Scene";
-
 import { boxTool } from "./geometry/boxTool";
 import type { CreationTool, ToolName } from "./creationTypes";
 
-export function runCreationSession(
-  toolName: ToolName,
-  scene: typeof sceneInstance
-) {
+export function runCreationSession(toolName: ToolName, scene = sceneInstance) {
   const tool = getTool(toolName);
   const steps = tool.getSteps(scene);
   let stepIndex = 0;
-  let currentHandler: ((e: Event) => void) | undefined;
+  let activeListeners: { type: string; handler: EventListener }[] = [];
 
   const canvas = scene.getCanvas();
 
-  function executeCurrentStep() {
-    console.log(canvas);
-
-    const step = steps[stepIndex];
-    if (currentHandler) {
-      canvas.removeEventListener(step.eventType, currentHandler);
-    }
-    currentHandler = (event: Event) => {
-      step.onEvent(event);
-      advanceStep();
-    };
-    console.log(step.eventType);
-    canvas.addEventListener(step.eventType, currentHandler);
-  }
-
   function advanceStep() {
-    console.log("advance");
-
+    cleanupStep();
     stepIndex++;
     if (stepIndex < steps.length) {
-      executeCurrentStep();
+      executeStep();
     } else {
       finish();
     }
   }
 
+  function executeStep() {
+    const step = steps[stepIndex];
+    step.events.forEach(({ type, handler }) => {
+      const wrapped = (e: Event) => handler(e, advanceStep);
+      canvas.addEventListener(type, wrapped);
+      activeListeners.push({ type, handler: wrapped });
+    });
+  }
+
+  function cleanupStep() {
+    activeListeners.forEach(({ type, handler }) => {
+      canvas.removeEventListener(type, handler);
+    });
+    activeListeners = [];
+  }
+
   function finish() {
-    cleanup();
+    cleanupStep();
     tool.onFinish?.();
   }
 
   function cancel() {
-    cleanup();
+    cleanupStep();
     tool.onCancel?.();
   }
 
-  function cleanup() {
-    if (currentHandler) {
-      canvas.removeEventListener(steps[stepIndex]?.eventType, currentHandler);
-    }
-  }
-
-  executeCurrentStep();
+  executeStep();
 
   return { cancel };
 }
@@ -65,8 +55,7 @@ function getTool(toolName: ToolName): CreationTool {
   switch (toolName) {
     case "box":
       return boxTool;
-
     default:
-      throw new Error("Unknown tool: " + toolName);
+      throw new Error(`Unknown tool: ${toolName}`);
   }
 }

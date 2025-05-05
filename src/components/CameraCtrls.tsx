@@ -3,6 +3,9 @@ import { JSX, useEffect, useMemo, useRef, useState } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 import { useViewportStore } from "../state/viewportStore";
+import CameraControlsImpl from "camera-controls";
+import { useMetaStore } from "../state/metaStore";
+
 import { useArrayCamera } from "../hooks/useArrayCamera";
 // import sceneInstance from "../state/Scene";
 
@@ -17,6 +20,8 @@ export default function CameraCtrls() {
     maximizedViewport,
     arrayCamera,
   } = useViewportStore();
+
+  const { mode } = useMetaStore();
 
   const controlsRef = useRef<Map<number, CameraControls>>(new Map());
   const [controlsMap, setControlsMap] = useState<Record<number, JSX.Element>>(
@@ -72,6 +77,7 @@ export default function CameraCtrls() {
       cam.updateMatrixWorld();
       cam.userData.previousRotation = cam.quaternion.clone();
       //TODO: disable orbiting when mode is not "free" but keep pan and zoom
+
       newControls[index] = (
         <CameraControls
           key={index}
@@ -90,13 +96,22 @@ export default function CameraCtrls() {
           onEnd={() => checkCustomViewRotation(index)}
           dollyToCursor={cam instanceof THREE.PerspectiveCamera}
           truckSpeed={cam instanceof THREE.OrthographicCamera ? 1 : undefined}
+          mouseButtons={{
+            right: CameraControlsImpl.ACTION.TRUCK,
+            middle: CameraControlsImpl.ACTION.DOLLY,
+            left:
+              mode === "free"
+                ? CameraControlsImpl.ACTION.ROTATE
+                : CameraControlsImpl.ACTION.NONE,
+            wheel: CameraControlsImpl.ACTION.DOLLY,
+          }}
           makeDefault
         />
       );
     });
 
     setControlsMap(newControls);
-  }, [arrayCamera, viewports, activeViewport]);
+  }, [arrayCamera, viewports, activeViewport, mode]);
 
   useFrame((_, delta) => {
     const activeControl = controlsRef.current.get(activeViewport);
