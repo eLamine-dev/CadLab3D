@@ -10,6 +10,8 @@ export const boxTool: CreationTool = {
     const state = {
       baseCorner1: null as THREE.Vector3 | null,
       baseCorner2: null as THREE.Vector3 | null,
+      width: 0,
+      depth: 0,
       height: 0,
       previewMesh: null as THREE.Mesh | null,
       viewportId: 0,
@@ -35,9 +37,15 @@ export const boxTool: CreationTool = {
     function updateBasePreview() {
       if (!state.previewMesh || !state.baseCorner1 || !state.baseCorner2)
         return;
-      const width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
-      const depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
-      state.previewMesh.scale.set(width, 0.001, depth);
+      state.width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
+      state.depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
+      state.previewMesh.geometry.dispose();
+      state.previewMesh.geometry = new THREE.BoxGeometry(
+        state.width,
+        0.01,
+        state.depth
+      );
+
       state.previewMesh.position.set(
         (state.baseCorner1.x + state.baseCorner2.x) / 2,
         state.baseCorner1.y,
@@ -47,7 +55,7 @@ export const boxTool: CreationTool = {
 
     function calculateHeight(currentPoint: THREE.Vector3): number {
       if (state.drawingPlane?.normal.y === 1) {
-        return currentPoint.y - (state.baseCorner1?.y || 0);
+        return currentPoint.y - (state.baseCorner2?.y || 0);
       } else {
         const direction = currentPoint.clone().sub(state.baseCorner1!);
         return direction.dot(
@@ -59,10 +67,14 @@ export const boxTool: CreationTool = {
     function updateHeightPreview() {
       if (!state.previewMesh || !state.baseCorner1 || !state.baseCorner2)
         return;
-      const width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
-      const depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
+
       const height = Math.max(0.001, Math.abs(state.height));
-      state.previewMesh.scale.set(width, height, depth);
+      state.previewMesh.geometry.dispose();
+      state.previewMesh.geometry = new THREE.BoxGeometry(
+        state.width,
+        height,
+        state.depth
+      );
       state.previewMesh.position.set(
         (state.baseCorner1.x + state.baseCorner2.x) / 2,
         state.baseCorner1.y + height / 2,

@@ -40,8 +40,11 @@ export function getWorldPointFromMouse(
 
   const mouse = new THREE.Vector2();
   const rect = (event.target as HTMLElement).getBoundingClientRect();
-  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  mouse.set(x, y);
+
+  camera.updateMatrixWorld();
 
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);

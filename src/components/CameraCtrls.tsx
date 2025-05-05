@@ -61,6 +61,10 @@ export default function CameraCtrls() {
   }, [previousViewport]);
 
   useEffect(() => {
+    saveSettings(activeViewport);
+  }, [mode]);
+
+  useEffect(() => {
     if (!arrayCamera) return;
 
     const newControls: Record<number, JSX.Element> = {};
@@ -111,7 +115,7 @@ export default function CameraCtrls() {
     });
 
     setControlsMap(newControls);
-  }, [arrayCamera, viewports, activeViewport, mode]);
+  }, [arrayCamera, viewports, activeViewport]);
 
   useFrame((_, delta) => {
     const activeControl = controlsRef.current.get(activeViewport);
