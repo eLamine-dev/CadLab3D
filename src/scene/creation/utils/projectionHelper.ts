@@ -1,11 +1,7 @@
 import * as THREE from "three";
 import { useViewportStore } from "../../../state/viewportStore";
 
-export function getDrawingPlaneFromViewport(viewportId: number): {
-  normal: THREE.Vector3;
-  up: THREE.Vector3;
-  origin: THREE.Vector3;
-} {
+export function getDrawingPlaneFromViewport(viewportId: number): THREE.Plane {
   const viewport = useViewportStore.getState().viewports[viewportId];
   const settings = viewport.settings;
   const camera = settings.cameraSettings;
@@ -20,19 +16,16 @@ export function getDrawingPlaneFromViewport(viewportId: number): {
   if (is3DView) {
     normal = cameraUp.clone();
   } else {
-    normal = new THREE.Vector3().copy(camera.position).normalize().negate();
+    normal = cameraUp.clone();
   }
 
-  return {
-    normal,
-    up: cameraUp,
-    origin,
-  };
+  return new THREE.Plane(normal, -origin.dot(normal));
 }
 
 export function getWorldPointFromMouse(
   event: MouseEvent,
-  viewportId: number
+  viewportId: number,
+  plane: THREE.Plane
 ): THREE.Vector3 {
   const arrayCamera = useViewportStore.getState().arrayCamera;
 
@@ -49,14 +42,14 @@ export function getWorldPointFromMouse(
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  const plane = getDrawingPlaneFromViewport(viewportId);
-  const threePlane = new THREE.Plane(
-    plane.normal,
-    -plane.origin.dot(plane.normal)
-  );
+  // const plane = getDrawingPlaneFromViewport(viewportId);
+  // const threePlane = new THREE.Plane(
+  //   plane.normal,
+  //   -plane.origin.dot(plane.normal)
+  // );
 
   const intersection = new THREE.Vector3();
-  raycaster.ray.intersectPlane(threePlane, intersection);
+  raycaster.ray.intersectPlane(plane, intersection);
 
   return intersection;
 }

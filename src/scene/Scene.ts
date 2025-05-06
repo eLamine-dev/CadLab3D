@@ -99,7 +99,6 @@ class SceneSingleton {
   creationSession(toolName: ToolName) {
     this.cancelSession();
     this.activeSession = runCreationSession(toolName, this);
-    console.log("hello");
   }
 
   cancelSession() {
