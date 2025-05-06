@@ -83,19 +83,19 @@ export const boxTool: CreationTool = {
     }
 
     function finalizeBox() {
-      const width = Math.abs(state.baseCorner2!.x - state.baseCorner1!.x);
-      const depth = Math.abs(state.baseCorner2!.z - state.baseCorner1!.z);
-      const height = Math.abs(state.height);
+      console.log("finalize");
+
       const center = new THREE.Vector3(
-        (state.baseCorner1!.x + state.baseCorner2!.x) / 2,
-        state.baseCorner1!.y + height / 2,
-        (state.baseCorner1!.z + state.baseCorner2!.z) / 2
+        (state.baseCorner1.x + state.baseCorner2.x) / 2,
+        state.baseCorner1.y + state.height / 2,
+        (state.baseCorner1.z + state.baseCorner2.z) / 2
       );
       const box = new THREE.Mesh(
-        new THREE.BoxGeometry(width, height, depth),
+        new THREE.BoxGeometry(state.width, state.height, state.depth),
         new THREE.MeshStandardMaterial({ color: 0x00ff00 })
       );
-      box.position.copy(center);
+      box.position.set(...center);
+
       scene.addObject(`Box_${Date.now()}`, box, [center.x, center.y, center.z]);
     }
 
@@ -147,20 +147,23 @@ export const boxTool: CreationTool = {
           {
             type: "pointermove",
             handler: (e) => {
-              const current = getWorldPointFromMouse(
-                e as MouseEvent,
-                viewportId
-              );
-              state.height = calculateHeight(current);
-              updateHeightPreview();
+              // const current = getWorldPointFromMouse(
+              //   e as MouseEvent,
+              //   viewportId
+              // );
+              // state.height = calculateHeight(current);
+              // updateHeightPreview();
+              let previousY = e.clientY;
+              document.addEventListener("mousemove", (e) => {
+                const deltaY = previousY - e.clientY;
+                state.height += deltaY * 0.0002;
+                updateHeightPreview();
+                previousY = e.clientY;
+              });
             },
           },
-        ],
-      },
-      {
-        events: [
           {
-            type: "click",
+            type: "pointerdown",
             handler: (_e, next) => {
               finalizeBox();
               cleanupPreview();
