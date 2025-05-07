@@ -22,6 +22,11 @@ export const boxTool: CreationTool = {
 
     const viewportId = useViewportStore.getState().activeViewport;
 
+    const viewports = useViewportStore.getState().viewports;
+
+    const drawingPlane =
+      viewports[viewportId].settings.cameraSettings.drawingPlane;
+
     function setupPreview() {
       state.previewMesh = new THREE.Mesh(
         new THREE.BoxGeometry(0.1, 0.1, 0.1),
@@ -39,20 +44,49 @@ export const boxTool: CreationTool = {
     function updateBasePreview() {
       if (!state.previewMesh || !state.baseCorner1 || !state.baseCorner2)
         return;
-      state.width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
-      state.depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
-      state.previewMesh.geometry.dispose();
-      state.previewMesh.geometry = new THREE.BoxGeometry(
-        state.width,
-        0.01,
-        state.depth
-      );
 
-      state.previewMesh.position.set(
-        (state.baseCorner1.x + state.baseCorner2.x) / 2,
-        state.baseCorner1.y,
-        (state.baseCorner1.z + state.baseCorner2.z) / 2
-      );
+      const n = drawingPlane.normal;
+
+      let width = 0,
+        depth = 0,
+        center = new THREE.Vector3();
+
+      if (n.x === 1 || n.x === -1) {
+        // Plane is YZ (x = 0)
+        width = Math.abs(state.baseCorner2.y - state.baseCorner1.y);
+        depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
+        center.set(
+          state.baseCorner1.x,
+          (state.baseCorner1.y + state.baseCorner2.y) / 2,
+          (state.baseCorner1.z + state.baseCorner2.z) / 2
+        );
+        state.previewMesh.geometry.dispose();
+        state.previewMesh.geometry = new THREE.BoxGeometry(0.01, width, depth);
+      } else if (n.y === 1 || n.y === -1) {
+        // Plane is XZ (y = 0)
+        width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
+        depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
+        center.set(
+          (state.baseCorner1.x + state.baseCorner2.x) / 2,
+          state.baseCorner1.y,
+          (state.baseCorner1.z + state.baseCorner2.z) / 2
+        );
+        state.previewMesh.geometry.dispose();
+        state.previewMesh.geometry = new THREE.BoxGeometry(width, 0.01, depth);
+      } else if (n.z === 1 || n.z === -1) {
+        // Plane is XY (z = 0)
+        width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
+        depth = Math.abs(state.baseCorner2.y - state.baseCorner1.y);
+        center.set(
+          (state.baseCorner1.x + state.baseCorner2.x) / 2,
+          (state.baseCorner1.y + state.baseCorner2.y) / 2,
+          state.baseCorner1.z
+        );
+        state.previewMesh.geometry.dispose();
+        state.previewMesh.geometry = new THREE.BoxGeometry(width, depth, 0.01);
+      }
+
+      state.previewMesh.position.copy(center);
     }
 
     function calculateHeight(currentPoint: THREE.Vector3): number {
@@ -137,15 +171,14 @@ export const boxTool: CreationTool = {
             type: "pointerdown",
             handler: (e, next) => {
               state.viewportId = useViewportStore.getState().activeViewport;
-              state.drawingPlane = getDrawingPlaneFromViewport(
-                state.viewportId
-              );
-              console.log(state.drawingPlane);
+              // state.drawingPlane = getDrawingPlaneFromViewport(
+              //   state.viewportId
+              // );
 
               state.baseCorner1 = getWorldPointFromMouse(
                 e as MouseEvent,
-                viewportId,
-                state.drawingPlane
+                viewportId
+                // state.drawingPlane
               );
               setupPreview();
               next();
@@ -160,8 +193,8 @@ export const boxTool: CreationTool = {
             handler: (e) => {
               state.baseCorner2 = getWorldPointFromMouse(
                 e as MouseEvent,
-                viewportId,
-                state.drawingPlane
+                viewportId
+                // state.drawingPlane
               );
               updateBasePreview();
             },
@@ -182,6 +215,10 @@ export const boxTool: CreationTool = {
               if (!state.baseCorner2) return;
               const camera =
                 useViewportStore.getState().arrayCamera?.cameras[viewportId];
+              const viewport =
+                useViewportStore.getState().viewports[viewportId];
+              const drawingPlane =
+                viewport.settings.cameraSettings.drawingPlane;
               if (!camera) return;
 
               const currentY = e.clientY;
@@ -193,7 +230,7 @@ export const boxTool: CreationTool = {
 
               const deltaPixels = startY - currentY;
 
-              const up = state.drawingPlane.normal.clone().normalize();
+              const up = drawingPlane.normal.clone().normalize();
 
               let worldHeightDelta;
 

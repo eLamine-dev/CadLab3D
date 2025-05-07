@@ -17,6 +17,7 @@ export const defaultViews = {
       zoom: 1,
       position: new THREE.Vector3(7, 7, 7),
       target: new THREE.Vector3(0, 0, 0),
+      drawingPlane: new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),
       // position: [7, 7, 7],
       // target: [0, 0, 0],
       up: [0, 1, 0],
@@ -33,6 +34,7 @@ export const defaultViews = {
       position: new THREE.Vector3(0, 10, 0),
       // position: [0, 10, 0],
       up: [0, 0, -1],
+      drawingPlane: new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),
       ...BASE_ORTHO_CAM,
     },
   },
@@ -42,6 +44,7 @@ export const defaultViews = {
     cameraSettings: {
       position: new THREE.Vector3(0, 0, 10),
       // position: [0, 0, 10],
+      drawingPlane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
@@ -52,6 +55,7 @@ export const defaultViews = {
     cameraSettings: {
       position: new THREE.Vector3(-10, 0, 0),
       // position: [-10, 0, 0],
+      drawingPlane: new THREE.Plane(new THREE.Vector3(1, 0, 0), 0),
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
@@ -63,6 +67,7 @@ export const defaultViews = {
     cameraSettings: {
       position: new THREE.Vector3(10, 0, 0),
       // position: [10, 0, 0],
+      drawingPlane: new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
@@ -73,6 +78,7 @@ export const defaultViews = {
     cameraSettings: {
       position: new THREE.Vector3(0, 0, -10),
       // position: [0, 0, -10],
+      drawingPlane: new THREE.Plane(new THREE.Vector3(0, 0, -1), 0),
       up: [0, 1, 0],
       ...BASE_ORTHO_CAM,
     },
@@ -84,6 +90,7 @@ export const defaultViews = {
     cameraSettings: {
       position: new THREE.Vector3(0, -10, 0),
       // position: [0, -10, 0],
+      drawingPlane: new THREE.Plane(new THREE.Vector3(0, -1, 0), 0),
       up: [0, 0, 1],
       ...BASE_ORTHO_CAM,
     },
@@ -96,8 +103,6 @@ export const useViewportStore = create((set, get) => ({
   maximizedViewport: null,
   arrayCamera: <THREE.ArrayCamera | null>null,
   setArrayCamera: (cam) => {
-    // console.log("arraycam", get().arrayCamera);
-
     set({ arrayCamera: cam });
   },
 
@@ -158,6 +163,7 @@ export const useViewportStore = create((set, get) => ({
             cameraSettings: {
               ...state.viewports[viewportId].settings.cameraSettings,
               up: [0, 1, 0],
+              drawingPlane: new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),
             },
           },
           isCustom: true,

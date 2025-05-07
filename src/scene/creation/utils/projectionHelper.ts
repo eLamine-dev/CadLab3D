@@ -1,55 +1,71 @@
 import * as THREE from "three";
 import { useViewportStore } from "../../../state/viewportStore";
 
-export function getDrawingPlaneFromViewport(viewportId: number): THREE.Plane {
-  const viewport = useViewportStore.getState().viewports[viewportId];
-  const settings = viewport.settings;
-  const camera = settings.cameraSettings;
+// export function getDrawingPlaneFromViewport(viewportId: number): THREE.Plane {
+//   const store = useViewportStore.getState();
+//   const viewport = store.viewports[viewportId];
+//   const settings = viewport.settings;
+//   const camSettings = settings.cameraSettings;
 
-  const cameraUp = new THREE.Vector3(...camera.up);
-  const is3DView =
-    settings.cameraType === "PerspectiveCamera" || viewport.isCustom;
+//   const is3DView =
+//     settings.cameraType === "PerspectiveCamera" || viewport.isCustom;
 
-  let normal: THREE.Vector3;
-  const origin = new THREE.Vector3(0, 0, 0);
+//   const position = camSettings.position;
+//   const target = camSettings.target ?? new THREE.Vector3(0, 0, 0);
 
-  if (is3DView) {
-    normal = cameraUp.clone();
-  } else {
-    normal = cameraUp.clone();
-  }
+//   if (is3DView) {
+//     // Ground plane
+//     return new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+//   } else {
+//     // For 2D orthographic views: use view direction as the normal
+//     const viewDir = new THREE.Vector3()
+//       .subVectors(target, position)
+//       .normalize();
 
-  return new THREE.Plane(normal, -origin.dot(normal));
-}
+//     // Flip to ensure the normal faces toward camera
+//     const normal = viewDir.clone().negate();
+
+//     // Plane through target (usually origin)
+//     const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
+//       normal,
+//       target
+//     );
+//     return plane;
+//   }
+// }
 
 export function getWorldPointFromMouse(
   event: MouseEvent,
-  viewportId: number,
-  plane: THREE.Plane
+  viewportId: number
 ): THREE.Vector3 {
-  const arrayCamera = useViewportStore.getState().arrayCamera;
+  const { arrayCamera, viewports } = useViewportStore.getState();
+  const camera = arrayCamera?.cameras[viewportId];
+  const drawingPlane =
+    viewports[viewportId].settings.cameraSettings.drawingPlane;
 
-  const camera = arrayCamera.cameras[viewportId];
+  if (!camera || !drawingPlane) {
+    throw new Error(
+      "Camera or drawing plane not found for the given viewport."
+    );
+  }
 
-  const mouse = new THREE.Vector2();
-  const rect = (event.target as HTMLElement).getBoundingClientRect();
-  const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-  mouse.set(x, y);
+  const canvas = event.target as HTMLElement;
+  const rect = canvas.getBoundingClientRect();
 
-  camera.updateMatrixWorld();
+  const mouse = new THREE.Vector2(
+    ((event.clientX - rect.left) / rect.width) * 2 - 1,
+    -((event.clientY - rect.top) / rect.height) * 2 + 1
+  );
 
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  // const plane = getDrawingPlaneFromViewport(viewportId);
-  // const threePlane = new THREE.Plane(
-  //   plane.normal,
-  //   -plane.origin.dot(plane.normal)
-  // );
-
   const intersection = new THREE.Vector3();
-  raycaster.ray.intersectPlane(plane, intersection);
+  const hit = raycaster.ray.intersectPlane(drawingPlane.clone(), intersection);
+
+  if (!hit) {
+    throw new Error("Ray did not intersect the drawing plane.");
+  }
 
   return intersection;
 }

@@ -1,12 +1,15 @@
 import sceneInstance from "../Scene";
 import { boxTool } from "./geometry/boxTool";
 import type { CreationTool, ToolName } from "./creationTypes";
+import { useMetaStore } from "../../state/metaStore";
 
 export function runCreationSession(toolName: ToolName, scene = sceneInstance) {
   const tool = getTool(toolName);
   const steps = tool.getSteps(scene);
   let stepIndex = 0;
   let activeListeners: { type: string; handler: EventListener }[] = [];
+
+  const resetMode = useMetaStore.getState().setMode;
 
   const canvas = scene.getCanvas();
 
@@ -38,6 +41,7 @@ export function runCreationSession(toolName: ToolName, scene = sceneInstance) {
 
   function finish() {
     cleanupStep();
+    resetMode("free", null);
     tool.onFinish?.();
   }
 

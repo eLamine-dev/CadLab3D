@@ -7,6 +7,7 @@ import CameraControlsImpl from "camera-controls";
 import { useMetaStore } from "../state/metaStore";
 
 import { useArrayCamera } from "../hooks/useArrayCamera";
+import { log } from "three/tsl";
 // import sceneInstance from "../state/Scene";
 
 export default function CameraCtrls() {
@@ -46,7 +47,7 @@ export default function CameraCtrls() {
         false
       );
 
-      camera.up.set(...camSettings.up);
+      // camera.up.set(...camSettings.up);
 
       camera.zoom = camSettings.zoom;
       controls.zoomTo(camSettings.zoom, false);
@@ -70,17 +71,23 @@ export default function CameraCtrls() {
     const newControls: Record<number, JSX.Element> = {};
 
     arrayCamera.cameras.forEach((cam: THREE.Camera, index: number) => {
-      const camSettings = viewports[index].settings.cameraSettings;
+      const viewport = viewports[index];
+
+      const camSettings = viewport.settings.cameraSettings;
 
       cam.position.copy(camSettings.position);
       cam.lookAt(camSettings.target);
       cam.zoom = camSettings.zoom;
-      cam.up.set(...camSettings.up);
+
+      cam.up.set(camSettings.up[0], camSettings.up[1], camSettings.up[2]);
 
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
       cam.userData.previousRotation = cam.quaternion.clone();
       //TODO: disable orbiting when mode is not "free" but keep pan and zoom
+
+      const is3DView =
+        viewport.cameraType === "PerspectiveCamera" || viewport.isCustom;
 
       newControls[index] = (
         <CameraControls
@@ -102,12 +109,16 @@ export default function CameraCtrls() {
           truckSpeed={cam instanceof THREE.OrthographicCamera ? 1 : undefined}
           mouseButtons={{
             right: CameraControlsImpl.ACTION.TRUCK,
-            middle: CameraControlsImpl.ACTION.DOLLY,
+            middle: is3DView
+              ? CameraControlsImpl.ACTION.DOLLY
+              : CameraControlsImpl.ACTION.ZOOM,
             left:
               mode === "free"
                 ? CameraControlsImpl.ACTION.ROTATE
                 : CameraControlsImpl.ACTION.NONE,
-            wheel: CameraControlsImpl.ACTION.DOLLY,
+            wheel: is3DView
+              ? CameraControlsImpl.ACTION.DOLLY
+              : CameraControlsImpl.ACTION.ZOOM,
           }}
           makeDefault
         />
@@ -129,6 +140,9 @@ export default function CameraCtrls() {
     const controls = controlsRef.current.get(index);
     if (!camera || !controls) return;
 
+    camera.updateProjectionMatrix();
+    camera.updateMatrixWorld();
+
     const position = new THREE.Vector3();
     const target = new THREE.Vector3();
     controls.getPosition(position);
@@ -143,7 +157,6 @@ export default function CameraCtrls() {
 
     if (!camera.userData.previousRotation) {
       camera.userData.previousRotation = camera.quaternion.clone();
-      console.log(camera.userData.previousRotation);
 
       return;
     }
