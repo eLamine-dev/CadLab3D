@@ -126,7 +126,7 @@ export const useViewportStore = create((set, get) => ({
     2: {
       id: 2,
       settings: {
-        ...defaultViews.Front,
+        ...defaultViews.Bottom,
       },
       isCustom: false,
     },

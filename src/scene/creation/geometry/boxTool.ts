@@ -104,53 +104,101 @@ export const boxTool: CreationTool = {
       if (!state.previewMesh || !state.baseCorner1 || !state.baseCorner2)
         return;
 
-      const height = state.height;
-      const centerY = state.baseCorner1.y + height / 2;
+      const n = drawingPlane.normal;
+      const h = state.height;
+      const absH = Math.abs(h);
+      const sign = Math.sign(h) || 1;
 
-      state.previewMesh.geometry.dispose();
-      state.previewMesh.geometry = new THREE.BoxGeometry(
-        state.width,
-        Math.abs(height), // always positive for geometry
-        state.depth
-      );
+      const center = new THREE.Vector3();
+      let width = 0,
+        depth = 0;
 
-      state.previewMesh.position.set(
-        (state.baseCorner1.x + state.baseCorner2.x) / 2,
-        centerY,
-        (state.baseCorner1.z + state.baseCorner2.z) / 2
-      );
-    }
+      if (n.x === 1 || n.x === -1) {
+        // Plane is YZ → height along X
+        width = Math.abs(state.baseCorner2.y - state.baseCorner1.y);
+        depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
+        center.set(
+          state.baseCorner1.x + h / 2,
+          (state.baseCorner1.y + state.baseCorner2.y) / 2,
+          (state.baseCorner1.z + state.baseCorner2.z) / 2
+        );
+        state.previewMesh.geometry.dispose();
+        state.previewMesh.geometry = new THREE.BoxGeometry(absH, width, depth);
+      } else if (n.y === 1 || n.y === -1) {
+        // Plane is XZ → height along Y
+        width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
+        depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
+        center.set(
+          (state.baseCorner1.x + state.baseCorner2.x) / 2,
+          state.baseCorner1.y + h / 2,
+          (state.baseCorner1.z + state.baseCorner2.z) / 2
+        );
+        state.previewMesh.geometry.dispose();
+        state.previewMesh.geometry = new THREE.BoxGeometry(width, absH, depth);
+      } else if (n.z === 1 || n.z === -1) {
+        // Plane is XY → height along Z
+        width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
+        depth = Math.abs(state.baseCorner2.y - state.baseCorner1.y);
+        center.set(
+          (state.baseCorner1.x + state.baseCorner2.x) / 2,
+          (state.baseCorner1.y + state.baseCorner2.y) / 2,
+          state.baseCorner1.z + h / 2
+        );
+        state.previewMesh.geometry.dispose();
+        state.previewMesh.geometry = new THREE.BoxGeometry(width, depth, absH);
+      }
 
-    function getRayFromScreenPoint(
-      x: number,
-      y: number,
-      camera: THREE.Camera
-    ): THREE.Ray {
-      const canvas = sceneInstance.getCanvas();
-      const rect = canvas.getBoundingClientRect();
-      const mouse = new THREE.Vector2(
-        ((x - rect.left) / rect.width) * 2 - 1,
-        -((y - rect.top) / rect.height) * 2 + 1
-      );
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
-      return raycaster.ray;
+      state.previewMesh.position.copy(center);
     }
 
     function finalizeBox() {
-      console.log("finalize");
+      if (!state.baseCorner1 || !state.baseCorner2) return;
 
-      const center = new THREE.Vector3(
-        (state.baseCorner1.x + state.baseCorner2.x) / 2,
-        state.baseCorner1.y + state.height / 2,
-        (state.baseCorner1.z + state.baseCorner2.z) / 2
-      );
-      const box = new THREE.Mesh(
-        new THREE.BoxGeometry(state.width, state.height, state.depth),
+      const n = drawingPlane.normal;
+      const h = state.height;
+      const absH = Math.abs(h);
+
+      const center = new THREE.Vector3();
+      let width = 0,
+        depth = 0;
+      let geometry: THREE.BoxGeometry;
+
+      let box: THREE.Mesh;
+
+      if (n.x === 1 || n.x === -1) {
+        width = Math.abs(state.baseCorner2.y - state.baseCorner1.y);
+        depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
+        center.set(
+          state.baseCorner1.x + h / 2,
+          (state.baseCorner1.y + state.baseCorner2.y) / 2,
+          (state.baseCorner1.z + state.baseCorner2.z) / 2
+        );
+        geometry = new THREE.BoxGeometry(absH, width, depth);
+      } else if (n.y === 1 || n.y === -1) {
+        width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
+        depth = Math.abs(state.baseCorner2.z - state.baseCorner1.z);
+        center.set(
+          (state.baseCorner1.x + state.baseCorner2.x) / 2,
+          state.baseCorner1.y + h / 2,
+          (state.baseCorner1.z + state.baseCorner2.z) / 2
+        );
+        geometry = new THREE.BoxGeometry(width, absH, depth);
+      } else {
+        width = Math.abs(state.baseCorner2.x - state.baseCorner1.x);
+        depth = Math.abs(state.baseCorner2.y - state.baseCorner1.y);
+        center.set(
+          (state.baseCorner1.x + state.baseCorner2.x) / 2,
+          (state.baseCorner1.y + state.baseCorner2.y) / 2,
+          state.baseCorner1.z + h / 2
+        );
+        geometry = new THREE.BoxGeometry(width, depth, absH);
+      }
+
+      box = new THREE.Mesh(
+        geometry,
         new THREE.MeshStandardMaterial({ color: 0x00ff00 })
       );
-      box.position.set(...center);
-
+      box.position.copy(center);
       scene.addObject(`Box_${Date.now()}`, box, [center.x, center.y, center.z]);
     }
 

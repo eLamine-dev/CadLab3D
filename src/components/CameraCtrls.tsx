@@ -18,7 +18,6 @@ export default function CameraCtrls() {
     setAsCustom,
     viewports,
     updateCamSettings,
-    maximizedViewport,
     arrayCamera,
   } = useViewportStore();
 
@@ -47,6 +46,7 @@ export default function CameraCtrls() {
         false
       );
 
+      camera.up.set(camSettings.up[0], camSettings.up[1], camSettings.up[2]);
       // camera.up.set(...camSettings.up);
 
       camera.zoom = camSettings.zoom;
@@ -79,15 +79,12 @@ export default function CameraCtrls() {
       cam.lookAt(camSettings.target);
       cam.zoom = camSettings.zoom;
 
-      cam.up.set(camSettings.up[0], camSettings.up[1], camSettings.up[2]);
-
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
       cam.userData.previousRotation = cam.quaternion.clone();
-      //TODO: disable orbiting when mode is not "free" but keep pan and zoom
+      console.log(camSettings.up);
 
-      const is3DView =
-        viewport.cameraType === "PerspectiveCamera" || viewport.isCustom;
+      cam.up.set(camSettings.up[0], camSettings.up[1], camSettings.up[2]);
 
       newControls[index] = (
         <CameraControls
@@ -107,18 +104,21 @@ export default function CameraCtrls() {
           onEnd={() => checkCustomViewRotation(index)}
           dollyToCursor={cam instanceof THREE.PerspectiveCamera}
           truckSpeed={cam instanceof THREE.OrthographicCamera ? 1 : undefined}
+          updateCameraUp={true}
           mouseButtons={{
             right: CameraControlsImpl.ACTION.TRUCK,
-            middle: is3DView
-              ? CameraControlsImpl.ACTION.DOLLY
-              : CameraControlsImpl.ACTION.ZOOM,
+            middle:
+              cam instanceof THREE.PerspectiveCamera
+                ? CameraControlsImpl.ACTION.DOLLY
+                : CameraControlsImpl.ACTION.ZOOM,
             left:
               mode === "free"
                 ? CameraControlsImpl.ACTION.ROTATE
                 : CameraControlsImpl.ACTION.NONE,
-            wheel: is3DView
-              ? CameraControlsImpl.ACTION.DOLLY
-              : CameraControlsImpl.ACTION.ZOOM,
+            wheel:
+              cam instanceof THREE.PerspectiveCamera
+                ? CameraControlsImpl.ACTION.DOLLY
+                : CameraControlsImpl.ACTION.ZOOM,
           }}
           makeDefault
         />
