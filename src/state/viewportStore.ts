@@ -31,7 +31,7 @@ export const defaultViews = {
     id: "Top",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: new THREE.Vector3(0, 10, 0),
+      position: new THREE.Vector3(0, 12, 0),
       // position: [0, 10, 0],
       up: [0, 0, -1],
       drawingPlane: new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),
@@ -42,7 +42,7 @@ export const defaultViews = {
     id: "Front",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: new THREE.Vector3(0, 0, 10),
+      position: new THREE.Vector3(0, 0, 12),
       // position: [0, 0, 10],
       drawingPlane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
       up: [0, 1, 0],
@@ -53,7 +53,7 @@ export const defaultViews = {
     id: "Left",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: new THREE.Vector3(-10, 0, 0),
+      position: new THREE.Vector3(-12, 0, 0),
       // position: [-10, 0, 0],
       drawingPlane: new THREE.Plane(new THREE.Vector3(1, 0, 0), 0),
       up: [0, 1, 0],
@@ -65,7 +65,7 @@ export const defaultViews = {
     id: "Right",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: new THREE.Vector3(10, 0, 0),
+      position: new THREE.Vector3(12, 0, 0),
       // position: [10, 0, 0],
       drawingPlane: new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),
       up: [0, 1, 0],
@@ -76,7 +76,7 @@ export const defaultViews = {
     id: "Back",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: new THREE.Vector3(0, 0, -10),
+      position: new THREE.Vector3(0, 0, -12),
       // position: [0, 0, -10],
       drawingPlane: new THREE.Plane(new THREE.Vector3(0, 0, -1), 0),
       up: [0, 1, 0],
@@ -88,7 +88,7 @@ export const defaultViews = {
     id: "Bottom",
     cameraType: "OrthographicCamera",
     cameraSettings: {
-      position: new THREE.Vector3(0, -10, 0),
+      position: new THREE.Vector3(0, -12, 0),
       // position: [0, -10, 0],
       drawingPlane: new THREE.Plane(new THREE.Vector3(0, -1, 0), 0),
       up: [0, 0, 1],

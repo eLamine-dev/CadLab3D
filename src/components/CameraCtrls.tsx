@@ -48,7 +48,6 @@ export default function CameraCtrls() {
 
       camera.up.set(camSettings.up[0], camSettings.up[1], camSettings.up[2]);
       // camera.up.set(...camSettings.up);
-
       camera.zoom = camSettings.zoom;
       controls.zoomTo(camSettings.zoom, false);
 
@@ -82,7 +81,6 @@ export default function CameraCtrls() {
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
       cam.userData.previousRotation = cam.quaternion.clone();
-      console.log(camSettings.up);
 
       cam.up.set(camSettings.up[0], camSettings.up[1], camSettings.up[2]);
 
