@@ -1,10 +1,10 @@
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
+import { useStore } from "zustand";
 
-type EditorMode = "free" | "create" | "modify" | "select";
+export type EditorMode = "free" | "create" | "modify" | "select";
+export type ToolName = "box" | "sphere" | "line" | "light" | null;
 
-type ToolName = "box" | "sphere" | "line" | "light" | null;
-
-interface MetaState {
+export interface MetaState {
   mode: EditorMode;
   tool: ToolName;
   selection: string[];
@@ -16,7 +16,7 @@ interface MetaState {
   setHovered: (id: string | null) => void;
 }
 
-export const useMetaStore = create<MetaState>((set) => ({
+export const metaStore = createStore<MetaState>((set) => ({
   mode: "free",
   tool: null,
   selection: [],
@@ -30,3 +30,6 @@ export const useMetaStore = create<MetaState>((set) => ({
   setSelection: (ids) => set({ selection: ids }),
   setHovered: (id) => set({ hovered: id }),
 }));
+
+export const useMetaStore = <T>(selector: (state: MetaState) => T): T =>
+  useStore(metaStore, selector);

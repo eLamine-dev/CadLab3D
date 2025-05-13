@@ -4,7 +4,6 @@ import {
   getWorldPointFromMouse,
 } from "../utils/projectionHelper";
 import * as THREE from "three";
-import sceneInstance from "../../Scene";
 import { useViewportStore } from "../../../state/viewportStore";
 
 export const boxTool: CreationTool = {
@@ -21,11 +20,10 @@ export const boxTool: CreationTool = {
     };
 
     const viewportId = useViewportStore.getState().activeViewport;
-
     const viewports = useViewportStore.getState().viewports;
-
     const drawingPlane =
       viewports[viewportId].settings.cameraSettings.drawingPlane;
+    const camera = useViewportStore.getState().arrayCamera?.cameras[viewportId];
 
     function setupPreview() {
       state.previewMesh = new THREE.Mesh(
@@ -218,7 +216,6 @@ export const boxTool: CreationTool = {
           {
             type: "pointerdown",
             handler: (e, next) => {
-              state.viewportId = useViewportStore.getState().activeViewport;
               // state.drawingPlane = getDrawingPlaneFromViewport(
               //   state.viewportId
               // );
@@ -261,12 +258,7 @@ export const boxTool: CreationTool = {
             type: "pointermove",
             handler: (e) => {
               if (!state.baseCorner2) return;
-              const camera =
-                useViewportStore.getState().arrayCamera?.cameras[viewportId];
-              const viewport =
-                useViewportStore.getState().viewports[viewportId];
-              const drawingPlane =
-                viewport.settings.cameraSettings.drawingPlane;
+
               if (!camera) return;
 
               const currentY = e.clientY;

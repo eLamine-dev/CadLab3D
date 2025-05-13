@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import sceneInstance from "../scene/Scene";
+import { useMetaStore } from "../state/metaStore";
 
 export default function SceneBridge() {
   const { scene, gl } = useThree();
@@ -15,8 +16,8 @@ export default function SceneBridge() {
   // }, [scene]);
 
   useEffect(() => {
-    sceneInstance.bridgeScenes(scene, gl.domElement);
-  }, [scene]);
+    sceneInstance.bridgeScenes(scene, gl.domElement, useMetaStore);
+  }, [gl.domElement, scene]);
 
   return null;
 }

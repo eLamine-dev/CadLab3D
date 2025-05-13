@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { runCreationSession } from "./creation/CreationSession";
+import { subscribeToStores } from "./subscribeToStores";
 
 class SceneSingleton {
   static instance: SceneSingleton | null = null;
@@ -9,17 +10,21 @@ class SceneSingleton {
   private objects = new Map<string, THREE.Object3D>();
   private activeSession: ReturnType<typeof runCreationSession> | null = null;
 
-  bridgeScenes(scene: THREE.Scene, canvas: HTMLCanvasElement) {
+  constructor() {
+    this.subscribeToStores = subscribeToStores.bind(this);
+    // this.unsubscribeFromStores = unsubscribeFromStores.bind(this);
+  }
+
+  bridgeScenes(
+    scene: THREE.Scene,
+    canvas: HTMLCanvasElement,
+    metaStore: MetaStore
+  ) {
     this._scene = scene;
     this._canvas = canvas;
 
-    canvas.addEventListener("mousedown", (e) => {
-      console.log("mousedown on canvas", e);
-    });
-
-    console.log(this._canvas);
-
     this.initScene();
+    this.subscribeToStores();
   }
 
   private initScene() {
