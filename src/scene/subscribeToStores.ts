@@ -37,12 +37,16 @@ export function subscribeToStores() {
     },
 
     // 2. Selector
-    (state) => ({
-      mode: state.mode,
-      tool: state.tool,
-      selection: state.selection,
-      hovered: state.hovered,
-    }),
+    () => {
+      const state = metaStore.getState();
+
+      return {
+        mode: state.mode,
+        tool: state.tool,
+        selection: state.selection,
+        hovered: state.hovered,
+      };
+    },
 
     // 3. Options
     { fireImmediately: true }

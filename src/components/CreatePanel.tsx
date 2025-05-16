@@ -2,10 +2,10 @@ import * as THREE from "three";
 import sceneInstance from "../scene/Scene";
 
 import { useMetaStore } from "../state/metaStore";
-import { useCreate } from "../hooks/useCreate";
+// import { useCreate } from "../hooks/useCreate";
 
 export default function CreatePanel() {
-  useCreate();
+  // useCreate();
   const { setMode } = useMetaStore();
 
   const tools = ["box", "sphere"];

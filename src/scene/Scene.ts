@@ -15,11 +15,7 @@ class SceneSingleton {
     // this.unsubscribeFromStores = unsubscribeFromStores.bind(this);
   }
 
-  bridgeScenes(
-    scene: THREE.Scene,
-    canvas: HTMLCanvasElement,
-    metaStore: MetaStore
-  ) {
+  bridgeScenes(scene: THREE.Scene, canvas: HTMLCanvasElement) {
     this._scene = scene;
     this._canvas = canvas;
 
