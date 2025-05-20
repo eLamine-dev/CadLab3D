@@ -7,50 +7,38 @@ import { useSelectionStore } from "../state/selectionStore";
 import { TransformControls as ThreeTransformControls } from "three/addons/controls/TransformControls.js";
 
 export default function TransformControlsComponent() {
-  const { scene, raycaster } = useThree();
+  const { scene } = useThree();
   const { activeViewport, arrayCamera } = useViewportStore();
-
-  const transformRef = useRef<any>(null);
-  const [activeCamera, setActiveCamera] = useState(null);
-
+  const transformRef = useRef<ThreeTransformControls>(null);
+  const [activeCamera, setActiveCamera] = useState<THREE.Camera | null>(null);
   const selectedObjects = useSelectionStore((state) => state.selected);
   const selectedObject = selectedObjects[0] ?? null;
-
   const [mode, setMode] = useState<"translate" | "rotate" | "scale">(
     "translate"
   );
 
-  // useEffect(() => {
-  //   if (!transformRef.current || !selectedObject) return;
-
-  //   transformRef.current.traverse((child) => {
-  //     child.layers.set(1);
-  //   });
-
-  // Set up layers for controls and object
-  // transformRef.current.layers.set(1);
-  // scene.getObjectById(selectedObject.id)?.layers.set(1);
-  //   activeCamera.layers.enable(1);
-  // }, [selectedObject, activeCamera, scene]);
-
-  // useEffect(() => {
-  //   arrayCamera?.cameras.forEach((cam, index) => {
-  //     cam.layers.enableAll();
-  //     if (index === activeViewport) {
-  //       cam.layers.enable(1);
-  //     } else {
-  //       // cam.layers.disable(1);
-  //     }
-  //   });
-  // }, [activeCamera]);
-
   useEffect(() => {
     if (!arrayCamera) return;
-
     const camera = arrayCamera.cameras[activeViewport];
     if (!camera) return;
     setActiveCamera(camera);
   }, [arrayCamera, activeViewport]);
+
+  useEffect(() => {
+    if (!transformRef.current || !selectedObject || !activeCamera) return;
+
+    const obj = scene.getObjectById(selectedObject.id);
+    if (!obj) return;
+
+    let center = new THREE.Vector3();
+    if (obj.userData.transformCenter) {
+      center = obj.userData.transformCenter.clone();
+      transformRef.current.position.copy(center);
+    }
+
+    transformRef.current.updateMatrixWorld();
+    transformRef.current.update();
+  }, [selectedObject, activeCamera, scene]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,10 +52,9 @@ export default function TransformControlsComponent() {
 
   return (
     <>
-      {selectedObject && (
+      {selectedObject && activeCamera && (
         <TransformControls
           ref={transformRef}
-          visible={!!selectedObject}
           object={scene.getObjectById(selectedObject.id)}
           mode={mode}
           camera={activeCamera}

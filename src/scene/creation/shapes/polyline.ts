@@ -30,8 +30,13 @@ export const polylineTool: CreationTool = {
       state.line.geometry.dispose();
       state.line.geometry = geometry;
     }
+
     function finalizePolyline() {
       if (state.points.length < 2) return;
+
+      const geometry = new THREE.BufferGeometry().setFromPoints(state.points);
+      const material = new THREE.LineBasicMaterial({ color: 0x00ffff });
+      const line = new THREE.Line(geometry, material);
 
       const center = new THREE.Vector3();
       for (const p of state.points) {
@@ -39,13 +44,8 @@ export const polylineTool: CreationTool = {
       }
       center.divideScalar(state.points.length);
 
-      console.log(center);
-
-      const geometry = new THREE.BufferGeometry().setFromPoints(state.points);
-
-      const material = new THREE.LineBasicMaterial({ color: 0x00ffff });
-      const line = new THREE.Line(geometry, material);
-      line.position.copy(center);
+      // Store the center in userData for the transform controls
+      line.userData.transformCenter = center;
 
       scene.addObject(`Polyline_${Date.now()}`, line);
     }
