@@ -14,6 +14,7 @@ import SceneBridge from "./SceneBridge";
 import Controls from "./Controls";
 import MultiViewport from "./MultiViewport";
 import ObjectSelection from "./ObjectSelection";
+import { useMetaStore } from "../state/metaStore";
 
 export default function Workspace() {
   const {
@@ -22,6 +23,8 @@ export default function Workspace() {
     setMaximizedViewport,
     maximizedViewport,
   } = useViewportStore();
+
+  const { mode } = useMetaStore();
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -43,7 +46,7 @@ export default function Workspace() {
           <MultiViewport />
           <SceneBridge />
           <Controls />
-          <ObjectSelection />
+          {mode === "free" && <ObjectSelection />}
 
           {/* <CameraCtrls enabled={true} /> */}
           {/* <ObjectInteraction /> */}

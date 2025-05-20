@@ -11,12 +11,6 @@ export default function ObjectSelection() {
 
   const [activeCamera, setActiveCamera] = useState<THREE.Camera | null>(null);
 
-  useEffect(() => {
-    if (!arrayCamera) return;
-    const camera = arrayCamera.cameras[activeViewport];
-    if (camera) setActiveCamera(camera);
-  }, [arrayCamera, activeViewport]);
-
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
   const downTime = useRef<number>(0);
@@ -43,20 +37,20 @@ export default function ObjectSelection() {
 
     scene.traverse((obj) => {
       if (
-        // obj instanceof THREE.Mesh &&
         !obj.userData.nonSelectable &&
         obj.type !== "TransformControlsPlane"
       ) {
         selectables.push(obj);
       }
     });
+
     raycaster.current.params.Line.threshold = 0.2;
     const intersects = raycaster.current.intersectObjects(selectables, true);
 
     for (const hit of intersects) {
       const obj = hit.object;
       if (
-        obj instanceof THREE.Mesh &&
+        (obj instanceof THREE.Mesh || obj instanceof THREE.Line) &&
         obj.visible &&
         !obj.userData.nonSelectable &&
         obj.type !== "TransformControlsPlane"
@@ -72,27 +66,29 @@ export default function ObjectSelection() {
     const hit = getIntersections(event);
 
     if (hit) {
-      if (hit.object !== hovered) {
+      const obj = hit.object;
+
+      if (obj !== hovered) {
         if (hovered && originalColor) {
-          const prevMesh = hovered as THREE.Mesh;
-          if (prevMesh.material) {
-            (prevMesh.material as any).color.copy(originalColor);
+          const prevMaterial = (hovered as any).material;
+          if (prevMaterial && prevMaterial.color) {
+            prevMaterial.color.copy(originalColor);
           }
         }
 
-        const newMesh = hit.object as THREE.Mesh;
-        if (newMesh.material) {
-          setOriginalColor((newMesh.material as any).color.clone());
-          newMesh.material.color.set(0xffffff);
+        const newMaterial = (obj as any).material;
+        if (newMaterial && newMaterial.color) {
+          setOriginalColor(newMaterial.color.clone());
+          newMaterial.color.set(0xffffff);
         }
 
-        setHovered(hit.object);
+        setHovered(obj);
       }
     } else {
       if (hovered && originalColor) {
-        const mesh = hovered as THREE.Mesh;
-        if (mesh.material) {
-          mesh.material.color.copy(originalColor);
+        const mat = (hovered as any).material;
+        if (mat && mat.color) {
+          mat.color.copy(originalColor);
         }
       }
       setHovered(null);
@@ -125,6 +121,12 @@ export default function ObjectSelection() {
       useSelectionStore.getState().clear();
     }
   };
+
+  useEffect(() => {
+    if (!arrayCamera) return;
+    const camera = arrayCamera.cameras[activeViewport];
+    if (camera) setActiveCamera(camera);
+  }, [arrayCamera, activeViewport]);
 
   useEffect(() => {
     canvas.addEventListener("pointermove", handlePointerMove);
