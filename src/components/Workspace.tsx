@@ -38,7 +38,7 @@ export default function Workspace() {
   return (
     <div className="workspace">
       <div className="canvas-container">
-        <Canvas onClick={() => console.log("canvas")}>
+        <Canvas>
           {/* <SceneObjects /> */}
           <MultiViewport />
           <SceneBridge />

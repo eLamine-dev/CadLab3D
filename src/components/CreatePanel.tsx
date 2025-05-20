@@ -8,7 +8,7 @@ export default function CreatePanel() {
   // useCreate();
   const { setMode } = useMetaStore();
 
-  const tools = ["box", "sphere"];
+  const tools = ["box", "sphere", "polyline"];
 
   return (
     <div className="create-panel">

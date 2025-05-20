@@ -27,18 +27,6 @@ export default function ObjectSelection() {
 
   const canvas = gl.domElement;
 
-  // const getIntersections = (event: MouseEvent) => {
-  //   const bounds = canvas.getBoundingClientRect();
-  //   const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-  //   const y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
-  //   mouse.current.set(x, y);
-
-  //   raycaster.current.setFromCamera(mouse.current, activeCamera);
-  //   return raycaster.current
-  //     .intersectObjects(scene.children, true)
-  //     .filter((o) => o.object instanceof THREE.Mesh);
-  // };
-
   const getIntersections = (event: MouseEvent) => {
     const bounds = canvas.getBoundingClientRect();
     const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
@@ -50,18 +38,19 @@ export default function ObjectSelection() {
     activeCamera.updateMatrixWorld();
     raycaster.current.setFromCamera(mouse.current, activeCamera);
 
+    //TODO: need a better way , kind of innefficient
     const selectables = [];
 
     scene.traverse((obj) => {
       if (
-        obj instanceof THREE.Mesh &&
+        // obj instanceof THREE.Mesh &&
         !obj.userData.nonSelectable &&
         obj.type !== "TransformControlsPlane"
       ) {
         selectables.push(obj);
       }
     });
-
+    raycaster.current.params.Line.threshold = 0.2;
     const intersects = raycaster.current.intersectObjects(selectables, true);
 
     for (const hit of intersects) {

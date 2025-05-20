@@ -1,5 +1,6 @@
 import sceneInstance from "../Scene";
 import { boxTool } from "./geometry/boxTool";
+import { polylineTool } from "./shapes/polyline";
 import type { CreationTool, ToolName } from "./creationTypes";
 import { metaStore } from "../../state/metaStore";
 
@@ -59,6 +60,8 @@ function getTool(toolName: ToolName): CreationTool {
   switch (toolName) {
     case "box":
       return boxTool;
+    case "polyline":
+      return polylineTool;
     default:
       throw new Error(`Unknown tool: ${toolName}`);
   }

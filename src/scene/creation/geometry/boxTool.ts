@@ -1,8 +1,4 @@
-import { CreationTool } from "../creationTypes";
-import {
-  getDrawingPlaneFromViewport,
-  getWorldPointFromMouse,
-} from "../utils/projectionHelper";
+import { getWorldPointFromMouse } from "../utils/projectionHelper";
 import * as THREE from "three";
 import { useViewportStore } from "../../../state/viewportStore";
 
@@ -87,17 +83,6 @@ export const boxTool: CreationTool = {
       state.previewMesh.position.copy(center);
     }
 
-    function calculateHeight(currentPoint: THREE.Vector3): number {
-      if (state.drawingPlane?.normal.y === 1) {
-        return currentPoint.y - (state.baseCorner2?.y || 0);
-      } else {
-        const direction = currentPoint.clone().sub(state.baseCorner1!);
-        return direction.dot(
-          state.drawingPlane?.normal || new THREE.Vector3(0, 1, 0)
-        );
-      }
-    }
-
     function updateHeightPreview() {
       if (!state.previewMesh || !state.baseCorner1 || !state.baseCorner2)
         return;
@@ -105,7 +90,6 @@ export const boxTool: CreationTool = {
       const n = drawingPlane.normal;
       const h = state.height;
       const absH = Math.abs(h);
-      const sign = Math.sign(h) || 1;
 
       const center = new THREE.Vector3();
       let width = 0,
