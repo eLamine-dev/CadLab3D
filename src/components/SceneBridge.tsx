@@ -16,7 +16,7 @@ export default function SceneBridge() {
   // }, [scene]);
 
   useEffect(() => {
-    sceneInstance.bridgeScenes(scene, gl.domElement, useMetaStore);
+    sceneInstance.bridgeScenes(scene, gl.domElement);
   }, [gl.domElement, scene]);
 
   return null;

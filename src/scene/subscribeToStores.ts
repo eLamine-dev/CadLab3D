@@ -18,6 +18,8 @@ export function subscribeToStores() {
       if (prevState.mode !== mode || prevState.tool !== tool) {
         if (mode === "create" && tool) {
           this.creationSession(tool);
+        } else if (mode === "modify") {
+          this.editSession(selection);
         } else {
           this.cancelSession();
         }
