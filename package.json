@@ -12,6 +12,8 @@
   "dependencies": {
     "@react-three/drei": "^10.0.1",
     "@react-three/fiber": "^9.0.4",
+    "comlink": "^4.4.2",
+    "opencascade.js": "^2.0.0-beta.b5ff984",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-use-refs": "^1.0.1",

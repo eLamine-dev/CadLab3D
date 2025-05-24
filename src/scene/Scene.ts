@@ -1,11 +1,13 @@
 import * as THREE from "three";
 import { runCreationSession } from "./creation/CreationSession";
 import { subscribeToStores } from "./subscribeToStores";
+import { occAPI } from "./occ/occAPI";
 
 class SceneSingleton {
   static instance: SceneSingleton | null = null;
   private _scene: THREE.Scene | null = null;
 
+  private occ: Awaited<ReturnType<typeof loadOpenCascade>> | null = null;
   private _canvas: HTMLCanvasElement | null = null;
   private objects = new Map<string, THREE.Object3D>();
   private activeSession: ReturnType<typeof runCreationSession> | null = null;
@@ -15,12 +17,14 @@ class SceneSingleton {
     // this.unsubscribeFromStores = unsubscribeFromStores.bind(this);
   }
 
-  bridgeScenes(scene: THREE.Scene, canvas: HTMLCanvasElement) {
+  async bridgeScenes(scene: THREE.Scene, canvas: HTMLCanvasElement) {
     this._scene = scene;
     this._canvas = canvas;
 
     this.initScene();
     this.subscribeToStores();
+
+    occAPI.init();
   }
 
   private initScene() {
