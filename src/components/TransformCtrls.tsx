@@ -44,7 +44,7 @@ export default function TransformControlsComponent() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "t") setMode("translate");
       if (e.key === "r") setMode("rotate");
-      if (e.key === "s") setMode("scale");
+      // if (e.key === "s") setMode("scale");
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);

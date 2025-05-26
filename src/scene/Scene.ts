@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { runCreationSession } from "./creation/CreationSession";
+import { runToolSession } from "./toolSession";
 import { subscribeToStores } from "./subscribeToStores";
 import { occAPI } from "./occ/occAPI";
 
@@ -10,7 +10,7 @@ class SceneSingleton {
   private occ: Awaited<ReturnType<typeof loadOpenCascade>> | null = null;
   private _canvas: HTMLCanvasElement | null = null;
   private objects = new Map<string, THREE.Object3D>();
-  private activeSession: ReturnType<typeof runCreationSession> | null = null;
+  private activeSession: ReturnType<typeof runToolSession> | null = null;
 
   constructor() {
     this.subscribeToStores = subscribeToStores.bind(this);
@@ -38,29 +38,14 @@ class SceneSingleton {
 
     const box = new THREE.Mesh(
       new THREE.BoxGeometry(1, 1, 1),
-      new THREE.MeshStandardMaterial({ color: 0x00ff00 })
-    );
-    this._scene.add(box);
-    this.objects.set("box", box);
-
-    const redBox = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
-      new THREE.MeshStandardMaterial({ color: 0xff0000 })
-    );
-    redBox.position.set(3, 0, 0);
-    this._scene.add(redBox);
-    this.objects.set("redBox", redBox);
-
-    const blueBox = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
       new THREE.MeshStandardMaterial({ color: 0x0000ff })
     );
-    blueBox.position.set(0, 3, 0);
-    blueBox.castShadow = true;
-    blueBox.receiveShadow = true;
-    blueBox.layers.enable(0);
-    this._scene.add(blueBox);
-    this.objects.set("blueBox", blueBox);
+    box.position.set(0, 0.5, 0);
+    box.castShadow = true;
+    box.receiveShadow = true;
+    box.layers.enable(0);
+    this._scene.add(box);
+    this.objects.set("box", box);
 
     const grid = new THREE.GridHelper(10, 10);
     grid.userData.nonSelectable = true;
@@ -101,9 +86,9 @@ class SceneSingleton {
     }
   }
 
-  creationSession(toolName: ToolName) {
+  toolSession(toolName: ToolName) {
     this.cancelSession();
-    this.activeSession = runCreationSession(toolName, this);
+    this.activeSession = runToolSession(toolName, this);
   }
 
   cancelSession() {

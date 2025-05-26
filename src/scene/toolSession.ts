@@ -1,10 +1,10 @@
-import sceneInstance from "../Scene";
-import { boxTool } from "./geometry/boxTool";
-import { polylineTool } from "./shapes/polyline";
+import sceneInstance from "./Scene";
+import { boxTool } from "./creation/3d/boxTool";
+import { polylineTool } from "./creation/2d/polyline";
 import type { CreationTool, ToolName } from "./creationTypes";
-import { metaStore } from "../../state/metaStore";
+import { metaStore } from "../state/metaStore";
 
-export function runCreationSession(toolName: ToolName, scene = sceneInstance) {
+export function runToolSession(toolName: ToolName, scene = sceneInstance) {
   const tool = getTool(toolName);
   const steps = tool.getSteps(scene);
   let stepIndex = 0;
