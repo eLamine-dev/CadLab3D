@@ -1,5 +1,4 @@
 import { metaStore } from "../state/metaStore";
-import { useSelectionStore } from "../state/selectionStore";
 
 export function subscribeToStores() {
   if (this._storeUnsubscribe) return;
@@ -16,7 +15,6 @@ export function subscribeToStores() {
 
       // Handle mode/tool changes
       if (prevState.mode !== mode || prevState.tool !== tool) {
-        // Clean up previous selection if it exists
         if (selectionCleanup) {
           selectionCleanup();
           selectionCleanup = null;
@@ -25,9 +23,7 @@ export function subscribeToStores() {
         // Activate selection only in free mode
         if (mode === "free") {
           selectionCleanup = this.objectSelection();
-        }
-
-        if (mode !== "free" && tool) {
+        } else if (mode !== "free" && tool) {
           this.toolSession(tool);
         } else {
           this.cancelSession();

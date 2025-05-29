@@ -1,5 +1,12 @@
 import * as THREE from "three";
 
+let selectableCache: THREE.Object3D[] = [];
+let cacheValid = false;
+
+export function invalidateSelectionCache() {
+  cacheValid = false;
+}
+
 export function getIntersectedObject(
   event: MouseEvent,
   scene: THREE.Scene,
@@ -12,17 +19,24 @@ export function getIntersectedObject(
 
   const mouse = new THREE.Vector2(x, y);
   const raycaster = new THREE.Raycaster();
+
   raycaster.setFromCamera(mouse, camera);
   raycaster.params.Line.threshold = 0.2;
 
-  const selectables: THREE.Object3D[] = [];
-  scene.traverse((obj) => {
-    if (!obj.userData.nonSelectable && obj.type !== "TransformControlsPlane") {
-      selectables.push(obj);
-    }
-  });
+  if (!cacheValid) {
+    selectableCache = [];
+    scene.traverse((obj) => {
+      if (
+        !obj.userData.nonSelectable &&
+        obj.type !== "TransformControlsPlane"
+      ) {
+        selectableCache.push(obj);
+      }
+    });
+    cacheValid = true;
+  }
 
-  const intersects = raycaster.intersectObjects(selectables, true);
+  const intersects = raycaster.intersectObjects(selectableCache, true);
   for (const hit of intersects) {
     const obj = hit.object;
     if (

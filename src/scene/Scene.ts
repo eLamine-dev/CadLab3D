@@ -2,21 +2,21 @@ import * as THREE from "three";
 import { runToolSession } from "./toolSession";
 import { subscribeToStores } from "./subscribeToStores";
 import { objectSelection } from "./selection/objectSelection";
-import { occAPI } from "./occ/occAPI";
+import { invalidateSelectionCache } from "./selection/getIntersectedObject";
+// import { occAPI } from "./occ/occAPI";
 
 class SceneSingleton {
   static instance: SceneSingleton | null = null;
   private _scene: THREE.Scene | null = null;
 
-  private occ: Awaited<ReturnType<typeof loadOpenCascade>> | null = null;
   private _canvas: HTMLCanvasElement | null = null;
   private objects = new Map<string, THREE.Object3D>();
   private activeSession: ReturnType<typeof runToolSession> | null = null;
+  // private occ: Awaited<ReturnType<typeof loadOpenCascade>> | null = null;
 
   constructor() {
     this.subscribeToStores = subscribeToStores.bind(this);
     this.objectSelection = objectSelection.bind(this);
-    // this.unsubscribeFromStores = unsubscribeFromStores.bind(this);
   }
 
   async bridgeScenes(scene: THREE.Scene, canvas: HTMLCanvasElement) {
@@ -78,6 +78,7 @@ class SceneSingleton {
 
     this._scene.add(object);
     this.objects.set(name, object);
+    invalidateSelectionCache();
   }
 
   removeObject(name: string) {
@@ -86,6 +87,7 @@ class SceneSingleton {
       this._scene.remove(obj);
       this.objects.delete(name);
     }
+    invalidateSelectionCache();
   }
 
   toolSession(toolName: ToolName) {

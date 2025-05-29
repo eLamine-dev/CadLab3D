@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import { useSelectionStore } from "../../state/selectionStore";
 import { getIntersectedObject } from "./getIntersectedObject";
-import sceneInstance from "../Scene";
+// import sceneInstance from "../Scene";
 import { useViewportStore } from "../../state/viewportStore";
 
 let hovered: THREE.Object3D | null = null;
@@ -13,13 +13,14 @@ let downPosition = { x: 0, y: 0 };
 export function objectSelection() {
   const canvas = this.getCanvas();
   const scene = this.getScene();
-  const camera =
-    useViewportStore.getState().arrayCamera?.cameras[
-      useViewportStore.getState().activeViewport
-    ];
-  if (!canvas || !scene || !camera) return;
+
+  if (!canvas || !scene) return;
 
   function handlePointerMove(e: MouseEvent) {
+    const camera =
+      useViewportStore.getState().arrayCamera?.cameras[
+        useViewportStore.getState().activeViewport
+      ];
     const obj = getIntersectedObject(e, scene, camera, canvas);
 
     if (obj !== hovered) {
@@ -54,11 +55,11 @@ export function objectSelection() {
 
     if (!smallDrag || !quickClick) return;
 
-    const obj = getIntersectedObject(e, scene, camera, canvas);
+    // const obj = getIntersectedObject(e, scene, camera, canvas);
 
-    if (obj) {
+    if (hovered) {
       const isMulti = e.ctrlKey || e.metaKey;
-      useSelectionStore.getState().toggleSelected(obj, isMulti);
+      useSelectionStore.getState().toggleSelected(hovered, isMulti);
     } else {
       useSelectionStore.getState().clear();
     }
