@@ -1,21 +1,32 @@
 import { metaStore } from "../state/metaStore";
+import { useSelectionStore } from "../state/selectionStore";
 
 export function subscribeToStores() {
   if (this._storeUnsubscribe) return;
 
+  let selectionCleanup: (() => void) | null = null;
   let prevState = {
     mode: null as string | null,
     tool: null as string | null,
-    selection: [] as string[],
-    hovered: null as string | null,
   };
 
   this._storeUnsubscribe = metaStore.subscribe(
-    // 1. Listener
     (newState) => {
-      const { mode, tool, selection, hovered } = newState;
+      const { mode, tool } = newState;
 
+      // Handle mode/tool changes
       if (prevState.mode !== mode || prevState.tool !== tool) {
+        // Clean up previous selection if it exists
+        if (selectionCleanup) {
+          selectionCleanup();
+          selectionCleanup = null;
+        }
+
+        // Activate selection only in free mode
+        if (mode === "free") {
+          selectionCleanup = this.objectSelection();
+        }
+
         if (mode !== "free" && tool) {
           this.toolSession(tool);
         } else {
@@ -23,32 +34,15 @@ export function subscribeToStores() {
         }
       }
 
-      // Handle selection change
-      if (JSON.stringify(prevState.selection) !== JSON.stringify(selection)) {
-        this.onSelectionChange?.(selection);
-      }
-
-      // Handle hovered change
-      if (prevState.hovered !== hovered) {
-        this.onHoverChange?.(hovered);
-      }
-
       prevState = newState;
     },
-
-    // 2. Selector
     () => {
       const state = metaStore.getState();
-
       return {
         mode: state.mode,
         tool: state.tool,
-        selection: state.selection,
-        hovered: state.hovered,
       };
     },
-
-    // 3. Options
     { fireImmediately: true }
   );
 }

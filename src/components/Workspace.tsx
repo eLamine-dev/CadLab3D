@@ -46,7 +46,7 @@ export default function Workspace() {
           <MultiViewport />
           <SceneBridge />
           <Controls />
-          {mode === "free" && <ObjectSelection />}
+          {/* {mode === "free" && <ObjectSelection />} */}
 
           {/* <CameraCtrls enabled={true} /> */}
           {/* <ObjectInteraction /> */}

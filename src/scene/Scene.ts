@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { runToolSession } from "./toolSession";
 import { subscribeToStores } from "./subscribeToStores";
+import { objectSelection } from "./selection/objectSelection";
 import { occAPI } from "./occ/occAPI";
 
 class SceneSingleton {
@@ -14,6 +15,7 @@ class SceneSingleton {
 
   constructor() {
     this.subscribeToStores = subscribeToStores.bind(this);
+    this.objectSelection = objectSelection.bind(this);
     // this.unsubscribeFromStores = unsubscribeFromStores.bind(this);
   }
 
@@ -24,7 +26,7 @@ class SceneSingleton {
     this.initScene();
     this.subscribeToStores();
 
-    occAPI.init();
+    // occAPI.init();
   }
 
   private initScene() {

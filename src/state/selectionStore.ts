@@ -3,15 +3,18 @@ import * as THREE from "three";
 
 interface SelectionState {
   selected: THREE.Object3D[];
+  hovered: THREE.Object3D | null;
   select: (object: THREE.Object3D, append?: boolean) => void;
   toggleSelected: (object: THREE.Object3D, append?: boolean) => void;
   setSelected: (objects: THREE.Object3D[]) => void;
+  setHovered: (object: THREE.Object3D | null) => void;
   clear: () => void;
   isSelected: (object: THREE.Object3D) => boolean;
 }
 
 export const useSelectionStore = create<SelectionState>((set, get) => ({
   selected: [],
+  hovered: null,
 
   select: (object, append = false) => {
     if (!append) {
@@ -42,6 +45,8 @@ export const useSelectionStore = create<SelectionState>((set, get) => ({
   },
 
   setSelected: (objects) => set({ selected: objects }),
+
+  setHovered: (object) => set({ hovered: object }),
 
   clear: () => set({ selected: [] }),
 
