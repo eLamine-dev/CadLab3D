@@ -17,11 +17,7 @@ export function objectSelection() {
   if (!canvas || !scene) return;
 
   function handlePointerMove(e: MouseEvent) {
-    const camera =
-      useViewportStore.getState().arrayCamera?.cameras[
-        useViewportStore.getState().activeViewport
-      ];
-    const obj = getIntersectedObject(e, scene, camera, canvas);
+    const obj = getIntersectedObject(e);
 
     if (obj !== hovered) {
       if (hovered && originalColor) {

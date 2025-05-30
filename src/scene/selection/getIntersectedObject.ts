@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { useViewportStore } from "../../state/viewportStore";
+import sceneInstance from "../Scene";
 
 let selectableCache: THREE.Object3D[] = [];
 let cacheValid = false;
@@ -7,18 +9,20 @@ export function invalidateSelectionCache() {
   cacheValid = false;
 }
 
-export function getIntersectedObject(
-  event: MouseEvent,
-  scene: THREE.Scene,
-  camera: THREE.Camera,
-  canvas: HTMLCanvasElement
-): THREE.Object3D | null {
+export function getIntersectedObject(event: MouseEvent): THREE.Object3D | null {
+  const scene = sceneInstance.getScene();
+  const canvas = sceneInstance.getCanvas();
   const bounds = canvas.getBoundingClientRect();
   const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
   const y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
 
   const mouse = new THREE.Vector2(x, y);
   const raycaster = new THREE.Raycaster();
+
+  const camera =
+    useViewportStore.getState().arrayCamera?.cameras[
+      useViewportStore.getState().activeViewport
+    ];
 
   raycaster.setFromCamera(mouse, camera);
   raycaster.params.Line.threshold = 0.2;

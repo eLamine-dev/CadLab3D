@@ -8,8 +8,9 @@ import {
   INTERSECTION,
   DIFFERENCE,
 } from "three-bvh-csg";
-import { Tool } from "../../creationTypes";
+
 import SceneSingleton from "../../Scene";
+import { getIntersectedObject } from "../../selection/getIntersectedObject";
 
 const OPERATION_MAP = {
   ADDITION,
@@ -19,7 +20,7 @@ const OPERATION_MAP = {
   DIFFERENCE,
 };
 
-export const boolean: Tool = {
+export const booleanTool: Tool = {
   getSteps(scene: SceneSingleton) {
     const state = {
       objectA: null as THREE.Mesh | null,
@@ -61,7 +62,7 @@ export const boolean: Tool = {
         result.name = `booleanResult_${Date.now()}`;
         result.position.set(0, 0, 0);
 
-        SceneSingleton.instance?.addObject(result.name, result);
+        SceneSingleton?.addObject(result.name, result);
 
         console.log("Boolean operation completed:", operation);
       } catch (err) {
@@ -73,15 +74,15 @@ export const boolean: Tool = {
       {
         events: [
           {
-            type: "pointerdown",
+            type: "click",
             handler: (e: PointerEvent, next: () => void) => {
-              const obj = scene.getIntersectedObject(e);
+              const obj = getIntersectedObject(e);
               if (obj && obj instanceof THREE.Mesh) {
                 state.objectA = obj;
               }
               console.log(
                 "Boolean operation started with objectA:",
-                state.objectA?.name
+                state.objectA
               );
 
               next();
@@ -92,9 +93,9 @@ export const boolean: Tool = {
       {
         events: [
           {
-            type: "pointerdown",
+            type: "click",
             handler: (e: PointerEvent, next: () => void) => {
-              const obj = scene.getIntersectedObject(e);
+              const obj = getIntersectedObject(e);
               if (obj && obj instanceof THREE.Mesh) {
                 state.objectB = obj;
               }
@@ -105,7 +106,7 @@ export const boolean: Tool = {
             },
           },
           {
-            type: "pointerup",
+            type: "click",
             handler: (e: PointerEvent, next: () => void) => {
               applyBoolan();
               next();

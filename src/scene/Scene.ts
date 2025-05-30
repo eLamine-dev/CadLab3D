@@ -49,6 +49,17 @@ class SceneSingleton {
     this._scene.add(box);
     this.objects.set("box", box);
 
+    //add a sphere to test booleans
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.7, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0xff0000 })
+    );
+    sphere.position.set(0.5, 0.5, 0.5);
+    sphere.castShadow = true;
+    sphere.receiveShadow = true;
+    sphere.layers.enable(0);
+    this._scene.add(sphere);
+
     const grid = new THREE.GridHelper(10, 10);
     grid.userData.nonSelectable = true;
     this._scene.add(grid);
