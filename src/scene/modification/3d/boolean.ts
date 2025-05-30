@@ -8,7 +8,6 @@ import {
   INTERSECTION,
   DIFFERENCE,
 } from "three-bvh-csg";
-
 import SceneSingleton from "../../Scene";
 import { getIntersectedObject } from "../../selection/getIntersectedObject";
 
@@ -21,16 +20,15 @@ const OPERATION_MAP = {
 };
 
 export const booleanTool: Tool = {
-  getSteps(scene: SceneSingleton) {
+  getSteps() {
     const state = {
       objectA: null as THREE.Mesh | null,
       objectB: null as THREE.Mesh | null,
       operation: "SUBTRACTION" as keyof typeof OPERATION_MAP,
     };
 
-    function applyBoolan() {
+    function applyBoolean() {
       const { objectA, objectB, operation } = state;
-
       if (!objectA || !objectB) {
         console.warn("Boolean operation requires two valid mesh operands.");
         return;
@@ -40,11 +38,14 @@ export const booleanTool: Tool = {
         const brushA = new Brush(objectA.geometry.clone());
         const brushB = new Brush(objectB.geometry.clone());
 
-        brushA.matrix.copy(objectA.matrixWorld);
+        brushA.geometry.applyMatrix4(objectA.matrixWorld);
+        brushB.geometry.applyMatrix4(objectB.matrixWorld);
+
+        brushA.matrix.identity();
         brushA.matrixAutoUpdate = false;
         brushA.updateMatrixWorld();
 
-        brushB.matrix.copy(objectB.matrixWorld);
+        brushB.matrix.identity();
         brushB.matrixAutoUpdate = false;
         brushB.updateMatrixWorld();
 
@@ -59,9 +60,10 @@ export const booleanTool: Tool = {
           resultBrush.geometry,
           objectA.material.clone()
         );
-        result.name = `booleanResult_${Date.now()}`;
-        result.position.set(0, 0, 0);
 
+        result.name = `booleanResult_${Date.now()}`;
+
+        // Add to scene
         SceneSingleton?.addObject(result.name, result);
 
         console.log("Boolean operation completed:", operation);
@@ -84,7 +86,6 @@ export const booleanTool: Tool = {
                 "Boolean operation started with objectA:",
                 state.objectA
               );
-
               next();
             },
           },
@@ -108,7 +109,7 @@ export const booleanTool: Tool = {
           {
             type: "click",
             handler: (e: PointerEvent, next: () => void) => {
-              applyBoolan();
+              applyBoolean();
               next();
             },
           },
@@ -116,11 +117,9 @@ export const booleanTool: Tool = {
       },
     ];
   },
-
   onFinish() {
     console.log("Boolean operation finished.");
   },
-
   onCancel() {
     console.log("Boolean operation canceled.");
   },
