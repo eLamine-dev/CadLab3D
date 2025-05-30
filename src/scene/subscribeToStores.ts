@@ -3,7 +3,6 @@ import { metaStore } from "../state/metaStore";
 export function subscribeToStores() {
   if (this._storeUnsubscribe) return;
 
-  let selectionCleanup: (() => void) | null = null;
   let prevState = {
     mode: null as string | null,
     tool: null as string | null,
@@ -15,11 +14,6 @@ export function subscribeToStores() {
 
       // Handle mode/tool changes
       if (prevState.mode !== mode || prevState.tool !== tool) {
-        if (selectionCleanup) {
-          selectionCleanup();
-          selectionCleanup = null;
-        }
-
         // Activate selection only in free mode
         if (mode === "free") {
           selectionCleanup = this.objectSelection();
