@@ -3,6 +3,7 @@ import { boxTool } from "./creation/3d/boxTool";
 import { polylineTool } from "./creation/2d/polyline";
 import type { CreationTool, ToolName } from "./creationTypes";
 import { booleanTool } from "./modification/3d/boolean";
+import { extrudeTool } from "./modification/2d/extrude";
 import { metaStore } from "../state/metaStore";
 
 export function runToolSession(toolName: ToolName, scene = sceneInstance) {
@@ -65,6 +66,9 @@ function getTool(toolName: ToolName): CreationTool {
       return polylineTool;
     case "boolean":
       return booleanTool;
+    case "extrude":
+      return extrudeTool;
+
     default:
       throw new Error(`Unknown tool: ${toolName}`);
   }
