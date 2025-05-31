@@ -63,6 +63,12 @@ export const booleanTool: Tool = {
 
         result.name = `booleanResult_${Date.now()}`;
 
+        const center = new THREE.Vector3();
+
+        result.geometry.computeBoundingBox();
+        result.geometry.boundingBox?.getCenter(center);
+        result.userData.transformCenter = center;
+
         // Add to scene
         SceneSingleton?.addObject(result.name, result);
 
