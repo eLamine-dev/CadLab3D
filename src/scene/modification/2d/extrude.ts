@@ -32,7 +32,6 @@ export const extrudeTool: CreationTool = {
 
       for (let i = 0; i < positions.count; i++) {
         const point = new THREE.Vector3().fromBufferAttribute(positions, i);
-
         point.applyMatrix4(line.matrixWorld);
         points.push(point);
       }
@@ -51,16 +50,17 @@ export const extrudeTool: CreationTool = {
       for (let i = 0; i < points.length - 2; i++) {
         const v1 = new THREE.Vector3().subVectors(points[i + 1], points[i]);
         const v2 = new THREE.Vector3().subVectors(points[i + 2], points[i]);
-        normal.crossVectors(v1, v2);
+        const cross = new THREE.Vector3().crossVectors(v1, v2);
 
-        if (normal.length() > 0.001) {
-          normal.normalize();
-          break;
+        if (cross.length() > 0.001) {
+          normal.add(cross);
         }
       }
 
       if (normal.length() < 0.001) {
         normal.set(0, 0, 1);
+      } else {
+        normal.normalize();
       }
 
       state.shapePlane.setFromNormalAndCoplanarPoint(normal, state.shapeCenter);
@@ -78,7 +78,6 @@ export const extrudeTool: CreationTool = {
         u.set(0, 1, 0);
       }
       u.cross(normal).normalize();
-
       v.crossVectors(normal, u).normalize();
 
       const projectedPoints: THREE.Vector2[] = [];
@@ -114,7 +113,7 @@ export const extrudeTool: CreationTool = {
       const projectedPoints = projectPointsToPlane(points);
       const shape = new THREE.Shape();
 
-      if (points.length > 0) {
+      if (projectedPoints.length > 0) {
         shape.moveTo(projectedPoints[0].x, projectedPoints[0].y);
         for (let i = 1; i < projectedPoints.length; i++) {
           shape.lineTo(projectedPoints[i].x, projectedPoints[i].y);
@@ -128,22 +127,36 @@ export const extrudeTool: CreationTool = {
       };
 
       const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-      const normal = state.shapePlane.normal;
 
-      const matrix = new THREE.Matrix4();
-      const quaternion = new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 0, 1),
-        normal.clone().normalize()
-      );
+      const normal = state.shapePlane.normal.clone().normalize();
 
-      const position = state.shapeCenter.clone();
+      const u = new THREE.Vector3();
+      const v = new THREE.Vector3();
+
+      if (Math.abs(normal.x) < 0.9) {
+        u.set(1, 0, 0);
+      } else {
+        u.set(0, 1, 0);
+      }
+      u.cross(normal).normalize();
+      v.crossVectors(normal, u).normalize();
+
+      const rotationMatrix = new THREE.Matrix4();
+      rotationMatrix.makeBasis(u, v, normal);
+
+      const extrudeDirection = normal.clone();
       if (height < 0) {
-        position.add(normal.clone().multiplyScalar(height));
+        extrudeDirection.negate();
       }
 
-      matrix.compose(position, quaternion, new THREE.Vector3(1, 1, 1));
+      const startPosition = state.shapeCenter.clone();
+      if (height < 0) {
+        startPosition.add(normal.clone().multiplyScalar(height));
+      }
 
-      geometry.applyMatrix4(matrix);
+      geometry.applyMatrix4(rotationMatrix);
+      geometry.translate(startPosition.x, startPosition.y, startPosition.z);
+
       return geometry;
     }
 
@@ -165,7 +178,6 @@ export const extrudeTool: CreationTool = {
 
         if (i < points.length - 1) {
           const baseIndex = i * 2;
-
           indices.push(baseIndex, baseIndex + 2, baseIndex + 1);
           indices.push(baseIndex + 1, baseIndex + 2, baseIndex + 3);
         }
@@ -321,7 +333,6 @@ export const extrudeTool: CreationTool = {
 
   onCancel() {
     console.log("Extrude tool canceled");
-    // Cleanup any preview when canceled
     const scene = SceneSingleton;
     if (scene) {
       scene.getScene().traverse((obj) => {
