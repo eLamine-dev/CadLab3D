@@ -4,6 +4,7 @@ import { polylineTool } from "./creation/2d/polyline";
 import type { CreationTool, ToolName } from "./creationTypes";
 import { booleanTool } from "./modification/3d/boolean";
 import { extrudeTool } from "./modification/2d/extrude";
+import { arcTool } from "./creation/2d/arc";
 import { metaStore } from "../state/metaStore";
 
 export function runToolSession(toolName: ToolName, scene = sceneInstance) {
@@ -68,6 +69,8 @@ function getTool(toolName: ToolName): CreationTool {
       return booleanTool;
     case "extrude":
       return extrudeTool;
+    case "arc":
+      return arcTool;
 
     default:
       throw new Error(`Unknown tool: ${toolName}`);
