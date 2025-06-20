@@ -37,7 +37,7 @@ export default function TransformControlsComponent() {
     }
 
     transformRef.current.updateMatrixWorld();
-    transformRef.current.update();
+    // transformRef.current.update();
   }, [selectedObject, activeCamera, scene]);
 
   useEffect(() => {
