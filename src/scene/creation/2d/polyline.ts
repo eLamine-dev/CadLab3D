@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useFeatureStore } from "../../../state/featureStore";
+import { featureStore } from "../../../state/featureStore";
 import { createControlPoint } from "../../shared/controlPoints";
 
 export class SketchPolyline {
@@ -30,7 +30,7 @@ export class SketchPolyline {
   }
 
   subscribeToFeature() {
-    this.unsubscribe = useFeatureStore.subscribe(
+    featureStore.subscribe(
       (s) => s.polylines[this.id],
       (data) => {
         if (data) {
