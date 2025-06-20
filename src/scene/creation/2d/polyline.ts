@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { featureStore } from "../../../state/featureStore";
 import { createControlPoint } from "../../shared/controlPoints";
+import { getWorldPointFromMouse } from "../utils/projectionHelper";
 
 export class SketchPolyline {
   id: string;
@@ -9,11 +10,7 @@ export class SketchPolyline {
   points: THREE.Vector3[];
   controls: THREE.Sprite[] = [];
 
-  constructor(
-    id: string,
-    scene: THREE.Scene,
-    initialPoints: THREE.Vector3[] = []
-  ) {
+  constructor(id: string, scene: any, initialPoints: THREE.Vector3[] = []) {
     this.id = id;
     this.scene = scene;
     this.points = [...initialPoints];
@@ -104,7 +101,7 @@ export class SketchPolyline {
                 const geom = new THREE.BufferGeometry();
                 const mat = new THREE.LineBasicMaterial({ color: 0xffffff });
                 state.previewLine = new THREE.Line(geom, mat);
-                scene.add(state.previewLine);
+                scene.getScene().add(state.previewLine);
               }
               updatePreview();
             },

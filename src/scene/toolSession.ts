@@ -1,6 +1,6 @@
 import sceneInstance from "./Scene";
 import { boxTool } from "./creation/3d/boxTool";
-import { polylineTool } from "./creation/2d/polyline";
+import { SketchPolyline } from "./creation/2d/polyline";
 import type { CreationTool, ToolName } from "./creationTypes";
 import { booleanTool } from "./modification/3d/boolean";
 import { extrudeTool } from "./modification/2d/extrude";
@@ -9,7 +9,9 @@ import { metaStore } from "../state/metaStore";
 
 export function runToolSession(toolName: ToolName, scene = sceneInstance) {
   const tool = getTool(toolName);
-  const steps = tool.getSteps(scene);
+  const id = `${toolName}_${Date.now()}`;
+  const steps = tool.getSteps(id, scene);
+
   let stepIndex = 0;
   let activeListeners: { type: string; handler: EventListener }[] = [];
 
@@ -64,7 +66,7 @@ function getTool(toolName: ToolName): CreationTool {
     case "box":
       return boxTool;
     case "polyline":
-      return polylineTool;
+      return SketchPolyline;
     case "boolean":
       return booleanTool;
     case "extrude":
