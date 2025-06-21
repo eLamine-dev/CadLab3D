@@ -3,6 +3,7 @@ import { featureStore } from "../../../state/featureStore";
 import { createControlPoint } from "../../shared/controlPoints";
 import { getWorldPointFromMouse } from "../utils/projectionHelper";
 import { useViewportStore } from "../../../state/viewportStore";
+import { events } from "@react-three/fiber";
 
 export class SketchPolyline {
   id: string;
@@ -112,10 +113,10 @@ export class SketchPolyline {
         state.previewLine = null;
       }
 
-      for (const marker of state.markers) {
-        scene.getScene().remove(marker);
+      for (const p of state.ctrlPts) {
+        scene.getScene().remove(p);
       }
-      state.markers = [];
+      state.ctrlPts = [];
     }
 
     function reset() {
@@ -127,19 +128,28 @@ export class SketchPolyline {
     function handleKeyPress(e: KeyboardEvent) {
       switch (e.key.toLowerCase()) {
         case "escape":
-          reset();
-          break;
-        case "backspace":
-          e.preventDefault();
-          undoLastPoint();
-          break;
-        case "enter":
           if (state.points.length >= 2) {
             finalizePolyline();
             reset();
           }
           break;
+        case "backspace":
+          e.preventDefault();
+          undoLastPoint();
+
+          break;
       }
+    }
+
+    function finalizePolyline() {
+      document.removeEventListener("keydown", handleKeyPress);
+      if (state.points.length >= 2) {
+        const polyline = new SketchPolyline(id, scene, state.points);
+        featureStore.getState().updatePolyline(id, { points: state.points });
+      } else {
+        console.log("Polyline creation canceled");
+      }
+      cleanupPreview();
     }
 
     document.addEventListener("keydown", handleKeyPress);
@@ -164,23 +174,16 @@ export class SketchPolyline {
             handler: (e: PointerEvent, next: () => void) => {
               if (e.button === 2) {
                 e.preventDefault();
-                document.removeEventListener("keydown", handleKeyPress);
-                if (state.points.length >= 2) {
-                  const polyline = new SketchPolyline(id, scene, state.points);
-                  featureStore
-                    .getState()
-                    .updatePolyline(id, { points: state.points });
-                } else {
-                  console.log("Polyline creation canceled");
-                }
-                cleanupPreview();
+                finalizePolyline();
 
                 next();
                 return;
               }
 
               const point = getWorldPointFromMouse(e, viewportId);
+
               state.points.push(point);
+
               const ctrlPoint = createControlPoint(point.clone(), {
                 objectId: this.id,
                 paramKey: `point_${state.ctrlPts.length - 1}`,
@@ -195,6 +198,7 @@ export class SketchPolyline {
               updatePreview();
             },
           },
+
           {
             type: "pointermove",
             handler: (e: PointerEvent) => {
