@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { featureStore } from "../../../state/featureStore";
 import { createControlPoint } from "../../shared/controlPoints";
 import { getWorldPointFromMouse } from "../utils/projectionHelper";
+import { useViewportStore } from "../../../state/viewportStore";
 
 export class SketchPolyline {
   id: string;
@@ -10,7 +11,13 @@ export class SketchPolyline {
   points: THREE.Vector3[];
   controls: THREE.Sprite[] = [];
 
-  constructor(id: string, scene: any, initialPoints: THREE.Vector3[] = []) {
+  unsubscribe: () => void;
+
+  constructor(
+    id: string,
+    scene: THREE.Scene,
+    initialPoints: THREE.Vector3[] = []
+  ) {
     this.id = id;
     this.scene = scene;
     this.points = [...initialPoints];
@@ -19,15 +26,13 @@ export class SketchPolyline {
     const geometry = new THREE.BufferGeometry().setFromPoints(this.points);
     this.line = new THREE.Line(geometry, material);
     this.line.userData.transformCenter = this.getCenter();
-    scene.add(this.line);
+    scene.getScene().add(this.line);
 
-    this.createHandles();
-
-    this.subscribeToFeature();
+    // this.subscribeToFeature();
   }
 
   subscribeToFeature() {
-    featureStore.subscribe(
+    this.unsubscribe = featureStore.subscribe(
       (s) => s.polylines[this.id],
       (data) => {
         if (data) {
@@ -37,21 +42,6 @@ export class SketchPolyline {
       },
       { fireImmediately: true }
     );
-  }
-
-  createHandles() {
-    this.controls.forEach((c) => this.scene.remove(c));
-    this.controls = this.points.map((p, i) => {
-      const cp = createControlPoint(p.clone(), {
-        objectId: this.id,
-        paramKey: `point_${i}`,
-        index: i,
-        owner: this,
-        role: "polyline-point",
-      });
-      this.scene.add(cp);
-      return cp;
-    });
   }
 
   getCenter() {
@@ -67,26 +57,103 @@ export class SketchPolyline {
   }
 
   dispose() {
-    this.scene.remove(this.line);
-    this.controls.forEach((c) => this.scene.remove(c));
+    this.scene.getScene().remove(this.line);
+
     this.line.geometry.dispose();
     this.unsubscribe();
   }
 
   static getSteps(id: string, scene: THREE.Scene) {
+    const viewportId = useViewportStore.getState().activeViewport;
     const state = {
       points: [] as THREE.Vector3[],
       previewLine: null as THREE.Line | null,
-      viewportId: 0,
+      ctrlPts: [] as THREE.Sprite[],
     };
 
-    function updatePreview(cursor?: THREE.Vector3) {
-      if (!state.previewLine) return;
-      const points = [...state.points];
-      if (cursor) points.push(cursor);
-      const geom = new THREE.BufferGeometry().setFromPoints(points);
+    function updatePreview(cursorPoint?: THREE.Vector3) {
+      if (!state.previewLine) {
+        const geometry = new THREE.BufferGeometry().setFromPoints([]);
+        const material = new THREE.LineBasicMaterial({
+          color: 0xffffff,
+        });
+        state.previewLine = new THREE.Line(geometry, material);
+        scene.getScene().add(state.previewLine);
+      }
+      const previewPoints = [...state.points];
+      if (cursorPoint) previewPoints.push(cursorPoint);
+      const geometry = new THREE.BufferGeometry().setFromPoints(previewPoints);
       state.previewLine.geometry.dispose();
-      state.previewLine.geometry = geom;
+      state.previewLine.geometry = geometry;
+    }
+
+    function undoLastPoint() {
+      if (state.points.length === 0) return;
+
+      state.points.pop();
+      const lastCtrlPt = state.ctrlPts.pop();
+      if (lastCtrlPt) {
+        scene.getScene().remove(lastCtrlPt);
+      }
+
+      if (state.points.length === 0) {
+        cleanup();
+      } else {
+        updatePreview();
+      }
+
+      console.log(`Undid last point. Points remaining: ${state.points.length}`);
+    }
+
+    function cleanup() {
+      if (state.previewLine) {
+        scene.getScene().remove(state.previewLine);
+        state.previewLine.geometry.dispose();
+        state.previewLine = null;
+      }
+
+      for (const marker of state.markers) {
+        scene.getScene().remove(marker);
+      }
+      state.markers = [];
+    }
+
+    function reset() {
+      cleanup();
+      state.points = [];
+      console.log("Polyline creation reset");
+    }
+
+    function handleKeyPress(e: KeyboardEvent) {
+      switch (e.key.toLowerCase()) {
+        case "escape":
+          reset();
+          break;
+        case "backspace":
+          e.preventDefault();
+          undoLastPoint();
+          break;
+        case "enter":
+          if (state.points.length >= 2) {
+            finalizePolyline();
+            reset();
+          }
+          break;
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyPress);
+
+    function cleanupPreview() {
+      if (state.previewLine) {
+        scene.getScene().remove(state.previewLine);
+        state.previewLine.geometry.dispose();
+        state.previewLine = null;
+      }
+      for (const p of state.ctrlPts) {
+        scene.getScene().remove(p);
+      }
+      state.ctrlPts = [];
     }
 
     return [
@@ -94,40 +161,46 @@ export class SketchPolyline {
         events: [
           {
             type: "pointerdown",
-            handler: (e, next) => {
-              const pt = getWorldPointFromMouse(e, state.viewportId);
-              state.points.push(pt);
-              if (state.points.length === 1) {
-                const geom = new THREE.BufferGeometry();
-                const mat = new THREE.LineBasicMaterial({ color: 0xffffff });
-                state.previewLine = new THREE.Line(geom, mat);
-                scene.getScene().add(state.previewLine);
+            handler: (e: PointerEvent, next: () => void) => {
+              if (e.button === 2) {
+                e.preventDefault();
+                document.removeEventListener("keydown", handleKeyPress);
+                if (state.points.length >= 2) {
+                  const polyline = new SketchPolyline(id, scene, state.points);
+                  featureStore
+                    .getState()
+                    .updatePolyline(id, { points: state.points });
+                } else {
+                  console.log("Polyline creation canceled");
+                }
+                cleanupPreview();
+
+                next();
+                return;
               }
+
+              const point = getWorldPointFromMouse(e, viewportId);
+              state.points.push(point);
+              const ctrlPoint = createControlPoint(point.clone(), {
+                objectId: this.id,
+                paramKey: `point_${state.ctrlPts.length - 1}`,
+                index: state.ctrlPts.length - 1,
+                owner: this,
+                role: "polyline-point",
+              });
+              state.ctrlPts.push(ctrlPoint);
+
+              scene.getScene().add(ctrlPoint);
+
               updatePreview();
             },
           },
           {
             type: "pointermove",
-            handler: (e) => {
-              if (state.points.length === 0) return;
-              const pt = getWorldPointFromMouse(e, state.viewportId);
-              updatePreview(pt);
-            },
-          },
-        ],
-      },
-      {
-        events: [
-          {
-            type: "pointerdown",
-            handler: (e, next) => {
-              if (state.points.length < 2) return;
-              scene.remove(state.previewLine!);
-              const polyline = new SketchPolyline(id, scene, state.points);
-              useFeatureStore
-                .getState()
-                .updatePolyline(id, { points: state.points });
-              next();
+            handler: (e: PointerEvent) => {
+              if (!state.points.length) return;
+              const cursorPoint = getWorldPointFromMouse(e, viewportId);
+              updatePreview(cursorPoint);
             },
           },
         ],

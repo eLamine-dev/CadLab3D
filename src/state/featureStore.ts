@@ -33,5 +33,5 @@ export const featureStore = createStore(
   }))
 );
 
-export const useMetaStore = <T>(selector: (state: FeatureState) => T): T =>
+export const useFeatureStore = <T>(selector: (state: FeatureState) => T): T =>
   useStore(featureStore, selector);
