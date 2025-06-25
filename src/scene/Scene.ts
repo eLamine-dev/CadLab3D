@@ -36,6 +36,7 @@ class SceneSingleton {
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(10, 10, 10);
+    directionalLight.intensity = 5;
     this._scene.add(directionalLight);
 
     const box = new THREE.Mesh(

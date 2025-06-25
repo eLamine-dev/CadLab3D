@@ -66,7 +66,13 @@ function getTool(toolName: ToolName): CreationTool {
     case "box":
       return boxTool;
     case "polyline":
-      return SketchPolyline;
+      return {
+        getSteps(id, scene) {
+          const polyline = new SketchPolyline(id, scene);
+          polyline.startCreation();
+          return polyline.getCreationSteps();
+        },
+      };
     case "boolean":
       return booleanTool;
     case "extrude":
