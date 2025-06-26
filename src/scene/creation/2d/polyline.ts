@@ -36,7 +36,12 @@ export class SketchPolyline {
     if (this.points.length >= 2) {
       this.creationActive = false;
       this.isFinalized = true;
-      this.line.userData.transformCenter = this.getCenter();
+      // this.line.geometry.dispose();
+      // this.line.geometry = new THREE.BufferGeometry().setFromPoints(
+      //   this.points
+      // );
+      // this.line.userData.transformCenter = this.getCenter();
+      this.update();
       featureStore.getState().updatePolyline(this.id, { points: this.points });
       this.subscribeToFeature();
     } else {
@@ -62,7 +67,8 @@ export class SketchPolyline {
   }
 
   update() {
-    this.line.geometry.setFromPoints(this.points);
+    this.line.geometry.dispose();
+    this.line.geometry = new THREE.BufferGeometry().setFromPoints(this.points);
     this.line.userData.transformCenter = this.getCenter();
     this.controls.forEach((cp, i) => cp.position.copy(this.points[i]));
   }
@@ -146,6 +152,7 @@ export class SketchPolyline {
       useViewportStore.getState().activeViewport
     );
     this.addPoint(pt);
+    console.log("pointer down");
   };
 
   handlePointerMove = (e: PointerEvent) => {

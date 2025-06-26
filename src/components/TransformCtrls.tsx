@@ -34,6 +34,8 @@ export default function TransformControlsComponent() {
     if (obj.userData.transformCenter) {
       center = obj.userData.transformCenter.clone();
       transformRef.current.position.copy(center);
+    } else {
+      transformRef.current.position.copy(selectedObject.position);
     }
 
     transformRef.current.updateMatrixWorld();
