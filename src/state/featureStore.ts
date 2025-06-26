@@ -24,6 +24,23 @@ export const featureStore = createStore(
           [id]: { ...state.polylines[id], ...data },
         },
       })),
+
+    updatePoint: (id, index, point) =>
+      set((state) => {
+        const polyline = state.polylines[id];
+        if (!polyline) return state;
+
+        const newPoints = [...polyline.points];
+        newPoints[index] = point;
+
+        return {
+          polylines: {
+            ...state.polylines,
+            [id]: { ...polyline, points: newPoints },
+          },
+        };
+      }),
+
     removePolyline: (id) =>
       set((state) => {
         const newPolylines = { ...state.polylines };

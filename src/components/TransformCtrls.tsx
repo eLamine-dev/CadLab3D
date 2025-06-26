@@ -5,6 +5,7 @@ import { TransformControls } from "@react-three/drei";
 import { useViewportStore } from "../state/viewportStore";
 import { useSelectionStore } from "../state/selectionStore";
 import { TransformControls as ThreeTransformControls } from "three/addons/controls/TransformControls.js";
+import { useFeatureStore } from "../state/featureStore";
 
 export default function TransformControlsComponent() {
   const { scene } = useThree();
@@ -16,6 +17,11 @@ export default function TransformControlsComponent() {
   const [mode, setMode] = useState<"translate" | "rotate" | "scale">(
     "translate"
   );
+
+  useEffect(() => {
+    if (!selectedObject) return;
+    selectedObject.userData.instance?.showCtrlPoints();
+  }, [selectedObject]);
 
   useEffect(() => {
     if (!arrayCamera) return;
@@ -35,7 +41,10 @@ export default function TransformControlsComponent() {
       center = obj.userData.transformCenter.clone();
       transformRef.current.position.copy(center);
     } else {
-      transformRef.current.position.copy(selectedObject.position);
+      const center = new THREE.Vector3();
+      selectedObject.geometry.computeBoundingBox();
+      selectedObject.geometry.boundingBox?.getCenter(center);
+      transformRef.current.position.copy(center);
     }
 
     transformRef.current.updateMatrixWorld();
@@ -52,6 +61,17 @@ export default function TransformControlsComponent() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  function handleObjectChange() {
+    console.log("handling", selectedObject);
+
+    if (selectedObject instanceof THREE.Sprite) {
+      selectedObject.updateMatrixWorld();
+      const point = new THREE.Vector3();
+      selectedObject.getWorldPosition(point);
+      selectedObject.userData.onUpdate(point);
+    }
+  }
+
   return (
     <>
       {selectedObject && activeCamera && (
@@ -62,6 +82,7 @@ export default function TransformControlsComponent() {
           camera={activeCamera}
           translationSnap={0.05}
           rotationSnap={THREE.MathUtils.degToRad(5)}
+          onObjectChange={handleObjectChange}
         />
       )}
     </>

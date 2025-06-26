@@ -12,6 +12,7 @@ export class SketchPolyline {
   line: THREE.Line;
   unsubscribe: () => void = () => {};
   isFinalized = false;
+  showCtrlPoints = () => this.points.forEach((p) => this.addPoint(p));
 
   previewLine: THREE.Line | null = null;
   creationActive = false;
@@ -23,7 +24,8 @@ export class SketchPolyline {
     const material = new THREE.LineBasicMaterial({ color: 0x00ffff });
     const geometry = new THREE.BufferGeometry();
     this.line = new THREE.Line(geometry, material);
-
+    this.line.userData.instance = this;
+    featureStore.getState().updatePolyline(this.id, { points: this.points });
     scene.getScene().add(this.line);
   }
 
@@ -31,6 +33,10 @@ export class SketchPolyline {
     this.creationActive = true;
     document.addEventListener("keydown", this.handleKeyPress);
   }
+
+  // showCtrlPoints() {
+  //   this.points.forEach((p) => this.addPoint(p));
+  // }
 
   finalizeCreation() {
     if (this.points.length >= 2) {
@@ -132,11 +138,17 @@ export class SketchPolyline {
       index: this.points.length - 1,
       owner: this,
       role: "polyline-point",
+      onUpdate: (p) => {
+        this.points[ctrl.userData.index] = p;
+        featureStore
+          .getState()
+          .updatePolyline(this.id, { points: this.points });
+        this.update();
+      },
     });
 
     this.controls.push(ctrl);
     this.scene.getScene().add(ctrl);
-    this.updatePreview();
   }
 
   handlePointerDown = (e: PointerEvent, next: () => void) => {

@@ -44,7 +44,9 @@ export function getIntersectedObject(event: MouseEvent): THREE.Object3D | null {
   for (const hit of intersects) {
     const obj = hit.object;
     if (
-      (obj instanceof THREE.Mesh || obj instanceof THREE.Line) &&
+      (obj instanceof THREE.Mesh ||
+        obj instanceof THREE.Line ||
+        obj instanceof THREE.Sprite) &&
       obj.visible &&
       !obj.userData.nonSelectable &&
       obj.type !== "TransformControlsPlane"
