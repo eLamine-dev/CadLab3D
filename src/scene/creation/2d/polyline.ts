@@ -1,3 +1,4 @@
+// Fixed version of your SketchPolyline class
 import * as THREE from "three";
 import { featureStore } from "../../../state/featureStore";
 import { createControlPoint } from "../../shared/controlPoints";
@@ -12,8 +13,8 @@ export class SketchPolyline {
   line: THREE.Line;
   unsubscribe: () => void = () => {};
   isFinalized = false;
-  showCtrlPoints = () => this.points.forEach((p) => this.addPoint(p));
-
+  showCtrlPoints = () =>
+    this.points.forEach((p, i) => this.addControlPointAt(p, i));
   previewLine: THREE.Line | null = null;
   creationActive = false;
 
@@ -25,6 +26,7 @@ export class SketchPolyline {
     const geometry = new THREE.BufferGeometry();
     this.line = new THREE.Line(geometry, material);
     this.line.userData.instance = this;
+
     featureStore.getState().updatePolyline(this.id, { points: this.points });
     scene.getScene().add(this.line);
   }
@@ -34,19 +36,10 @@ export class SketchPolyline {
     document.addEventListener("keydown", this.handleKeyPress);
   }
 
-  // showCtrlPoints() {
-  //   this.points.forEach((p) => this.addPoint(p));
-  // }
-
   finalizeCreation() {
     if (this.points.length >= 2) {
       this.creationActive = false;
       this.isFinalized = true;
-      // this.line.geometry.dispose();
-      // this.line.geometry = new THREE.BufferGeometry().setFromPoints(
-      //   this.points
-      // );
-      // this.line.userData.transformCenter = this.getCenter();
       this.update();
       featureStore.getState().updatePolyline(this.id, { points: this.points });
       this.subscribeToFeature();
@@ -54,7 +47,6 @@ export class SketchPolyline {
       console.warn("Polyline creation canceled (not enough points)");
       this.dispose();
     }
-
     this.cleanupPreview();
     document.removeEventListener("keydown", this.handleKeyPress);
   }
@@ -63,25 +55,55 @@ export class SketchPolyline {
     this.unsubscribe = featureStore.subscribe(
       (s) => s.polylines[this.id],
       (data) => {
-        if (data) {
-          this.points = data.points;
-          this.update();
+        if (data && data.points) {
+          //
+          const pointsChanged =
+            this.points.length !== data.points.length ||
+            data.points.some(
+              (p, i) => !this.points[i] || !p.equals(this.points[i])
+            );
+
+          if (pointsChanged) {
+            this.points = data.points.map((p) => p.clone());
+            this.update();
+            this.updateControlPoints();
+          }
         }
       },
-      { fireImmediately: true }
+      { fireImmediately: false }
     );
   }
 
   update() {
-    this.line.geometry.dispose();
-    this.line.geometry = new THREE.BufferGeometry().setFromPoints(this.points);
+    if (this.line.geometry) {
+      this.line.geometry.dispose();
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setFromPoints(this.points);
+    this.line.geometry = geometry;
+
     this.line.userData.transformCenter = this.getCenter();
-    this.controls.forEach((cp, i) => cp.position.copy(this.points[i]));
+
+    this.line.updateMatrixWorld(true);
+  }
+
+  updateControlPoints() {
+    this.controls.forEach((ctrl, i) => {
+      if (this.points[i]) {
+        ctrl.position.copy(this.points[i]);
+        ctrl.updateMatrixWorld(true);
+      }
+    });
   }
 
   getCenter(): THREE.Vector3 {
+    if (this.points.length === 0) return new THREE.Vector3();
+
     const center = new THREE.Vector3();
-    for (const p of this.points) center.add(p);
+    for (const p of this.points) {
+      center.add(p);
+    }
     return center.divideScalar(this.points.length);
   }
 
@@ -91,24 +113,32 @@ export class SketchPolyline {
       this.previewLine.geometry.dispose();
       this.previewLine = null;
     }
-
-    this.controls.forEach((cp) => this.scene.getScene().remove(cp));
-    this.controls = [];
   }
 
   dispose() {
     this.scene.getScene().remove(this.line);
     this.line.geometry.dispose();
     this.cleanupPreview();
+
+    this.controls.forEach((cp) => {
+      this.scene.getScene().remove(cp);
+    });
+    this.controls = [];
+
     this.unsubscribe();
   }
 
   handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === "Backspace") {
       e.preventDefault();
-      this.points.pop();
-      this.controls.pop()?.removeFromParent();
-      this.updatePreview();
+      if (this.points.length > 0) {
+        this.points.pop();
+        const ctrl = this.controls.pop();
+        if (ctrl) {
+          this.scene.getScene().remove(ctrl);
+        }
+        this.updatePreview();
+      }
     }
   };
 
@@ -129,26 +159,34 @@ export class SketchPolyline {
     );
   }
 
-  addPoint(point: THREE.Vector3) {
-    this.points.push(point);
-
+  addControlPointAt(point: THREE.Vector3, index: number) {
     const ctrl = createControlPoint(point.clone(), {
       objectId: this.id,
-      paramKey: `points[${this.points.length - 1}]`,
-      index: this.points.length - 1,
+      paramKey: `points[${index}]`,
+      index: index,
       owner: this,
       role: "polyline-point",
-      onUpdate: (p) => {
-        this.points[ctrl.userData.index] = p;
+      onUpdate: (newPosition: THREE.Vector3) => {
         featureStore
           .getState()
-          .updatePolyline(this.id, { points: this.points });
-        this.update();
+          .updatePoint(this.id, index, newPosition.clone());
       },
     });
 
-    this.controls.push(ctrl);
+    this.controls[index] = ctrl;
     this.scene.getScene().add(ctrl);
+    return ctrl;
+  }
+
+  addPoint(point: THREE.Vector3) {
+    const index = this.points.length;
+    this.points.push(point.clone());
+
+    const ctrl = this.addControlPointAt(point, index);
+
+    if (this.creationActive) {
+      this.update();
+    }
   }
 
   handlePointerDown = (e: PointerEvent, next: () => void) => {

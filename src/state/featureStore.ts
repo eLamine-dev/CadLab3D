@@ -21,22 +21,37 @@ export const featureStore = createStore(
       set((state) => ({
         polylines: {
           ...state.polylines,
-          [id]: { ...state.polylines[id], ...data },
+          [id]: {
+            id,
+            points: [],
+            ...state.polylines[id],
+            ...data,
+
+            points: data.points
+              ? data.points.map((p) => p.clone())
+              : state.polylines[id]?.points || [],
+          },
         },
       })),
 
     updatePoint: (id, index, point) =>
       set((state) => {
         const polyline = state.polylines[id];
-        if (!polyline) return state;
+        if (!polyline || index < 0 || index >= polyline.points.length) {
+          console.warn(`Invalid point update: polyline ${id}, index ${index}`);
+          return state;
+        }
 
         const newPoints = [...polyline.points];
-        newPoints[index] = point;
+        newPoints[index] = point.clone();
 
         return {
           polylines: {
             ...state.polylines,
-            [id]: { ...polyline, points: newPoints },
+            [id]: {
+              ...polyline,
+              points: newPoints,
+            },
           },
         };
       }),
