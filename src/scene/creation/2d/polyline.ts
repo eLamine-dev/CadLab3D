@@ -15,7 +15,12 @@ export class SketchPolyline {
   isFinalized = false;
   showCtrlPoints = () =>
     this.points.forEach((p, i) => this.addControlPointAt(p, i));
+  hideCtrlPoints = () => {
+    this.controls.forEach((c) => this.scene.getScene().remove(c));
+    this.controls = [];
+  };
   previewLine: THREE.Line | null = null;
+  editMode = false;
   creationActive = false;
 
   constructor(id: string, scene: THREE.Scene) {
@@ -43,6 +48,7 @@ export class SketchPolyline {
       this.update();
       featureStore.getState().updatePolyline(this.id, { points: this.points });
       this.subscribeToFeature();
+      this.hideCtrlPoints();
     } else {
       console.warn("Polyline creation canceled (not enough points)");
       this.dispose();
@@ -56,7 +62,6 @@ export class SketchPolyline {
       (s) => s.polylines[this.id],
       (data) => {
         if (data && data.points) {
-          //
           const pointsChanged =
             this.points.length !== data.points.length ||
             data.points.some(
@@ -182,7 +187,7 @@ export class SketchPolyline {
     const index = this.points.length;
     this.points.push(point.clone());
 
-    const ctrl = this.addControlPointAt(point, index);
+    this.addControlPointAt(point, index);
 
     if (this.creationActive) {
       this.update();

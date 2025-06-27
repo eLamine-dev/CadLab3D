@@ -20,7 +20,17 @@ export default function TransformControlsComponent() {
 
   useEffect(() => {
     if (!selectedObject) return;
-    selectedObject.userData.instance?.showCtrlPoints();
+    if (selectedObject.userData.instance?.editMode == false) {
+      selectedObject.userData.instance?.showCtrlPoints();
+      selectedObject.userData.instance.editMode = true;
+    }
+
+    return () => {
+      if (selectedObject.userData.instance) {
+        selectedObject.userData.instance.editMode = false;
+        selectedObject.userData.instance.hideCtrlPoints();
+      }
+    };
   }, [selectedObject]);
 
   useEffect(() => {
