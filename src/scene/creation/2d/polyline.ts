@@ -1,10 +1,9 @@
-// Fixed version of your SketchPolyline class
 import * as THREE from "three";
 import { featureStore } from "../../../state/featureStore";
 import { createControlPoint } from "../../shared/controlPoints";
 import { getWorldPointFromMouse } from "../utils/projectionHelper";
 import { useViewportStore } from "../../../state/viewportStore";
-
+import { ToolSession } from "../../toolSession";
 export class SketchPolyline {
   id: string;
   scene: THREE.Scene;
@@ -231,3 +230,13 @@ export class SketchPolyline {
     ];
   }
 }
+
+ToolSession.register("polyline", (id, scene) => {
+  const tool = new SketchPolyline(id, scene);
+  tool.startCreation();
+  return {
+    getSteps: () => tool.getCreationSteps(),
+    cancel: () => tool.dispose(),
+    finish: () => tool.finalizeCreation(),
+  };
+});

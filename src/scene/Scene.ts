@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { runToolSession } from "./toolSession";
+import { ToolSession } from "./toolSession";
 import { subscribeToStores } from "./subscribeToStores";
 import { objectSelection } from "./selection/objectSelection";
 import { invalidateSelectionCache } from "./selection/getIntersectedObject";
@@ -102,12 +102,13 @@ class SceneSingleton {
     invalidateSelectionCache();
   }
 
-  toolSession(toolName: ToolName) {
-    this.cancelSession();
-    this.activeSession = runToolSession(toolName, this);
+  runToolSession(toolName: ToolName) {
+    this.cancelToolSession();
+    this.activeSession = new ToolSession(this);
+    this.activeSession.run(toolName);
   }
 
-  cancelSession() {
+  cancelToolSession() {
     this.activeSession?.cancel();
     this.activeSession = null;
   }

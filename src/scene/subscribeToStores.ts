@@ -20,7 +20,7 @@ export function subscribeToStores() {
         if (mode === "free") {
           selectionCleanup = this.objectSelection();
         } else if (tool) {
-          this.toolSession(tool);
+          this.runToolSession(tool);
         } else {
           this.cancelSession();
         }

@@ -10,14 +10,14 @@ export default function ModifyPanel() {
   return (
     <div className="create-panel">
       <h3>Create Object</h3>
-      {tools.map((obj) => (
+      {tools.map((tool) => (
         <button
-          key={obj}
+          key={tool}
           onClick={() => {
-            setMode("modify", obj);
+            setMode("modify", tool);
           }}
         >
-          {obj}
+          {tool}
         </button>
       ))}
     </div>

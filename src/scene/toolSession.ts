@@ -7,80 +7,107 @@ import { extrudeTool } from "./modification/2d/extrude";
 import { arcTool } from "./creation/2d/arc";
 import { metaStore } from "../state/metaStore";
 
-export function runToolSession(toolName: ToolName, scene = sceneInstance) {
-  const tool = getTool(toolName);
-  const id = `${toolName}_${Date.now()}`;
-  const steps = tool.getSteps(id, scene);
+type ToolFactory = (id: string, scene: Scene) => ToolSession;
 
-  let stepIndex = 0;
-  let activeListeners: { type: string; handler: EventListener }[] = [];
+export class ToolSession {
+  static registry = new Map<string, ToolFactory>();
+  private currentTool: ToolSession | null = null;
+  private stepIndex = 0;
+  private activeListeners: { type: string; handler: EventListener }[] = [];
+  private canvas: HTMLCanvasElement;
+  private resetMode: () => void;
 
-  const resetMode = metaStore.getState().setMode;
+  constructor(private scene: Scene) {
+    this.canvas = scene.getCanvas();
+    this.resetMode = () => metaStore.getState().setMode("free", null);
+  }
 
-  const canvas = scene.getCanvas();
+  static register(toolName: string, factory: ToolFactory) {
+    if (this.registry.has(toolName)) {
+      console.warn(`Tool "${toolName}" already registered`);
+    }
+    this.registry.set(toolName, factory);
+  }
 
-  function advanceStep() {
-    cleanupStep();
-    stepIndex++;
-    if (stepIndex < steps.length) {
-      executeStep();
+  static has(toolName: string) {
+    return this.registry.has(toolName);
+  }
+
+  static list() {
+    return Array.from(this.registry.keys());
+  }
+
+  run(toolName: string) {
+    const factory = ToolSession.registry.get(toolName);
+    if (!factory) throw new Error(`Tool "${toolName}" is not registered`);
+
+    const id = `${toolName}_${Date.now()}`;
+    this.currentTool = factory(id, this.scene);
+
+    const steps = this.currentTool.getSteps();
+    this.stepIndex = 0;
+    this.executeStep(steps);
+  }
+
+  private executeStep(steps: ReturnType<ToolSession["getSteps"]>) {
+    const step = steps[this.stepIndex];
+    step.events.forEach(({ type, handler }) => {
+      const wrapped = (e: Event) => handler(e, () => this.advanceStep(steps));
+      this.canvas.addEventListener(type, wrapped);
+      this.activeListeners.push({ type, handler: wrapped });
+    });
+  }
+
+  private advanceStep(steps: ReturnType<ToolSession["getSteps"]>) {
+    this.cleanupStep();
+    this.stepIndex++;
+    if (this.stepIndex < steps.length) {
+      this.executeStep(steps);
     } else {
-      finish();
+      this.finish();
     }
   }
 
-  function executeStep() {
-    const step = steps[stepIndex];
-    step.events.forEach(({ type, handler }) => {
-      const wrapped = (e: Event) => handler(e, advanceStep);
-      canvas.addEventListener(type, wrapped);
-      activeListeners.push({ type, handler: wrapped });
-    });
+  private cleanupStep() {
+    this.activeListeners.forEach(({ type, handler }) =>
+      this.canvas.removeEventListener(type, handler)
+    );
+    this.activeListeners = [];
   }
 
-  function cleanupStep() {
-    activeListeners.forEach(({ type, handler }) => {
-      canvas.removeEventListener(type, handler);
-    });
-    activeListeners = [];
+  cancel() {
+    this.cleanupStep();
+    this.currentTool?.cancel?.();
+    this.resetMode();
   }
 
-  function finish() {
-    cleanupStep();
-    resetMode("free", null);
-    tool.onFinish?.();
-  }
-
-  function cancel() {
-    cleanupStep();
-    tool.onCancel?.();
-  }
-
-  executeStep();
-
-  return { cancel };
-}
-
-function getTool(toolName: ToolName): CreationTool {
-  switch (toolName) {
-    case "box":
-      return boxTool;
-    case "polyline":
-      return {
-        getSteps(id, scene) {
-          const polyline = new SketchPolyline(id, scene);
-          polyline.startCreation();
-          return polyline.getCreationSteps();
-        },
-      };
-    case "boolean":
-      return booleanTool;
-    case "extrude":
-      return extrudeTool;
-    case "arc":
-      return arcTool;
-
-    default:
-      throw new Error(`Unknown tool: ${toolName}`);
+  finish() {
+    this.cleanupStep();
+    this.currentTool?.finish?.();
+    this.resetMode();
   }
 }
+
+// function getTool(toolName: ToolName): CreationTool {
+//   switch (toolName) {
+//     case "box":
+//       return boxTool;
+//     case "polyline":
+//       return {
+//         getSteps(id, scene) {
+//           const polyline = new SketchPolyline(id, scene);
+//           polyline.startCreation();
+//           return polyline.getCreationSteps();
+//         },
+//       };
+//     case "boolean":
+//       return booleanTool;
+//     case "extrude":
+//       return extrudeTool;
+//     case "arc":
+//       return arcTool;
+
+//     default:
+//       throw new Error(`Unknown tool: ${toolName}`);
+//   }
+// }

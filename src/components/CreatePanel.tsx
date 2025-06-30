@@ -13,14 +13,14 @@ export default function CreatePanel() {
   return (
     <div className="create-panel">
       <h3>Create Object</h3>
-      {tools.map((obj) => (
+      {tools.map((tool) => (
         <button
-          key={obj}
+          key={tool}
           onClick={() => {
-            setMode("create", obj);
+            setMode("create", tool);
           }}
         >
-          {obj}
+          {tool}
         </button>
       ))}
     </div>
