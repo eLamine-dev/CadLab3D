@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useViewportStore } from "../../../state/viewportStore";
+import { useViewportStore } from "../../../../state/viewportStore";
 
 // export function getDrawingPlaneFromViewport(viewportId: number): THREE.Plane {
 //   const store = useViewportStore.getState();

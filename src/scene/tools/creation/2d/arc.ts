@@ -1,7 +1,7 @@
 // src/scene/creation/2d/arc.ts
 import * as THREE from "three";
 import { getWorldPointFromMouse } from "../utils/projectionHelper";
-import { useViewportStore } from "../../../state/viewportStore";
+import { useViewportStore } from "../../../../state/viewportStore";
 import type { CreationTool } from "../../creationTypes";
 
 export const arcTool: CreationTool = {

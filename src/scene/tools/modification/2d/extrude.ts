@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import SceneSingleton from "../../Scene";
-import { getIntersectedObject } from "../../selection/getIntersectedObject";
+import SceneSingleton from "../../../Scene";
+import { getIntersectedObject } from "../../../selection/getIntersectedObject";
 import type { CreationTool } from "../../creationTypes";
 
 export const extrudeTool: CreationTool = {

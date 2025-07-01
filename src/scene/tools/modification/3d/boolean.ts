@@ -8,8 +8,8 @@ import {
   INTERSECTION,
   DIFFERENCE,
 } from "three-bvh-csg";
-import SceneSingleton from "../../Scene";
-import { getIntersectedObject } from "../../selection/getIntersectedObject";
+import SceneSingleton from "../../../Scene";
+import { getIntersectedObject } from "../../../selection/getIntersectedObject";
 
 const OPERATION_MAP = {
   ADDITION,

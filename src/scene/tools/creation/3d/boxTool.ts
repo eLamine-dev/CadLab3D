@@ -1,6 +1,6 @@
 import { getWorldPointFromMouse } from "../utils/projectionHelper";
 import * as THREE from "three";
-import { useViewportStore } from "../../../state/viewportStore";
+import { useViewportStore } from "../../../../state/viewportStore";
 
 export const boxTool: CreationTool = {
   getSteps(scene) {

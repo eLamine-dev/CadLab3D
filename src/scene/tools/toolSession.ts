@@ -1,11 +1,5 @@
-import sceneInstance from "./Scene";
-import { boxTool } from "./creation/3d/boxTool";
-import { SketchPolyline } from "./creation/2d/polyline";
-import type { CreationTool, ToolName } from "./creationTypes";
-import { booleanTool } from "./modification/3d/boolean";
-import { extrudeTool } from "./modification/2d/extrude";
-import { arcTool } from "./creation/2d/arc";
-import { metaStore } from "../state/metaStore";
+import { metaStore } from "../../state/metaStore";
+import { getToolFactory } from "./toolsRegistry";
 
 type ToolFactory = (id: string, scene: Scene) => ToolSession;
 
@@ -22,23 +16,8 @@ export class ToolSession {
     this.resetMode = () => metaStore.getState().setMode("free", null);
   }
 
-  static register(toolName: string, factory: ToolFactory) {
-    if (this.registry.has(toolName)) {
-      console.warn(`Tool "${toolName}" already registered`);
-    }
-    this.registry.set(toolName, factory);
-  }
-
-  static has(toolName: string) {
-    return this.registry.has(toolName);
-  }
-
-  static list() {
-    return Array.from(this.registry.keys());
-  }
-
   run(toolName: string) {
-    const factory = ToolSession.registry.get(toolName);
+    const factory = getToolFactory(toolName);
     if (!factory) throw new Error(`Tool "${toolName}" is not registered`);
 
     const id = `${toolName}_${Date.now()}`;

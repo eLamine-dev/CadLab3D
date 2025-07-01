@@ -1,10 +1,12 @@
 import * as THREE from "three";
-import { ToolSession } from "./toolSession";
+import { ToolSession } from "./tools/toolSession";
 import { subscribeToStores } from "./subscribeToStores";
 import { objectSelection } from "./selection/objectSelection";
 import { invalidateSelectionCache } from "./selection/getIntersectedObject";
+import { initToolRegistry } from "./tools/toolsRegistry";
 // import { occAPI } from "./occ/occAPI";
 
+initToolRegistry();
 class SceneSingleton {
   static instance: SceneSingleton | null = null;
   private _scene: THREE.Scene | null = null;
