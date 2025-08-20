@@ -1,52 +1,36 @@
-# React + TypeScript + Vite
+# CADLab (Work in Progress)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Interface Screenshot](public/screenshot.jpg)
 
-Currently, two official plugins are available:
+> 🚧 Currently building a **CAD-like editor** inspired by the **Atodesk 3ds Max multi-viewport system**, to learn **Three.js**, **React Three Fiber (R3F)**, and modern frontend architecture.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✨ Project Goals
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- Learn and practice **Three.js** & **R3F** through a non-trivial project.
+- Recreate familiar CAD workflows (creation tools, modify panel, vertex/segment editing).
+- Experiment with a **multi-viewport system** (top, front, side, perspective) like 3ds Max.
+- Design a clean **reactive architecture** with Zustand as the single source of truth.
 
-- Configure the top-level `parserOptions` property like this:
+---
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
-```
+## 🧱 Current Features
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+- Multi-viewport layout (top, front, side, perspective).
+- Shape/Object creation tools (Polyline, Arc, Box …).
+- Extrude and Boolean modification tools
+- **Reactive editing**:
+  - Shapes subscribe to their own data in a global `featureStore` (Zustand).
+  - Moving control points with TransformControls updates geometry live.
 
-```js
-// eslint.config.js
-import react from "eslint-plugin-react";
+---
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: "18.3" } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs["jsx-runtime"].rules,
-  },
-});
+## 🚀 Tech Stack
 
-("dl");
-```
+- [Three.js](https://threejs.org/) – core 3D engine
+- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction) – React bindings for Three.js
+- [Zustand](https://github.com/pmndrs/zustand) – global state management
+- [React](https://reactjs.org/) – UI + tool panels
+
+---
