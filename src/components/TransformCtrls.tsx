@@ -25,13 +25,18 @@ export default function TransformControlsComponent() {
       selectedObject.userData.instance.editMode = true;
     }
 
-    return () => {
-      if (selectedObject.userData.instance) {
-        selectedObject.userData.instance.editMode = false;
-        selectedObject.userData.instance.hideCtrlPoints();
-      }
-    };
+    // return () => {
+    //   if (selectedObject.userData.instance) {
+    //     selectedObject.userData.instance.editMode = false;
+    //     selectedObject.userData.instance.hideCtrlPoints();
+    //   }
+    // };
   }, [selectedObject]);
+
+  // useEffect(() => {
+  //   if (!selectedObject) return;
+  //   selectedObject.userData.instance?.showCtrlPoints();
+  // }, [selectedObject]);
 
   useEffect(() => {
     if (!arrayCamera) return;
@@ -57,7 +62,7 @@ export default function TransformControlsComponent() {
       transformRef.current.position.copy(center);
     }
 
-    transformRef.current.updateMatrixWorld();
+    // transformRef.current.updateMatrixWorld();
     // transformRef.current.update();
   }, [selectedObject, activeCamera, scene]);
 

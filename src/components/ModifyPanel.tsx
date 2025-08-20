@@ -1,5 +1,6 @@
 import { useMetaStore } from "../state/metaStore";
 // import { useCreate } from "../hooks/useCreate";
+import ModifyPolyline from "./ModifyPolyline";
 
 export default function ModifyPanel() {
   // useCreate();
@@ -8,7 +9,7 @@ export default function ModifyPanel() {
   const tools = ["extrude", "boolean"];
 
   return (
-    <div className="create-panel">
+    <div className="modify-panel">
       <h3>Create Object</h3>
       {tools.map((tool) => (
         <button
@@ -20,6 +21,7 @@ export default function ModifyPanel() {
           {tool}
         </button>
       ))}
+      <ModifyPolyline />
     </div>
   );
 }

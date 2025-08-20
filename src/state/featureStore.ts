@@ -23,9 +23,9 @@ export const featureStore = createStore(
           ...state.polylines,
           [id]: {
             id,
-            points: [],
-            ...state.polylines[id],
-            ...data,
+            // points: [],
+            // ...state.polylines[id],
+            // ...data,
 
             points: data.points
               ? data.points.map((p) => p.clone())

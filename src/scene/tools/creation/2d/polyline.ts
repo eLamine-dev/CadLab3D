@@ -10,15 +10,14 @@ export class SketchPolyline {
   id: string;
   scene: THREE.Scene;
   points: THREE.Vector3[] = [];
-  controls: THREE.Sprite[] = [];
+  vertexs: THREE.Sprite[] = [];
   line: THREE.Line;
   unsubscribe: () => void = () => {};
   isFinalized = false;
-  showCtrlPoints = () =>
-    this.points.forEach((p, i) => this.addControlPointAt(p, i));
+  showCtrlPoints = () => this.points.forEach((p, i) => this.addVertexAt(p, i));
   hideCtrlPoints = () => {
-    this.controls.forEach((c) => this.scene.getScene().remove(c));
-    this.controls = [];
+    this.vertexs.forEach((v) => this.scene.getScene().remove(v));
+    this.vertexs = [];
   };
   previewLine: THREE.Line | null = null;
   editMode = false;
@@ -107,7 +106,7 @@ export class SketchPolyline {
   }
 
   updateControlPoints() {
-    this.controls.forEach((ctrl, i) => {
+    this.vertexs.forEach((ctrl, i) => {
       if (this.points[i]) {
         ctrl.position.copy(this.points[i]);
         ctrl.updateMatrixWorld(true);
@@ -138,10 +137,10 @@ export class SketchPolyline {
     this.line.geometry.dispose();
     this.cleanupPreview();
 
-    this.controls.forEach((cp) => {
+    this.vertexs.forEach((cp) => {
       this.scene.getScene().remove(cp);
     });
-    this.controls = [];
+    this.vertexs = [];
 
     this.unsubscribe();
   }
@@ -151,7 +150,7 @@ export class SketchPolyline {
       e.preventDefault();
       if (this.points.length > 0) {
         this.points.pop();
-        const ctrl = this.controls.pop();
+        const ctrl = this.vertexs.pop();
         if (ctrl) {
           this.scene.getScene().remove(ctrl);
         }
@@ -177,7 +176,7 @@ export class SketchPolyline {
     );
   }
 
-  addControlPointAt(point: THREE.Vector3, index: number) {
+  addVertexAt(point: THREE.Vector3, index: number) {
     const ctrl = createControlPoint(point.clone(), {
       objectId: this.id,
       paramKey: `points[${index}]`,
@@ -191,8 +190,9 @@ export class SketchPolyline {
       },
     });
 
-    this.controls[index] = ctrl;
+    this.vertexs[index] = ctrl;
     this.scene.getScene().add(ctrl);
+
     return ctrl;
   }
 
@@ -200,7 +200,7 @@ export class SketchPolyline {
     const index = this.points.length;
     this.points.push(point.clone());
 
-    this.addControlPointAt(point, index);
+    this.addVertexAt(point, index);
 
     if (this.creationActive) {
       this.update();

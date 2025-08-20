@@ -52,7 +52,6 @@ class SceneSingleton {
     this._scene.add(box);
     this.objects.set("box", box);
 
-    //add a sphere to test booleans
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(0.7, 32, 32),
       new THREE.MeshStandardMaterial({ color: 0xff0000 })

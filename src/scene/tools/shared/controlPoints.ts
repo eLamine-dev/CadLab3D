@@ -13,5 +13,6 @@ export function createControlPoint(
   sprite.scale.set(0.07, 0.07, 0.07);
   sprite.position.copy(position);
   sprite.userData = metadata;
+  sprite.updateMatrixWorld();
   return sprite;
 }

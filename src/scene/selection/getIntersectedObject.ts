@@ -26,6 +26,7 @@ export function getIntersectedObject(event: MouseEvent): THREE.Object3D | null {
 
   raycaster.setFromCamera(mouse, camera);
   raycaster.params.Line.threshold = 0.2;
+  raycaster.params.Sprite.threshold = 0.2;
 
   if (!cacheValid) {
     selectableCache = [];
@@ -37,7 +38,7 @@ export function getIntersectedObject(event: MouseEvent): THREE.Object3D | null {
         selectableCache.push(obj);
       }
     });
-    cacheValid = true;
+    // cacheValid = true;
   }
 
   const intersects = raycaster.intersectObjects(selectableCache, true);
