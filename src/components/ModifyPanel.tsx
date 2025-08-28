@@ -1,10 +1,12 @@
 import { useMetaStore } from "../state/metaStore";
+import { useSelectionStore } from "../state/selectionStore";
 // import { useCreate } from "../hooks/useCreate";
-import ModifyPolyline from "./ModifyPolyline";
+import ModifyPolyline from "./ModifySelected";
 
 export default function ModifyPanel() {
   // useCreate();
   const { setMode } = useMetaStore();
+  const { selected } = useSelectionStore();
 
   const tools = ["extrude", "boolean"];
 
@@ -21,7 +23,13 @@ export default function ModifyPanel() {
           {tool}
         </button>
       ))}
-      <ModifyPolyline />
+      {selected.length > 0 && (
+        <div>Selected: {selected[0].userData.subLevels}</div>
+      )}
+
+      {selected.length === 1 && selected[0].userData.subLevels && (
+        <ModifyPolyline subLevels={selected[0].userData.subLevels} />
+      )}
     </div>
   );
 }

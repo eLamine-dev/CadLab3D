@@ -98,9 +98,12 @@ export class SketchPolyline {
 
     const geometry = new THREE.BufferGeometry();
     geometry.setFromPoints(this.points);
+
     this.line.geometry = geometry;
 
     this.line.userData.transformCenter = this.getCenter();
+    this.line.userData.owner = this;
+    this.line.userData.subLevels = ["vertex", "edge"];
 
     this.line.updateMatrixWorld(true);
   }
